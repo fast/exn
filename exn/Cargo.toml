@@ -1,4 +1,4 @@
-# Copyright 2025 FastLabs Developers
+# Copyright 2025 tison <wander4096@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [package]
-name = "template"
+name = "exn"
 version = "0.1.0"
 
 edition.workspace = true
@@ -21,9 +21,9 @@ homepage.workspace = true
 license.workspace = true
 readme.workspace = true
 repository.workspace = true
-rust-version.workspace = true
 
 [dependencies]
+rustversion = { workspace = true }
 
 [lints]
 workspace = true

@@ -1,4 +1,4 @@
-# Copyright 2025 FastLabs Developers
+# Copyright 2025 tison <wander4096@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
 # limitations under the License.
 
 [workspace]
-members = ["template", "xtask"]
+members = ["exn", "xtask"]
 resolver = "2"
 
 [workspace.package]
-edition = "2021"
-homepage = "https://github.com/fast/template"
+edition = "2024"
+homepage = "https://github.com/cratesland/exn"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/fast/template"
-rust-version = "1.80.0"
+repository = "https://github.com/cratesland/exn"
+
+[workspace.dependencies]
+rustversion = { version = "1.0" }
 
 [workspace.lints.rust]
 unknown_lints = "deny"

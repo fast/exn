@@ -1,4 +1,4 @@
-# Copyright 2025 FastLabs Developers
+# Copyright 2025 tison <wander4096@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ concurrency:
 jobs:
   check:
     name: Check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install toolchain
@@ -52,8 +52,8 @@ jobs:
     name: Run tests
     strategy:
       matrix:
-        os: [ ubuntu-22.04, macos-14, windows-2022 ]
-        rust-version: [ "1.80.0", "stable" ]
+        os: [ ubuntu-24.04, macos-14, windows-2022 ]
+        rust-version: [ "nightly" ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -70,7 +70,7 @@ jobs:
 
   required:
     name: Required
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ always() }}
     needs:
       - check

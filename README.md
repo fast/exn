@@ -1,6 +1,6 @@
-# Fast template for developing a new Rust project
+# `exn`: A context-aware concrete Error type built on `std::error::Error`
 
-Use this repository as a GitHub template to quickly start a new Rust project.
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 ## License
 

@@ -1,4 +1,4 @@
-// Copyright 2025 FastLabs Developers
+// Copyright 2025 tison <wander4096@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub fn hello() {
-    println!("Hello, world!");
-}
+#[rustversion::not(nightly)]
+compile_error!(
+    "This crate requires a nightly compiler. Please use `rustup default nightly` or `cargo +nightly`."
+);
