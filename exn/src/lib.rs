@@ -22,6 +22,7 @@ compile_error!(
 mod convert;
 mod display;
 mod model;
+mod result;
 mod visitor;
 
 #[cfg(test)]
@@ -34,6 +35,8 @@ pub use self::model::ContextViewMut;
 pub use self::model::Exn;
 pub use self::model::ExnView;
 pub use self::model::ExnViewMut;
+pub use self::result::Result;
+pub use self::result::ResultExt;
 pub use self::visitor::Visitor;
 pub use self::visitor::VisitorMut;
 

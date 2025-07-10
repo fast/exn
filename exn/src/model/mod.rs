@@ -48,12 +48,13 @@ impl<E: ErrorBound> From<E> for Exn<E> {
 
 impl<E> Exn<E> {
     /// Attach a context to the exception.
-    pub fn context<T: ContextBound>(&mut self, context: T) {
+    pub fn context<T: ContextBound>(&mut self, context: T) -> &mut Self {
         self.exn_impl.context.push(Box::new(ContextValue(context)));
+        self
     }
 
     /// Suppress another exception by appending it as a sibling to the current exception.
-    pub fn suppress(&mut self, other: impl IntoExn<Err = E>) {
+    pub fn suppress(&mut self, other: impl IntoExn<Error = E>) -> &mut Self {
         let other = other.into_exn();
         if let Some(ref mut next_sibling) = self.exn_impl.next_sibling {
             let mut next_sibling = next_sibling;
@@ -64,9 +65,11 @@ impl<E> Exn<E> {
         } else {
             self.exn_impl.next_sibling = Some(other.exn_impl);
         }
+        self
     }
 
     /// Raise a new exception; this will make the current exception a child of the new one.
+    #[track_caller]
     pub fn raise<T: ErrorBound>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.exn_impl.first_child = Some(self.exn_impl);

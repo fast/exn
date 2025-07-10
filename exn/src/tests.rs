@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::Exn;
+use crate::ResultExt;
 
 #[derive(Debug, thiserror::Error)]
 #[error("simple error: {0}")]
@@ -28,4 +29,12 @@ fn test_simple_error() {
     report = report.raise(SimpleError("Because of you".to_string()));
 
     println!("{}", report.display());
+}
+
+#[test]
+fn test_result_ext() {
+    let result: Result<(), SimpleError> = Err(SimpleError("An error".to_string()));
+    let result = result.or_raise(|| SimpleError("Another error".to_string()));
+
+    println!("{:?}", result.or_unwrap(|exn| exn.display()));
 }

@@ -18,26 +18,26 @@ use crate::Exn;
 /// A trait to convert a value into an `Exn` (exception) type.
 pub trait IntoExn {
     /// The error type of the `Exn` that `self` will be converted into.
-    type Err: ErrorBound;
+    type Error: ErrorBound;
 
     /// Convert `self` into an `Exn` with the error type `Self::Err`.
-    fn into_exn(self) -> Exn<Self::Err>;
+    fn into_exn(self) -> Exn<Self::Error>;
 }
 
 impl<E: ErrorBound> IntoExn for Exn<E> {
-    type Err = E;
+    type Error = E;
 
     #[track_caller]
-    fn into_exn(self) -> Exn<Self::Err> {
+    fn into_exn(self) -> Exn<Self::Error> {
         self
     }
 }
 
 impl<E: ErrorBound> IntoExn for E {
-    type Err = E;
+    type Error = E;
 
     #[track_caller]
-    fn into_exn(self) -> Exn<Self::Err> {
+    fn into_exn(self) -> Exn<Self::Error> {
         Exn::new(self)
     }
 }

@@ -86,6 +86,12 @@ impl Visitor for DisplayExnVisitor {
     }
 }
 
+impl<E> fmt::Debug for DisplayExn<E> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        fmt::Display::fmt(self, f)
+    }
+}
+
 impl<E> fmt::Display for DisplayExn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut visitor = DisplayExnVisitor::default();
