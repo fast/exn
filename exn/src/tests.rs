@@ -22,10 +22,10 @@ struct SimpleError(String);
 fn test_simple_error() {
     let mut report = Exn::new(SimpleError("An error occurred".to_string()));
     report.suppress(SimpleError("Another error".to_string()));
-    report = report.cause(SimpleError("Because of me".to_string()));
+    report = report.raise(SimpleError("Because of me".to_string()));
     report.suppress(SimpleError("Oops".to_string()));
     report.context("Hello");
-    report = report.cause(SimpleError("Because of you".to_string()));
+    report = report.raise(SimpleError("Because of you".to_string()));
 
     println!("{:?}", report.display());
 }

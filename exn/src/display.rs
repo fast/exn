@@ -50,7 +50,7 @@ impl<E> DisplayExn<E> {
     }
 
     pub fn cause<T: ErrorBound>(self, err: T) -> DisplayExn<T> {
-        DisplayExn::new(self.exn.cause(err))
+        DisplayExn::new(self.exn.raise(err))
     }
 }
 

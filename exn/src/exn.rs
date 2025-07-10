@@ -137,8 +137,8 @@ impl<E> Exn<E> {
         }
     }
 
-    /// Cause a new exception; this will make the current exception a child of the new one.
-    pub fn cause<T: ErrorBound>(self, err: T) -> Exn<T> {
+    /// Raise a new exception; this will make the current exception a child of the new one.
+    pub fn raise<T: ErrorBound>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.exn_impl.first_child = Some(self.exn_impl);
         new_exn
