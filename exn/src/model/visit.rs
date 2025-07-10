@@ -29,11 +29,8 @@ impl<E> Exn<E> {
 pub struct ExnView<'a>(&'a ExnImpl);
 
 impl ExnView<'_> {
-    pub fn visit_contexts<V: Visitor>(&self, visitor: &mut V) {
-        for context in &self.0.context {
-            let context_view = ContextView(context);
-            visitor.visit_context(context_view);
-        }
+    pub fn contexts(&self) -> impl Iterator<Item = ContextView<'_>> {
+        self.0.context.iter().map(ContextView)
     }
 
     pub fn visit_next_sibling<V: Visitor>(&self, visitor: &mut V) {

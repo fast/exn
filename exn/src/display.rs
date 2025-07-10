@@ -14,10 +14,7 @@
 
 use std::fmt;
 use std::fmt::Formatter;
-use std::fmt::Write;
 
-use crate::ContextView;
-use crate::ErrorBound;
 use crate::Exn;
 use crate::ExnView;
 use crate::visitor::Visitor;
@@ -26,73 +23,84 @@ pub struct DisplayExn<E> {
     exn: Exn<E>,
 }
 
-impl<E> std::ops::Deref for DisplayExn<E> {
-    type Target = Exn<E>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.exn
-    }
-}
-
-impl<E> std::ops::DerefMut for DisplayExn<E> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.exn
-    }
-}
-
 impl<E> DisplayExn<E> {
     pub fn new(exn: Exn<E>) -> Self {
         Self { exn }
     }
-
-    pub fn into_inner(self) -> Exn<E> {
-        self.exn
-    }
-
-    pub fn cause<T: ErrorBound>(self, err: T) -> DisplayExn<T> {
-        DisplayExn::new(self.exn.raise(err))
-    }
 }
 
+#[derive(Default)]
 struct DisplayExnVisitor {
-    depth: usize,
-    text: String,
+    level: usize,
+    lines: Vec<DisplayLine>,
+}
+
+struct DisplayLine {
+    level: usize,
+    payload: String,
 }
 
 impl Visitor for DisplayExnVisitor {
     fn visit_exn(&mut self, mut exn: ExnView) {
-        for _ in 0..self.depth {
-            write!(&mut self.text, "    ").unwrap();
+        let mut line = exn.as_error().to_string();
+
+        let locations = exn
+            .contexts()
+            .filter_map(|ctx| {
+                ctx.as_any()
+                    .downcast_ref::<std::panic::Location<'_>>()
+                    .map(|loc| loc.to_string())
+            })
+            .collect::<Vec<_>>();
+
+        match locations.len() {
+            0 => {}
+            1 => {
+                line += " at ";
+                line += &locations[0];
+            }
+            _ => {
+                line += " at [";
+                for (i, loc) in locations.iter().enumerate() {
+                    if i > 0 {
+                        line += ", ";
+                    }
+                    line += loc;
+                }
+                line += "]";
+            }
         }
-        write!(&mut self.text, "{}", exn.as_error()).unwrap();
-        exn.visit_contexts(self);
-        writeln!(&mut self.text).unwrap();
+
+        self.lines.push(DisplayLine {
+            level: self.level,
+            payload: line,
+        });
 
         // depth-first traversal of the exception
         if exn.has_first_child() {
-            self.depth += 1;
+            self.level += 1;
             exn.visit_first_child(self);
-            self.depth -= 1;
+            self.level -= 1;
         }
         exn.visit_next_sibling(self);
-    }
-
-    fn visit_context(&mut self, context: ContextView) {
-        if let Some(loc) = context.as_any().downcast_ref::<std::panic::Location<'_>>() {
-            write!(&mut self.text, " at {loc}").unwrap();
-        }
     }
 }
 
 impl<E> fmt::Display for DisplayExn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut visitor = DisplayExnVisitor {
-            depth: 0,
-            text: String::new(),
-        };
-
+        let mut visitor = DisplayExnVisitor::default();
         self.exn.visit(&mut visitor);
 
-        f.write_str(&visitor.text)
+        for (i, line) in visitor.lines.iter().enumerate() {
+            if i > 0 {
+                writeln!(f)?;
+            }
+            for _ in 0..line.level {
+                f.write_str("  ")?;
+            }
+            f.write_str(&line.payload)?;
+        }
+
+        Ok(())
     }
 }
