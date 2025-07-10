@@ -12,7 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![feature(error_generic_member_access)]
+
 #[rustversion::not(nightly)]
 compile_error!(
     "This crate requires a nightly compiler. Please use `rustup default nightly` or `cargo +nightly`."
 );
+
+mod convert;
+mod display;
+mod exn;
+mod visitor;
+
+#[cfg(test)]
+mod tests;
+
+pub use self::convert::IntoExn;
+pub use self::display::DisplayExn;
+pub use self::exn::ContextView;
+pub use self::exn::ContextViewMut;
+pub use self::exn::Exn;
+pub use self::exn::ExnView;
+pub use self::exn::ExnViewMut;
+pub use self::visitor::Visitor;
+pub use self::visitor::VisitorMut;
+
+pub trait ErrorBound: std::error::Error + Send + Sync + 'static {}
+impl<T: std::error::Error + Send + Sync + 'static> ErrorBound for T {}
+
+pub trait ContextBound: Send + Sync + 'static {}
+impl<T: Send + Sync + 'static> ContextBound for T {}
