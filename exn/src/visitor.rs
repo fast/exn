@@ -14,8 +14,8 @@
 
 use crate::ContextViewMut;
 use crate::ExnViewMut;
-use crate::exn::ContextView;
-use crate::exn::ExnView;
+use crate::model::ContextView;
+use crate::model::ExnView;
 
 pub trait VisitorMut {
     /// Visit a mutable view of the exception.

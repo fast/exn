@@ -21,7 +21,7 @@ compile_error!(
 
 mod convert;
 mod display;
-mod exn;
+mod model;
 mod visitor;
 
 #[cfg(test)]
@@ -29,11 +29,11 @@ mod tests;
 
 pub use self::convert::IntoExn;
 pub use self::display::DisplayExn;
-pub use self::exn::ContextView;
-pub use self::exn::ContextViewMut;
-pub use self::exn::Exn;
-pub use self::exn::ExnView;
-pub use self::exn::ExnViewMut;
+pub use self::model::ContextView;
+pub use self::model::ContextViewMut;
+pub use self::model::Exn;
+pub use self::model::ExnView;
+pub use self::model::ExnViewMut;
 pub use self::visitor::Visitor;
 pub use self::visitor::VisitorMut;
 

@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Exn;
+use std::any::Any;
 
-#[derive(Debug, thiserror::Error)]
-#[error("simple error: {0}")]
-struct SimpleError(String);
+use crate::ContextBound;
 
-#[test]
-fn test_simple_error() {
-    let mut report = Exn::new(SimpleError("An error occurred".to_string()));
-    report.suppress(SimpleError("Another error".to_string()));
-    report = report.raise(SimpleError("Because of me".to_string()));
-    report.suppress(SimpleError("Oops".to_string()));
-    report.context("Hello");
-    report = report.raise(SimpleError("Because of you".to_string()));
+pub struct ContextValue<T: ContextBound>(pub T);
 
-    println!("{}", report.display());
+pub trait ErasedContextValue {
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
+
+impl<T: ContextBound> ErasedContextValue for ContextValue<T> {
+    fn as_any(&self) -> &dyn Any {
+        &self.0
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        &mut self.0
+    }
 }

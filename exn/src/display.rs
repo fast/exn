@@ -84,7 +84,7 @@ impl Visitor for DisplayExnVisitor {
     }
 }
 
-impl<E> fmt::Debug for DisplayExn<E> {
+impl<E> fmt::Display for DisplayExn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut visitor = DisplayExnVisitor {
             depth: 0,
