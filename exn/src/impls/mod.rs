@@ -47,15 +47,14 @@ impl<E: ErrorBound> Exn<E> {
     /// Create a new exception with the given error.
     #[track_caller]
     pub fn new(error: E) -> Self {
-        let error = ErrorValue(error);
-
-        let location = Location::caller();
-        let location = *location;
-        let location = ContextValue(location);
+        let location = match std::error::request_ref::<Location>(&error) {
+            Some(loc) => *loc,
+            None => *Location::caller(),
+        };
 
         let exn_impl = ExnImpl {
-            error: Box::new(error),
-            context: vec![Box::new(location)],
+            error: Box::new(ErrorValue(error)),
+            context: vec![Box::new(ContextValue(location))],
             children: vec![],
         };
 
@@ -73,15 +72,10 @@ impl<E: ErrorBound> From<E> for Exn<E> {
 }
 
 impl<E> Exn<E> {
-    /// Raise a new exception with the given errors as children.
-    #[track_caller]
-    pub fn from_iter<T: ErrorBound>(children: impl IntoIterator<Item = Exn<E>>, err: T) -> Exn<T> {
-        let mut new_exn = Exn::new(err);
-        new_exn
-            .exn_impl
-            .children
-            .extend(children.into_iter().map(|child| *child.exn_impl));
-        new_exn
+    /// Attach a new context to the exception.
+    pub fn attach<T: ContextBound>(mut self, context: T) -> Self {
+        self.exn_impl.context.push(Box::new(ContextValue(context)));
+        self
     }
 
     /// Raise a new exception; this will make the current exception a child of the new one.
@@ -92,17 +86,19 @@ impl<E> Exn<E> {
         new_exn
     }
 
-    /// Adopt an existing exception; this will make the exception a child of the current one.
+    /// Raise a new exception with the given errors as children.
     #[track_caller]
-    pub fn adopt<T: IntoExn>(mut self, err: T) -> Self {
-        let new_exn = err.into_exn();
-        self.exn_impl.children.push(*new_exn.exn_impl);
-        self
-    }
-
-    /// Attach a new context to the exception.
-    pub fn attach<T: ContextBound>(mut self, context: T) -> Self {
-        self.exn_impl.context.push(Box::new(ContextValue(context)));
-        self
+    pub fn from_iter<Ex0, Ex1, I>(children: I, err: Ex0) -> Self
+    where
+        Ex0: IntoExn<Error = E>,
+        Ex1: IntoExn,
+        I: IntoIterator<Item = Ex1>,
+    {
+        let mut new_exn = err.into_exn();
+        for exn in children {
+            let exn = exn.into_exn();
+            new_exn.exn_impl.children.push(*exn.exn_impl);
+        }
+        new_exn
     }
 }

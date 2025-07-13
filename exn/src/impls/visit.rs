@@ -21,7 +21,7 @@ use crate::impls::ExnImpl;
 impl<E> Exn<E> {
     pub fn visit<V: Visitor>(&self, visitor: &mut V) -> Result<(), V::Error> {
         let exn_view = ExnView(&self.exn_impl);
-        visitor.visit_exn(&exn_view)
+        visitor.visit(&exn_view)
     }
 }
 

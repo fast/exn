@@ -16,8 +16,9 @@ use crate::impls::ExnView;
 
 /// A trait for visiting an exception.
 pub trait Visitor {
+    /// The error type returned by the visitor.
     type Error;
 
     /// Visit an immutable view of the exception.
-    fn visit_exn(&mut self, exn: &ExnView) -> Result<(), Self::Error>;
+    fn visit(&mut self, exn: &ExnView) -> Result<(), Self::Error>;
 }

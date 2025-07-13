@@ -21,11 +21,12 @@ struct SimpleError(String);
 
 #[test]
 fn test_simple_error() {
-    let mut report = Exn::new(SimpleError("An error occurred".to_string()));
-    report = report.adopt(SimpleError("Another error".to_string()));
-    report = report.raise(SimpleError("Because of me".to_string()));
-    report = report.adopt(SimpleError("Oops".to_string()));
-    report = report.attach("Hello");
+    let mut report = Exn::new(SimpleError("Another error".to_string()));
+    report = report.raise(SimpleError("An error occurred".to_string()));
+    report = Exn::from_iter(
+        [report, Exn::new(SimpleError("Oops".to_string()))],
+        SimpleError("Because of me".to_string()),
+    );
     report = report.raise(SimpleError("Because of you".to_string()));
 
     println!("{report:?}");
