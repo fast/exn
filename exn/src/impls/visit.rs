@@ -19,6 +19,7 @@ use crate::Visitor;
 use crate::impls::ExnImpl;
 
 impl<E> Exn<E> {
+    /// Visits the exception using the provided visitor.
     pub fn visit<V: Visitor>(&self, visitor: &mut V) -> Result<(), V::Error> {
         let exn_view = ExnView(&self.exn_impl);
         visitor.visit(&exn_view)
@@ -29,26 +30,34 @@ impl<E> Exn<E> {
 pub struct ExnView<'a>(&'a ExnImpl);
 
 impl ExnView<'_> {
+    /// Return an iterator over the contexts of the exception.
     pub fn contexts(&self) -> impl Iterator<Item = &'_ dyn Any> {
         self.0.context.iter().map(|ctx| ctx.as_any())
     }
 
+    /// Return an iterator over the children of the exception.
     pub fn children(&self) -> impl Iterator<Item = ExnView<'_>> {
         self.0.children.iter().map(ExnView)
     }
 
+    /// Return the size of the children of the exception.
     pub fn children_len(&self) -> usize {
         self.0.children.len()
     }
 
+    /// Return the error of this view as [`Any`].
     pub fn as_any(&self) -> &dyn Any {
         self.0.error.as_any()
     }
 
+    /// Return the error of this view as [`Error`].
+    ///
+    /// [`Error`]: std::error::Error
     pub fn as_error<'a>(&self) -> &(dyn std::error::Error + 'a) {
         &self.0.error
     }
 
+    /// Requests a reference of type `T` from the exception.
     pub fn request_ref<T>(&self) -> Option<&T>
     where
         T: ?Sized + 'static,

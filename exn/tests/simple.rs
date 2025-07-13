@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Exn;
-use crate::ResultExt;
+use exn::Exn;
+use exn::ResultExt;
 
 #[derive(Debug, thiserror::Error)]
 #[error("simple error: {0}")]
@@ -38,4 +38,20 @@ fn test_result_ext() {
     let result: Result<(), SimpleError> = Err(SimpleError("An error".to_string()));
     let result = result.or_raise(|| SimpleError("Another error".to_string()));
     result.unwrap();
+}
+
+#[test]
+#[should_panic]
+fn test_bail() {
+    fn bail() -> exn::Result<(), SimpleError> {
+        exn::bail!(SimpleError("Another error".to_string()));
+    }
+
+    bail().unwrap();
+}
+
+#[test]
+fn test_ensure() -> exn::Result<(), SimpleError> {
+    exn::ensure!(true, SimpleError("Another error".to_string()));
+    Ok(())
 }

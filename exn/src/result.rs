@@ -22,7 +22,10 @@ pub type Result<T, E> = std::result::Result<T, Exn<E>>;
 
 /// An extension trait for [`Result`] to provide context information on [`Exn`]s.
 pub trait ResultExt {
+    /// The `Ok` type.
     type Success;
+
+    /// The `Err` type that would be wrapped in an [`Exn`].
     type Error: ErrorBound;
 
     /// Attach a new context to the [`Exn`] inside the [`Result`].

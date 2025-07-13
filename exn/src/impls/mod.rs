@@ -63,6 +63,17 @@ impl<E: ErrorBound> Exn<E> {
             variance: PhantomData,
         }
     }
+
+    /// Create a new exception with the given error and children.
+    #[track_caller]
+    pub fn from_iter<T: IntoExn>(children: impl IntoIterator<Item = T>, err: E) -> Self {
+        let mut new_exn = Exn::new(err);
+        for exn in children {
+            let exn = exn.into_exn();
+            new_exn.exn_impl.children.push(*exn.exn_impl);
+        }
+        new_exn
+    }
 }
 
 impl<E: ErrorBound> From<E> for Exn<E> {
@@ -83,22 +94,6 @@ impl<E> Exn<E> {
     pub fn raise<T: ErrorBound>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.exn_impl.children.push(*self.exn_impl);
-        new_exn
-    }
-
-    /// Raise a new exception with the given errors as children.
-    #[track_caller]
-    pub fn from_iter<Ex0, Ex1, I>(children: I, err: Ex0) -> Self
-    where
-        Ex0: IntoExn<Error = E>,
-        Ex1: IntoExn,
-        I: IntoIterator<Item = Ex1>,
-    {
-        let mut new_exn = err.into_exn();
-        for exn in children {
-            let exn = exn.into_exn();
-            new_exn.exn_impl.children.push(*exn.exn_impl);
-        }
         new_exn
     }
 }
