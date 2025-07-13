@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::Exn;
+use crate::ResultExt;
 
 #[derive(Debug, thiserror::Error)]
 #[error("simple error: {0}")]
@@ -21,11 +22,19 @@ struct SimpleError(String);
 #[test]
 fn test_simple_error() {
     let mut report = Exn::new(SimpleError("An error occurred".to_string()));
-    report.suppress(SimpleError("Another error".to_string()));
+    report = report.adopt(SimpleError("Another error".to_string()));
     report = report.raise(SimpleError("Because of me".to_string()));
-    report.suppress(SimpleError("Oops".to_string()));
-    report.context("Hello");
+    report = report.adopt(SimpleError("Oops".to_string()));
+    report = report.attach("Hello");
     report = report.raise(SimpleError("Because of you".to_string()));
 
-    println!("{}", report.display());
+    println!("{report:?}");
+}
+
+#[test]
+#[should_panic]
+fn test_result_ext() {
+    let result: Result<(), SimpleError> = Err(SimpleError("An error".to_string()));
+    let result = result.or_raise(|| SimpleError("Another error".to_string()));
+    result.unwrap();
 }

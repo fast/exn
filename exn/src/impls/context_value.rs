@@ -20,15 +20,10 @@ pub struct ContextValue<T: ContextBound>(pub T);
 
 pub trait ErasedContextValue {
     fn as_any(&self) -> &dyn Any;
-    fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
 impl<T: ContextBound> ErasedContextValue for ContextValue<T> {
     fn as_any(&self) -> &dyn Any {
         &self.0
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        &mut self.0
     }
 }

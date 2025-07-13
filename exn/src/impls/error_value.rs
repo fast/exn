@@ -44,16 +44,11 @@ impl<E: ErrorBound> std::error::Error for ErrorValue<E> {
 
 pub trait ErasedErrorValue: std::error::Error {
     fn as_any(&self) -> &dyn Any;
-    fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
 impl<E: ErrorBound> ErasedErrorValue for ErrorValue<E> {
     fn as_any(&self) -> &dyn Any {
         &self.0
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        &mut self.0
     }
 }
 
