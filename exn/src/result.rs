@@ -17,6 +17,9 @@ use crate::ErrorBound;
 use crate::Exn;
 use crate::IntoExn;
 
+/// A reasonable return type to use throughout an application.
+pub type Result<T, E> = std::result::Result<T, Exn<E>>;
+
 /// An extension trait for [`Result`] to provide context information on [`Exn`]s.
 pub trait ResultExt {
     type Success;
@@ -25,7 +28,7 @@ pub trait ResultExt {
     /// Attach a new context to the [`Exn`] inside the [`Result`].
     ///
     /// Applies [`Exn::attach`] on the [`Err`] variant, refer to it for more information.
-    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Exn<Self::Error>>
+    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
     where
         A: ContextBound,
         F: FnOnce() -> A;
@@ -33,20 +36,20 @@ pub trait ResultExt {
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
     /// Applies [`Exn::raise`] on the [`Err`] variant, refer to it for more information.
-    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, Exn<A>>
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
         A: ErrorBound,
         F: FnOnce() -> A;
 }
 
-impl<T, E> ResultExt for Result<T, E>
+impl<T, E> ResultExt for std::result::Result<T, E>
 where
     E: IntoExn,
 {
     type Success = T;
     type Error = E::Error;
 
-    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Exn<Self::Error>>
+    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
     where
         A: ContextBound,
         F: FnOnce() -> A,
@@ -57,7 +60,7 @@ where
         }
     }
 
-    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, Exn<A>>
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
         A: ErrorBound,
         F: FnOnce() -> A,

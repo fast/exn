@@ -29,7 +29,7 @@ impl<E> fmt::Debug for Exn<E> {
 impl fmt::Debug for ExnView<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut visitor = DebugVisitor { f };
-        visitor.visit_exn(self)
+        visitor.visit(self)
     }
 }
 
@@ -40,7 +40,7 @@ struct DebugVisitor<'a, 'b> {
 impl Visitor for DebugVisitor<'_, '_> {
     type Error = fmt::Error;
 
-    fn visit_exn(&mut self, exn: &ExnView) -> Result<(), Self::Error> {
+    fn visit(&mut self, exn: &ExnView) -> Result<(), Self::Error> {
         write!(self.f, "{}", exn.as_error())?;
         write!(self.f, "{}", make_locations(exn))?;
 
