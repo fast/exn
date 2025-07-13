@@ -20,8 +20,7 @@ compile_error!(
 );
 
 mod convert;
-mod display;
-mod model;
+mod impls;
 mod result;
 mod visitor;
 
@@ -29,16 +28,10 @@ mod visitor;
 mod tests;
 
 pub use self::convert::IntoExn;
-pub use self::display::DisplayExn;
-pub use self::model::ContextView;
-pub use self::model::ContextViewMut;
-pub use self::model::Exn;
-pub use self::model::ExnView;
-pub use self::model::ExnViewMut;
-pub use self::result::Result;
+pub use self::impls::Exn;
+pub use self::impls::ExnView;
 pub use self::result::ResultExt;
 pub use self::visitor::Visitor;
-pub use self::visitor::VisitorMut;
 
 pub trait ErrorBound: std::error::Error + Send + Sync + 'static {}
 impl<T: std::error::Error + Send + Sync + 'static> ErrorBound for T {}

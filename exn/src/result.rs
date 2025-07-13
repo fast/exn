@@ -17,53 +17,40 @@ use crate::ErrorBound;
 use crate::Exn;
 use crate::IntoExn;
 
-pub type Result<T, E> = std::result::Result<T, Exn<E>>;
-
 pub trait ResultExt {
     type Success;
     type Error: ErrorBound;
 
-    fn with_context<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
+    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Exn<Self::Error>>
     where
         A: ContextBound,
         F: FnOnce() -> A;
 
-    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, Exn<A>>
     where
         A: ErrorBound,
         F: FnOnce() -> A;
-
-    fn or_unwrap<D, F>(self, f: F) -> Self::Success
-    where
-        D: std::fmt::Debug,
-        F: FnOnce(Exn<Self::Error>) -> D;
 }
 
-impl<T, E> ResultExt for core::result::Result<T, E>
+impl<T, E> ResultExt for Result<T, E>
 where
     E: IntoExn,
 {
     type Success = T;
     type Error = E::Error;
 
-    #[track_caller]
-    fn with_context<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
+    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Exn<Self::Error>>
     where
         A: ContextBound,
         F: FnOnce() -> A,
     {
         match self {
             Ok(v) => Ok(v),
-            Err(e) => {
-                let mut exn = e.into_exn();
-                exn.context(context());
-                Err(exn)
-            }
+            Err(e) => Err(e.into_exn().attach(context())),
         }
     }
 
-    #[track_caller]
-    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, Exn<A>>
     where
         A: ErrorBound,
         F: FnOnce() -> A,
@@ -72,14 +59,5 @@ where
             Ok(v) => Ok(v),
             Err(e) => Err(e.into_exn().raise(err())),
         }
-    }
-
-    #[track_caller]
-    fn or_unwrap<D, F>(self, f: F) -> Self::Success
-    where
-        D: std::fmt::Debug,
-        F: FnOnce(Exn<Self::Error>) -> D,
-    {
-        self.map_err(|err| f(err.into_exn())).unwrap()
     }
 }

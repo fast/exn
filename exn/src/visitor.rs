@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ExnViewMut;
-use crate::model::ExnView;
-
-pub trait VisitorMut {
-    /// Visit a mutable view of the exception.
-    fn visit_exn_mut(&mut self, exn: ExnViewMut);
-}
+use crate::impls::ExnView;
 
 pub trait Visitor {
+    type Error;
+
     /// Visit an immutable view of the exception.
-    fn visit_exn(&mut self, exn: ExnView);
+    fn visit_exn(&mut self, exn: &ExnView) -> Result<(), Self::Error>;
 }
