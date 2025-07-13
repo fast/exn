@@ -25,6 +25,7 @@ impl<E> Exn<E> {
     }
 }
 
+/// An immutable view of an exception.
 pub struct ExnView<'a>(&'a ExnImpl);
 
 impl ExnView<'_> {

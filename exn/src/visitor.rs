@@ -14,6 +14,7 @@
 
 use crate::impls::ExnView;
 
+/// A trait for visiting an exception.
 pub trait Visitor {
     type Error;
 

@@ -29,6 +29,7 @@ use crate::ContextBound;
 use crate::ErrorBound;
 use crate::IntoExn;
 
+/// An exception type that can hold an error tree and additional context.
 pub struct Exn<E> {
     // trade one more indirection for less stack size
     exn_impl: Box<ExnImpl>,
@@ -43,6 +44,7 @@ struct ExnImpl {
 }
 
 impl<E: ErrorBound> Exn<E> {
+    /// Create a new exception with the given error.
     #[track_caller]
     pub fn new(error: E) -> Self {
         let error = ErrorValue(error);

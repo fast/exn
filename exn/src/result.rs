@@ -17,15 +17,22 @@ use crate::ErrorBound;
 use crate::Exn;
 use crate::IntoExn;
 
+/// An extension trait for [`Result`] to provide context information on [`Exn`]s.
 pub trait ResultExt {
     type Success;
     type Error: ErrorBound;
 
+    /// Attach a new context to the [`Exn`] inside the [`Result`].
+    ///
+    /// Applies [`Exn::attach`] on the [`Err`] variant, refer to it for more information.
     fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Exn<Self::Error>>
     where
         A: ContextBound,
         F: FnOnce() -> A;
 
+    /// Raise a new exception on the [`Exn`] inside the [`Result`].
+    ///
+    /// Applies [`Exn::raise`] on the [`Err`] variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, Exn<A>>
     where
         A: ErrorBound,

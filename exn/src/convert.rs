@@ -20,7 +20,7 @@ pub trait IntoExn {
     /// The error type of the `Exn` that `self` will be converted into.
     type Error: ErrorBound;
 
-    /// Convert `self` into an `Exn` with the error type `Self::Err`.
+    /// Convert `self` into an `Exn` with the error type `Self::Error`.
     fn into_exn(self) -> Exn<Self::Error>;
 }
 
