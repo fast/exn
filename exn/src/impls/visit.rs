@@ -19,9 +19,14 @@ use crate::Visitor;
 use crate::impls::ExnImpl;
 
 impl<E> Exn<E> {
+    /// Returns an immutable view of the current exception.
+    pub fn current_view(&self) -> ExnView<'_> {
+        ExnView(&self.exn_impl)
+    }
+
     /// Visits the exception using the provided visitor.
     pub fn visit<V: Visitor>(&self, visitor: &mut V) -> Result<(), V::Error> {
-        let exn_view = ExnView(&self.exn_impl);
+        let exn_view = self.current_view();
         visitor.visit(&exn_view)
     }
 }

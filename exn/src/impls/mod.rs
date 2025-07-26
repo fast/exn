@@ -74,6 +74,15 @@ impl<E: ErrorBound> Exn<E> {
         }
         new_exn
     }
+
+    /// Returns the current exception.
+    pub fn current_value(&self) -> &E {
+        self.exn_impl
+            .error
+            .as_any()
+            .downcast_ref()
+            .unwrap_or_else(|| unreachable!("Exn should always hold an error"))
+    }
 }
 
 impl<E: ErrorBound> From<E> for Exn<E> {
