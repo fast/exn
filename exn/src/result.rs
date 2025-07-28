@@ -63,6 +63,7 @@ where
         }
     }
 
+    #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
         A: ErrorBound,
