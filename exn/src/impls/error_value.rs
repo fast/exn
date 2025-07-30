@@ -42,7 +42,7 @@ impl<E: ErrorBound> std::error::Error for ErrorValue<E> {
     }
 }
 
-pub trait ErasedErrorValue: std::error::Error {
+pub trait ErasedErrorValue: ErrorBound {
     fn as_any(&self) -> &dyn Any;
 }
 

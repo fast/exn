@@ -18,7 +18,7 @@ use crate::ContextBound;
 
 pub struct ContextValue<T: ContextBound>(pub T);
 
-pub trait ErasedContextValue {
+pub trait ErasedContextValue: ContextBound {
     fn as_any(&self) -> &dyn Any;
 }
 
