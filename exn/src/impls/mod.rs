@@ -17,6 +17,7 @@ mod debug_impl;
 mod error_value;
 mod visit;
 
+use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
 
@@ -47,17 +48,68 @@ impl<E: ErrorBound> Exn<E> {
     /// Create a new exception with the given error.
     #[track_caller]
     pub fn new(error: E) -> Self {
-        let location = match std::error::request_ref::<Location>(&error) {
-            Some(loc) => *loc,
-            None => *Location::caller(),
+        fn make_location(err: &(impl std::error::Error + ?Sized)) -> Location<'static> {
+            match std::error::request_ref::<Location>(err) {
+                Some(loc) => *loc,
+                None => *Location::caller(),
+            }
+        }
+
+        struct SourceError(String);
+        impl fmt::Debug for SourceError {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                fmt::Debug::fmt(&self.0, f)
+            }
+        }
+        impl fmt::Display for SourceError {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                fmt::Display::fmt(&self.0, f)
+            }
+        }
+        impl std::error::Error for SourceError {}
+
+        let source = if let Some(mut current_source) = error.source() {
+            let mut sources = vec![(
+                make_location(current_source),
+                SourceError(current_source.to_string()),
+            )];
+
+            while let Some(source) = current_source.source() {
+                sources.push((make_location(source), SourceError(source.to_string())));
+                current_source = source;
+            }
+
+            let (loc, source) = sources.pop().expect("at least one source must exist");
+            let mut exn_impl = ExnImpl {
+                error: Box::new(ErrorValue(source)),
+                context: vec![Box::new(ContextValue(loc))],
+                children: vec![],
+            };
+
+            while let Some((loc, source)) = sources.pop() {
+                let mut new_exn_impl = ExnImpl {
+                    error: Box::new(ErrorValue(source)),
+                    context: vec![Box::new(ContextValue(loc))],
+                    children: vec![],
+                };
+                new_exn_impl.children.push(exn_impl);
+                exn_impl = new_exn_impl;
+            }
+
+            Some(exn_impl)
+        } else {
+            None
         };
 
+        let location = make_location(&error);
         let exn_impl = ExnImpl {
             error: Box::new(ErrorValue(error)),
             context: vec![Box::new(ContextValue(location))],
-            children: vec![],
+            children: match source {
+                Some(source) => vec![source],
+                None => vec![],
+            },
         };
-
         Self {
             exn_impl: Box::new(exn_impl),
             variance: PhantomData,
