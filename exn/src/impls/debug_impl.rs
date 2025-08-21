@@ -21,20 +21,30 @@ use crate::Visitor;
 
 impl<E> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut visitor = DebugVisitor { f };
+        let mut visitor = DebugVisitor::new(f);
         self.visit(&mut visitor)
     }
 }
 
 impl fmt::Debug for ExnView<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut visitor = DebugVisitor { f };
+        let mut visitor = DebugVisitor::new(f);
         visitor.visit(self)
     }
 }
 
 struct DebugVisitor<'a, 'b> {
     f: &'a mut Formatter<'b>,
+    prefix: String,
+}
+
+impl<'a, 'b> DebugVisitor<'a, 'b> {
+    fn new(f: &'a mut Formatter<'b>) -> Self {
+        DebugVisitor {
+            f,
+            prefix: String::new(),
+        }
+    }
 }
 
 impl Visitor for DebugVisitor<'_, '_> {
@@ -46,18 +56,26 @@ impl Visitor for DebugVisitor<'_, '_> {
 
         let children_len = exn.children_len();
         for (i, child) in exn.children().enumerate() {
-            write!(self.f, "\n|")?;
+            if i != 0 {
+                write!(self.f, "\n{} |", self.prefix)?;
+                write!(self.f, "\n{} |> ", self.prefix)?;
+            } else {
+                write!(self.f, "\n{}|", self.prefix)?;
+                write!(self.f, "\n{}|-> ", self.prefix)?;
+            }
 
-            let has_sibling = i < children_len - 1;
-            let child = format!("{child:?}");
-            for (k, line) in child.lines().enumerate() {
-                if k == 0 {
-                    write!(self.f, "\n|-> {line}")?;
-                } else if has_sibling {
-                    write!(self.f, "\n|   {line}")?;
-                } else {
-                    write!(self.f, "\n    {line}")?;
-                }
+            if children_len > 1 {
+                let mut new_visitor = DebugVisitor {
+                    f: self.f,
+                    prefix: if i < children_len - 1 {
+                        format!("{} |  ", self.prefix)
+                    } else {
+                        format!("{}    ", self.prefix)
+                    },
+                };
+                new_visitor.visit(&child)?;
+            } else {
+                self.visit(&child)?;
             }
         }
 

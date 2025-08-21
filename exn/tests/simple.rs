@@ -20,14 +20,27 @@ use exn::ResultExt;
 struct SimpleError(&'static str);
 
 #[test]
-fn test_simple_error() {
+fn test_error_straightforward() {
+    let e1 = Exn::new(SimpleError("E1"));
+    let e2 = e1.raise(SimpleError("E2"));
+    let e3 = e2.raise(SimpleError("E3"));
+    let e4 = e3.raise(SimpleError("E4"));
+    let e5 = e4.raise(SimpleError("E5"));
+    println!("{e5:?}");
+}
+
+#[test]
+fn test_error_tree() {
     let e1 = Exn::new(SimpleError("E1"));
     let e3 = e1.raise(SimpleError("E3"));
 
     let e9 = Exn::new(SimpleError("E9"));
     let e10 = e9.raise(SimpleError("E10"));
 
-    let e5 = Exn::from_iter([e3, e10], SimpleError("E5"));
+    let e11 = Exn::new(SimpleError("E11"));
+    let e12 = e11.raise(SimpleError("E12"));
+
+    let e5 = Exn::from_iter([e3, e10, e12], SimpleError("E5"));
 
     let e2 = Exn::new(SimpleError("E2"));
     let e4 = e2.raise(SimpleError("E4"));
