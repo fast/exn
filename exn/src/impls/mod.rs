@@ -48,6 +48,7 @@ impl<E: ErrorBound> Exn<E> {
     /// Create a new exception with the given error.
     #[track_caller]
     pub fn new(error: E) -> Self {
+        #[track_caller]
         fn make_location(err: &(impl std::error::Error + ?Sized)) -> Location<'static> {
             match std::error::request_ref::<Location>(err) {
                 Some(loc) => *loc,

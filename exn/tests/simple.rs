@@ -16,42 +16,49 @@ use exn::Exn;
 use exn::ResultExt;
 
 #[derive(Debug, thiserror::Error)]
-#[error("simple error: {0}")]
-struct SimpleError(String);
+#[error("{0}")]
+struct SimpleError(&'static str);
 
 #[test]
 fn test_simple_error() {
-    let mut report = Exn::new(SimpleError("Another error".to_string()));
-    report = report.raise(SimpleError("An error occurred".to_string()));
-    report = Exn::from_iter(
-        [report, Exn::new(SimpleError("Oops".to_string()))],
-        SimpleError("Because of me".to_string()),
-    );
-    report = report.raise(SimpleError("Because of you".to_string()));
+    let e1 = Exn::new(SimpleError("E1"));
+    let e3 = e1.raise(SimpleError("E3"));
 
-    println!("{report:?}");
+    let e9 = Exn::new(SimpleError("E9"));
+    let e10 = e9.raise(SimpleError("E10"));
+
+    let e5 = Exn::from_iter([e3, e10], SimpleError("E5"));
+
+    let e2 = Exn::new(SimpleError("E2"));
+    let e4 = e2.raise(SimpleError("E4"));
+
+    let e7 = Exn::new(SimpleError("E7"));
+    let e8 = e7.raise(SimpleError("E8"));
+
+    let e6 = Exn::from_iter([e5, e4, e8], SimpleError("E6"));
+    println!("{e6:?}");
 }
 
 #[test]
 #[should_panic]
 fn test_result_ext() {
-    let result: Result<(), SimpleError> = Err(SimpleError("An error".to_string()));
-    let result = result.or_raise(|| SimpleError("Another error".to_string()));
+    let result: Result<(), SimpleError> = Err(SimpleError("An error"));
+    let result = result.or_raise(|| SimpleError("Another error"));
     result.unwrap();
 }
 
 #[test]
 #[should_panic]
 fn test_bail() {
-    fn bail() -> exn::Result<(), SimpleError> {
-        exn::bail!(SimpleError("Another error".to_string()));
+    fn foo() -> exn::Result<(), SimpleError> {
+        exn::bail!(SimpleError("An error"));
     }
 
-    bail().unwrap();
+    foo().unwrap();
 }
 
 #[test]
 fn test_ensure() -> exn::Result<(), SimpleError> {
-    exn::ensure!(true, SimpleError("Another error".to_string()));
+    exn::ensure!(true, SimpleError("An error"));
     Ok(())
 }
