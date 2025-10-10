@@ -30,7 +30,7 @@ pub trait ResultExt {
 
     /// Attach a new context to the [`Exn`] inside the [`Result`].
     ///
-    /// Applies [`Exn::attach`] on the [`Err`] variant, refer to it for more information.
+    /// Applies [`Exn::attach`] on the `Err` variant, refer to it for more information.
     fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
     where
         A: ContextBound,
@@ -38,7 +38,7 @@ pub trait ResultExt {
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
-    /// Applies [`Exn::raise`] on the [`Err`] variant, refer to it for more information.
+    /// Applies [`Exn::raise`] on the `Err` variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
         A: ErrorBound,

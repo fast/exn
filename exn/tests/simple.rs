@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use exn::Exn;
+use exn::OptionExt;
 use exn::ResultExt;
 
 #[derive(Debug, thiserror::Error)]
@@ -62,6 +63,14 @@ fn test_result_ext() {
 
 #[test]
 #[should_panic]
+fn test_option_ext() {
+    let result: Option<()> = None;
+    let result = result.ok_or_raise(|| SimpleError("An error"));
+    result.unwrap();
+}
+
+#[test]
+#[should_panic]
 fn test_bail() {
     fn foo() -> exn::Result<(), SimpleError> {
         exn::bail!(SimpleError("An error"));
@@ -71,7 +80,18 @@ fn test_bail() {
 }
 
 #[test]
-fn test_ensure() -> exn::Result<(), SimpleError> {
+fn test_ensure_ok() -> exn::Result<(), SimpleError> {
     exn::ensure!(true, SimpleError("An error"));
     Ok(())
+}
+
+#[test]
+#[should_panic]
+fn test_ensure_fail() {
+    fn foo() -> exn::Result<(), SimpleError> {
+        exn::ensure!(false, SimpleError("An error"));
+        Ok(())
+    }
+
+    foo().unwrap();
 }

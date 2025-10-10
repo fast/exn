@@ -68,12 +68,14 @@ compile_error!(
 mod convert;
 mod impls;
 mod macros;
+mod option;
 mod result;
 mod visitor;
 
 pub use self::convert::IntoExn;
 pub use self::impls::Exn;
 pub use self::impls::ExnView;
+pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
 pub use self::visitor::Visitor;
