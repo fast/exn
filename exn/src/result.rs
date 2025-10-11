@@ -52,6 +52,7 @@ where
     type Success = T;
     type Error = E::Error;
 
+    #[track_caller]
     fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
     where
         A: ContextBound,
