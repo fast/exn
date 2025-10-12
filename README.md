@@ -11,8 +11,8 @@
 [docs-url]: https://docs.rs/exn
 [license-badge]: https://img.shields.io/crates/l/exn
 [license-url]: LICENSE
-[actions-badge]: https://github.com/cratesland/exn/workflows/CI/badge.svg
-[actions-url]:https://github.com/cratesland/exn/actions?query=workflow%3ACI
+[actions-badge]: https://github.com/fast/exn/workflows/CI/badge.svg
+[actions-url]:https://github.com/fast/exn/actions?query=workflow%3ACI
 
 ## Overview
 

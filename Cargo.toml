@@ -18,10 +18,10 @@ resolver = "2"
 
 [workspace.package]
 edition = "2024"
-homepage = "https://github.com/cratesland/exn"
+homepage = "https://github.com/fast/exn"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/cratesland/exn"
+repository = "https://github.com/fast/exn"
 
 [workspace.lints.rust]
 unknown_lints = "deny"
