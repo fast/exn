@@ -139,6 +139,7 @@ impl<E: ErrorBound> Exn<E> {
 }
 
 impl<E: ErrorBound> From<E> for Exn<E> {
+    #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
     }

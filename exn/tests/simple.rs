@@ -71,6 +71,17 @@ fn test_option_ext() {
 
 #[test]
 #[should_panic]
+fn test_from_error() {
+    fn foo() -> exn::Result<(), SimpleError> {
+        Err(SimpleError("An error"))?;
+        Ok(())
+    }
+
+    foo().unwrap();
+}
+
+#[test]
+#[should_panic]
 fn test_bail() {
     fn foo() -> exn::Result<(), SimpleError> {
         exn::bail!(SimpleError("An error"));
