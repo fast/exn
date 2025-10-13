@@ -44,10 +44,16 @@ impl<E: ErrorBound> std::error::Error for ErrorValue<E> {
 
 pub trait ErasedErrorValue: ErrorBound {
     fn as_any(&self) -> &dyn Any;
+
+    fn as_error(&self) -> &(dyn std::error::Error + 'static);
 }
 
 impl<E: ErrorBound> ErasedErrorValue for ErrorValue<E> {
     fn as_any(&self) -> &dyn Any {
+        &self.0
+    }
+
+    fn as_error(&self) -> &(dyn std::error::Error + 'static) {
         &self.0
     }
 }

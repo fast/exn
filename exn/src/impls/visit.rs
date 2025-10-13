@@ -59,7 +59,7 @@ impl ExnView<'_> {
     ///
     /// [`Error`]: std::error::Error
     pub fn as_error<'a>(&self) -> &(dyn std::error::Error + 'a) {
-        &self.0.error
+        self.0.error.as_error()
     }
 
     /// Requests a reference of type `T` from the exception.
