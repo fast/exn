@@ -21,70 +21,48 @@ use crate::ExnView;
 
 impl<E: Error> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut visitor = DebugVisitor::new(f);
-        visitor.visit(&self.as_view())
+        write_exn(f, &self.as_view(), 0, "")
     }
 }
 
 impl fmt::Debug for ExnView<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let mut visitor = DebugVisitor::new(f);
-        visitor.visit(self)
+        write_exn(f, self, 0, "")
     }
 }
 
-struct DebugVisitor<'a, 'b> {
-    f: &'a mut Formatter<'b>,
-    prefix: String,
-}
+fn write_exn(f: &mut Formatter<'_>, exn: &ExnView, level: usize, prefix: &str) -> fmt::Result {
+    write!(f, "{}", exn.as_error())?;
+    write_location(f, exn)?;
 
-impl<'a, 'b> DebugVisitor<'a, 'b> {
-    fn new(f: &'a mut Formatter<'b>) -> Self {
-        DebugVisitor {
-            f,
-            prefix: String::new(),
+    let children_len = exn.children().len();
+
+    for (i, child) in exn.children().enumerate() {
+        let child_child_len = child.children().len();
+
+        if level == 0 && children_len == 1 && child_child_len == 1 {
+            write!(f, "\n{}│", prefix)?;
+            write!(f, "\n{}├─▶ ", prefix)?;
+            write_exn(f, &child, 0, prefix)?;
+        } else if i < children_len - 1 {
+            write!(f, "\n{}│", prefix)?;
+            write!(f, "\n{}├─▶ ", prefix)?;
+            write_exn(f, &child, level + 1, &format!("{}│   ", prefix))?;
+        } else {
+            write!(f, "\n{}│   ", prefix)?;
+            write!(f, "\n{}╰─▶ ", prefix)?;
+            write_exn(f, &child, level + 1, &format!("{}    ", prefix))?;
         }
     }
-}
 
-impl DebugVisitor<'_, '_> {
-    fn visit(&mut self, exn: &ExnView) -> Result<(), fmt::Error> {
-        write!(self.f, "{}", exn.as_error())?;
-        write!(self.f, "{}", make_locations(exn))?;
-
-        let children_len = exn.children().len();
-        for (i, child) in exn.children().enumerate() {
-            if i != 0 {
-                write!(self.f, "\n{} |", self.prefix)?;
-                write!(self.f, "\n{} |> ", self.prefix)?;
-            } else {
-                write!(self.f, "\n{}|", self.prefix)?;
-                write!(self.f, "\n{}|-> ", self.prefix)?;
-            }
-
-            if children_len > 1 {
-                let mut new_visitor = DebugVisitor {
-                    f: self.f,
-                    prefix: if i < children_len - 1 {
-                        format!("{} |  ", self.prefix)
-                    } else {
-                        format!("{}    ", self.prefix)
-                    },
-                };
-                new_visitor.visit(&child)?;
-            } else {
-                self.visit(&child)?;
-            }
-        }
-
-        Ok(())
-    }
+    Ok(())
 }
 
 #[cfg(not(windows))]
-fn make_locations(exn: &ExnView) -> String {
+fn write_location(f: &mut Formatter<'_>, exn: &ExnView) -> fmt::Result {
     let location = exn.location();
-    format!(
+    write!(
+        f,
         ", at {}:{}:{}",
         location.file(),
         location.line(),
@@ -93,7 +71,7 @@ fn make_locations(exn: &ExnView) -> String {
 }
 
 #[cfg(windows)]
-fn make_locations(exn: &ExnView) -> String {
+fn pretty_location(f: &mut Formatter<'_>, exn: &ExnView) -> fmt::Result {
     let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;
@@ -127,5 +105,6 @@ fn make_locations(exn: &ExnView) -> String {
 
     let line = location.line();
     let column = location.column();
-    format!(", at {resolved}:{line}:{column}")
+
+    write!(f, ", at {resolved}:{line}:{column}")
 }

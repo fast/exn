@@ -16,7 +16,7 @@
 //!
 //! # Examples
 //!
-//! ```
+//! ```no_run
 //! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
@@ -69,8 +69,8 @@
 //!
 //! ```text
 //! fatal error: math no longer works, at exn/src/lib.rs:73:20
-//! |
-//! |-> logic error: 0 == 1, at exn/src/lib.rs:69:9
+//! │
+//! ╰─▶ logic error: 0 == 1, at exn/src/lib.rs:69:9
 //! ```
 
 #![feature(error_generic_member_access)]
