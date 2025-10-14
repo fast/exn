@@ -24,6 +24,8 @@ pub trait OptionExt {
     /// Raise a new exception on the [`Exn`] of the [`Option`].
     ///
     /// Construct a new [`Exn`] on the `None` variant.
+    ///
+    /// [`Exn`]: crate::Exn
     fn ok_or_raise<A, F>(self, err: F) -> Result<Self::Some, A>
     where
         A: ErrorBound,

@@ -138,13 +138,6 @@ impl<E: ErrorBound> Exn<E> {
     }
 }
 
-impl<E: ErrorBound> From<E> for Exn<E> {
-    #[track_caller]
-    fn from(error: E) -> Self {
-        Exn::new(error)
-    }
-}
-
 impl<E> Exn<E> {
     /// Attach a new context to the exception.
     pub fn attach<T: ContextBound>(mut self, context: T) -> Self {
@@ -158,5 +151,12 @@ impl<E> Exn<E> {
         let mut new_exn = Exn::new(err);
         new_exn.exn_impl.children.push(*self.exn_impl);
         new_exn
+    }
+}
+
+impl<E: ErrorBound> From<E> for Exn<E> {
+    #[track_caller]
+    fn from(error: E) -> Self {
+        Exn::new(error)
     }
 }
