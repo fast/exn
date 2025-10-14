@@ -87,8 +87,50 @@ fn make_locations(exn: &ExnView) -> String {
     let locations = exn
         .contexts()
         .filter_map(|ctx| {
-            ctx.downcast_ref::<std::panic::Location<'_>>()
-                .map(|loc| loc.to_string())
+            let loc = ctx.downcast_ref::<std::panic::Location<'_>>()?;
+            #[cfg(windows)]
+            {
+                use std::os::windows::ffi::OsStrExt;
+                use std::path::Component;
+                use std::path::MAIN_SEPARATOR;
+                use std::path::Path;
+
+                let file = loc.file();
+                let path = Path::new(file);
+
+                let mut resolved = String::new();
+                for c in path.components() {
+                    match c {
+                        Component::RootDir => {}
+                        Component::CurDir => resolved.push('.'),
+                        Component::ParentDir => resolved.push_str(".."),
+                        Component::Prefix(prefix) => {
+                            resolved.push_str(&prefix.as_os_str().to_string_lossy());
+                            // C:\foo is [Prefix, RootDir, Normal]. Avoid C://
+                            continue;
+                        }
+                        Component::Normal(s) => resolved.push_str(&s.to_string_lossy()),
+                    }
+                    resolved.push('/');
+                }
+                if path.as_os_str().encode_wide().last() != Some(MAIN_SEPARATOR as u16)
+                    && resolved != "/"
+                    && resolved.ends_with('/')
+                {
+                    resolved.pop(); // Pop last '/'
+                }
+
+                let line = loc.line();
+                let column = loc.column();
+                Some(format!("{resolved}:{line}:{column}"))
+            }
+
+            #[cfg(not(windows))]
+            {
+                let line = loc.line();
+                let column = loc.column();
+                Some(format!("{}:{}:{}", loc.file(), line, column))
+            }
         })
         .collect::<Vec<_>>();
 
