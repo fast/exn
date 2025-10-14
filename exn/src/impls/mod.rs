@@ -97,7 +97,8 @@ impl<E: Error> Exn<E> {
 
     /// Returns the current exception.
     pub fn as_current(&self) -> &E {
-        (&*self.frame.error as &dyn std::any::Any)
+        self.frame
+            .as_any()
             .downcast_ref()
             .expect("error type must match")
     }
