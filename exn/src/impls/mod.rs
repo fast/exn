@@ -128,3 +128,15 @@ impl<E: Error> fmt::Display for Exn<E> {
         write!(f, "{}", self.as_current())
     }
 }
+
+impl ExnFrame {
+    /// Returns the error as a reference to [`Any`].
+    pub fn as_any(&self) -> &dyn std::any::Any {
+        &*self.error
+    }
+
+    /// Returns the error as a reference to [`std::error::Error`].
+    pub fn as_error(&self) -> &dyn std::error::Error {
+        &*self.error
+    }
+}
