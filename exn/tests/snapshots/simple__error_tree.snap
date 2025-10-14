@@ -1,0 +1,27 @@
+---
+source: exn/tests/simple.rs
+expression: e6
+---
+E6 at exn/tests/simple.rs:52:14
+|
+|-> E5 at exn/tests/simple.rs:44:14
+ |  |
+ |  |-> E3 at exn/tests/simple.rs:36:17
+ |   |  |
+ |   |  |-> E1 at exn/tests/simple.rs:35:14
+ |   |
+ |   |> E10 at exn/tests/simple.rs:39:18
+ |   |  |
+ |   |  |-> E9 at exn/tests/simple.rs:38:14
+ |   |
+ |   |> E12 at exn/tests/simple.rs:42:19
+ |      |
+ |      |-> E11 at exn/tests/simple.rs:41:15
+ |
+ |> E4 at exn/tests/simple.rs:47:17
+ |  |
+ |  |-> E2 at exn/tests/simple.rs:46:14
+ |
+ |> E8 at exn/tests/simple.rs:50:17
+    |
+    |-> E7 at exn/tests/simple.rs:49:14

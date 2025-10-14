@@ -27,7 +27,7 @@ fn test_error_straightforward() {
     let e3 = e2.raise(SimpleError("E3"));
     let e4 = e3.raise(SimpleError("E4"));
     let e5 = e4.raise(SimpleError("E5"));
-    println!("{e5:?}");
+    insta::assert_debug_snapshot!(e5);
 }
 
 #[test]
@@ -50,59 +50,61 @@ fn test_error_tree() {
     let e8 = e7.raise(SimpleError("E8"));
 
     let e6 = Exn::from_iter([e5, e4, e8], SimpleError("E6"));
-    println!("{e6:?}");
+    insta::assert_debug_snapshot!(e6);
 }
 
 #[test]
-#[should_panic]
 fn test_result_ext() {
     let result: Result<(), SimpleError> = Err(SimpleError("An error"));
     let result = result.or_raise(|| SimpleError("Another error"));
-    result.unwrap();
+    insta::assert_debug_snapshot!(result.unwrap_err());
 }
 
 #[test]
-#[should_panic]
 fn test_option_ext() {
     let result: Option<()> = None;
     let result = result.ok_or_raise(|| SimpleError("An error"));
-    result.unwrap();
+    insta::assert_debug_snapshot!(result.unwrap_err());
 }
 
 #[test]
-#[should_panic]
 fn test_from_error() {
     fn foo() -> exn::Result<(), SimpleError> {
         Err(SimpleError("An error"))?;
         Ok(())
     }
 
-    foo().unwrap();
+    let result = foo();
+    insta::assert_debug_snapshot!(result.unwrap_err());
 }
 
 #[test]
-#[should_panic]
 fn test_bail() {
     fn foo() -> exn::Result<(), SimpleError> {
         exn::bail!(SimpleError("An error"));
+    }
+
+    let result = foo();
+    insta::assert_debug_snapshot!(result.unwrap_err());
+}
+
+#[test]
+fn test_ensure_ok() {
+    fn foo() -> exn::Result<(), SimpleError> {
+        exn::ensure!(true, SimpleError("An error"));
+        Ok(())
     }
 
     foo().unwrap();
 }
 
 #[test]
-fn test_ensure_ok() -> exn::Result<(), SimpleError> {
-    exn::ensure!(true, SimpleError("An error"));
-    Ok(())
-}
-
-#[test]
-#[should_panic]
 fn test_ensure_fail() {
     fn foo() -> exn::Result<(), SimpleError> {
         exn::ensure!(false, SimpleError("An error"));
         Ok(())
     }
 
-    foo().unwrap();
+    let result = foo();
+    insta::assert_debug_snapshot!(result.unwrap_err());
 }
