@@ -57,43 +57,25 @@ impl<E: Error> Exn<E> {
 
         impl std::error::Error for SourceError {}
 
-        let source = if let Some(mut current_source) = error.source() {
-            let mut sources = vec![(*Location::caller(), SourceError(current_source.to_string()))];
-
-            while let Some(source) = current_source.source() {
-                sources.push((*Location::caller(), SourceError(source.to_string())));
-                current_source = source;
-            }
-
-            let (location, source) = sources.pop().expect("at least one source must exist");
-            let mut frame = ExnFrame {
-                error: Box::new(source),
-                location,
-                children: vec![],
-            };
-
-            while let Some((location, source)) = sources.pop() {
-                let mut new_frame = ExnFrame {
-                    error: Box::new(source),
+        fn walk(error: &dyn std::error::Error, location: Location<'static>) -> Vec<ExnFrame> {
+            if let Some(source) = error.source() {
+                let children = vec![ExnFrame {
+                    error: Box::new(SourceError(source.to_string())),
                     location,
-                    children: vec![],
-                };
-                new_frame.children.push(frame);
-                frame = new_frame;
+                    children: walk(source, location),
+                }];
+                children
+            } else {
+                vec![]
             }
+        }
 
-            Some(frame)
-        } else {
-            None
-        };
-
+        let location = *Location::caller();
+        let children = walk(&error, location);
         let frame = ExnFrame {
             error: Box::new(error),
-            location: *Location::caller(),
-            children: match source {
-                Some(source) => vec![source],
-                None => vec![],
-            },
+            location,
+            children,
         };
 
         Self {
@@ -111,6 +93,12 @@ impl<E: Error> Exn<E> {
             new_exn.frame.children.push(*exn.frame);
         }
         new_exn
+    }
+
+    /// Set the source code location of current exception frame.
+    pub fn with_location(mut self, location: Location<'static>) -> Self {
+        self.frame.location = location;
+        self
     }
 
     /// Returns the current exception.
