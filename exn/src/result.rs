@@ -54,3 +54,23 @@ where
         }
     }
 }
+
+impl<T, E> ResultExt for std::result::Result<T, Exn<E>>
+where
+    E: Error,
+{
+    type Success = T;
+    type Error = E;
+
+    #[track_caller]
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
+    where
+        A: Error,
+        F: FnOnce() -> A,
+    {
+        match self {
+            Ok(v) => Ok(v),
+            Err(e) => Err(e.raise(err())),
+        }
+    }
+}
