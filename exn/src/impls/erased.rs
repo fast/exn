@@ -12,32 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ErrorBound;
-use crate::Exn;
+use std::any::Any;
+use std::error::Request;
 
-/// A trait to convert a value into an `Exn` (exception) type.
-pub trait IntoExn {
-    /// The error type of the `Exn` that `self` will be converted into.
-    type Error: ErrorBound;
+use crate::Error;
 
-    /// Convert `self` into an `Exn` with the error type `Self::Error`.
-    fn into_exn(self) -> Exn<Self::Error>;
+pub trait ErasedError: Error {
+    fn as_any(&self) -> &dyn Any;
+
+    fn as_error(&self) -> &(dyn std::error::Error + 'static);
 }
 
-impl<E: ErrorBound> IntoExn for Exn<E> {
-    type Error = E;
+impl<E: Error> ErasedError for E {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 
-    #[track_caller]
-    fn into_exn(self) -> Exn<Self::Error> {
+    fn as_error(&self) -> &(dyn std::error::Error + 'static) {
         self
     }
 }
 
-impl<E: ErrorBound> IntoExn for E {
-    type Error = E;
+impl std::error::Error for Box<dyn ErasedError> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        (**self).source()
+    }
 
-    #[track_caller]
-    fn into_exn(self) -> Exn<Self::Error> {
-        Exn::new(self)
+    fn provide<'a>(&'a self, request: &mut Request<'a>) {
+        (**self).provide(request)
     }
 }

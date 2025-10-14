@@ -59,31 +59,23 @@
 //!     Ok(())
 //! }
 //! ```
+#![feature(trait_alias)]
 
 #[rustversion::not(nightly)]
 compile_error!(
     "This crate requires a nightly compiler. Please use `rustup default nightly` or `cargo +nightly`."
 );
 
-mod convert;
 mod impls;
 mod macros;
 mod option;
 mod result;
-mod visitor;
 
-pub use self::convert::IntoExn;
 pub use self::impls::Exn;
 pub use self::impls::ExnView;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
-pub use self::visitor::Visitor;
 
-/// A trait to bound the error type of [`Exn`].
-pub trait ErrorBound: std::error::Error + Send + Sync + 'static {}
-impl<T: std::error::Error + Send + Sync + 'static> ErrorBound for T {}
-
-/// A trait to bound the context type of [`Exn`].
-pub trait ContextBound: Send + Sync + 'static {}
-impl<T: Send + Sync + 'static> ContextBound for T {}
+/// A trait bound of the error type of [`Exn`].
+pub trait Error = std::error::Error + Send + Sync + 'static;

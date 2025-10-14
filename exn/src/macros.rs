@@ -37,7 +37,7 @@
 #[macro_export]
 macro_rules! bail {
     ($err:expr) => {{
-        return ::std::result::Result::Err($crate::IntoExn::into_exn($err));
+        return ::std::result::Result::Err($crate::Exn::from($err));
     }};
 }
 

@@ -14,34 +14,18 @@
 
 use std::any::Any;
 
-use crate::Exn;
-use crate::Visitor;
 use crate::impls::ExnImpl;
-
-impl<E> Exn<E> {
-    /// Returns an immutable view of the current exception.
-    pub fn current_view(&self) -> ExnView<'_> {
-        ExnView(&self.exn_impl)
-    }
-
-    /// Visits the exception using the provided visitor.
-    pub fn visit<V: Visitor>(&self, visitor: &mut V) -> Result<(), V::Error> {
-        let exn_view = self.current_view();
-        visitor.visit(&exn_view)
-    }
-}
 
 /// An immutable view of an exception.
 pub struct ExnView<'a>(&'a ExnImpl);
 
-impl ExnView<'_> {
-    /// Return an iterator over the contexts of the exception.
-    pub fn contexts(&self) -> impl Iterator<Item = &'_ dyn Any> {
-        self.0.context.iter().map(|ctx| ctx.as_any())
+impl<'a> ExnView<'a> {
+    pub(crate) fn new(exn_impl: &'a ExnImpl) -> Self {
+        Self(exn_impl)
     }
 
     /// Return an iterator over the children of the exception.
-    pub fn children(&self) -> impl Iterator<Item = ExnView<'_>> {
+    pub fn children(&self) -> impl Iterator<Item = ExnView<'a>> {
         self.0.children.iter().map(ExnView)
     }
 
@@ -58,7 +42,7 @@ impl ExnView<'_> {
     /// Return the error of this view as [`Error`].
     ///
     /// [`Error`]: std::error::Error
-    pub fn as_error<'a>(&self) -> &(dyn std::error::Error + 'a) {
+    pub fn as_error(&self) -> &(dyn std::error::Error + 'a) {
         self.0.error.as_error()
     }
 
@@ -68,5 +52,10 @@ impl ExnView<'_> {
         T: ?Sized + 'static,
     {
         std::error::request_ref(&self.0.error)
+    }
+
+    /// Returns the location where this exception was created.
+    pub fn location(&self) -> &std::panic::Location<'static> {
+        &self.0.location
     }
 }

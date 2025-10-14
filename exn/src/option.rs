@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ErrorBound;
-use crate::IntoExn;
+use crate::Error;
 use crate::Result;
 
 /// An extension trait for [`Option`] to provide raising new exceptions on `None`.
@@ -28,7 +27,7 @@ pub trait OptionExt {
     /// [`Exn`]: crate::Exn
     fn ok_or_raise<A, F>(self, err: F) -> Result<Self::Some, A>
     where
-        A: ErrorBound,
+        A: Error,
         F: FnOnce() -> A;
 }
 
@@ -38,12 +37,12 @@ impl<T> OptionExt for Option<T> {
     #[track_caller]
     fn ok_or_raise<A, F>(self, err: F) -> Result<T, A>
     where
-        A: ErrorBound,
+        A: Error,
         F: FnOnce() -> A,
     {
         match self {
             Some(v) => Ok(v),
-            None => Err(err().into_exn()),
+            None => Err(err().into()),
         }
     }
 }
