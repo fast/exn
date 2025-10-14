@@ -13,28 +13,28 @@
 // limitations under the License.
 
 mod debug;
-mod erased;
-mod view;
 
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
 
-use self::erased::ErasedError;
-pub use self::view::ExnView;
 use crate::Error;
 
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E> {
     // trade one more indirection for less stack size
-    exn_impl: Box<ExnImpl>,
+    tree: Box<ExnTree>,
     _phantom: PhantomData<E>,
 }
 
-pub(crate) struct ExnImpl {
-    error: Box<dyn ErasedError>,
-    location: Location<'static>,
-    children: Vec<ExnImpl>,
+/// The internal representation of an exception.
+pub struct ExnTree {
+    /// The error held by this exception.
+    pub error: Box<dyn Error>,
+    /// The location where this exception was created.
+    pub location: Location<'static>,
+    /// The children of this exception.    
+    pub children: Vec<ExnTree>,
 }
 
 impl<E: Error> Exn<E> {
@@ -77,14 +77,14 @@ impl<E: Error> Exn<E> {
             }
 
             let (location, source) = sources.pop().expect("at least one source must exist");
-            let mut exn_impl = ExnImpl {
+            let mut exn_impl = ExnTree {
                 error: Box::new(source),
                 location,
                 children: vec![],
             };
 
             while let Some((location, source)) = sources.pop() {
-                let mut new_exn_impl = ExnImpl {
+                let mut new_exn_impl = ExnTree {
                     error: Box::new(source),
                     location,
                     children: vec![],
@@ -99,7 +99,7 @@ impl<E: Error> Exn<E> {
         };
 
         let location = make_location(&error);
-        let exn_impl = ExnImpl {
+        let exn_impl = ExnTree {
             error: Box::new(error),
             location,
             children: match source {
@@ -109,7 +109,7 @@ impl<E: Error> Exn<E> {
         };
 
         Self {
-            exn_impl: Box::new(exn_impl),
+            tree: Box::new(exn_impl),
             _phantom: PhantomData,
         }
     }
@@ -120,30 +120,33 @@ impl<E: Error> Exn<E> {
         let mut new_exn = Exn::new(err);
         for exn in children {
             let exn = exn.into();
-            new_exn.exn_impl.children.push(*exn.exn_impl);
+            new_exn.tree.children.push(*exn.tree);
         }
         new_exn
     }
 
     /// Returns the current exception.
     pub fn as_current(&self) -> &E {
-        self.exn_impl
-            .error
-            .as_any()
+        (&*self.tree.error as &dyn std::any::Any)
             .downcast_ref()
             .expect("error type must match")
     }
 
-    /// Returns an immutable view of the current exception.
-    pub fn as_view(&self) -> ExnView<'_> {
-        ExnView::new(&self.exn_impl)
+    /// Returns the internal tree representation of the exception.
+    pub fn as_tree(&self) -> &ExnTree {
+        &self.tree
     }
+
+    // /// Returns an immutable view of the current exception.
+    // pub fn as_view(&self) -> ExnView<'_> {
+    //     ExnView::new(&self.tree)
+    // }
 
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
-        new_exn.exn_impl.children.push(*self.exn_impl);
+        new_exn.tree.children.push(*self.tree);
         new_exn
     }
 }
@@ -152,5 +155,11 @@ impl<E: Error> From<E> for Exn<E> {
     #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
+    }
+}
+
+impl<E: Error> fmt::Display for Exn<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_current())
     }
 }

@@ -17,41 +17,41 @@ use std::fmt::Formatter;
 
 use crate::Error;
 use crate::Exn;
-use crate::ExnView;
+use crate::ExnTree;
 
 impl<E: Error> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write_exn(f, &self.as_view(), 0, "")
+        write_exn(f, self.as_tree(), 0, "")
     }
 }
 
-impl fmt::Debug for ExnView<'_> {
+impl fmt::Debug for ExnTree {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write_exn(f, self, 0, "")
     }
 }
 
-fn write_exn(f: &mut Formatter<'_>, exn: &ExnView, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", exn.as_error())?;
+fn write_exn(f: &mut Formatter<'_>, exn: &ExnTree, level: usize, prefix: &str) -> fmt::Result {
+    write!(f, "{}", exn.error)?;
     write_location(f, exn)?;
 
-    let children_len = exn.children().len();
+    let children_len = exn.children.len();
 
-    for (i, child) in exn.children().enumerate() {
-        let child_child_len = child.children().len();
+    for (i, child) in exn.children.iter().enumerate() {
+        let child_child_len = child.children.len();
 
         if level == 0 && children_len == 1 && child_child_len == 1 {
             write!(f, "\n{}│", prefix)?;
             write!(f, "\n{}├─▶ ", prefix)?;
-            write_exn(f, &child, 0, prefix)?;
+            write_exn(f, child, 0, prefix)?;
         } else if i < children_len - 1 {
             write!(f, "\n{}│", prefix)?;
             write!(f, "\n{}├─▶ ", prefix)?;
-            write_exn(f, &child, level + 1, &format!("{}│   ", prefix))?;
+            write_exn(f, child, level + 1, &format!("{}│   ", prefix))?;
         } else {
             write!(f, "\n{}│   ", prefix)?;
             write!(f, "\n{}╰─▶ ", prefix)?;
-            write_exn(f, &child, level + 1, &format!("{}    ", prefix))?;
+            write_exn(f, child, level + 1, &format!("{}    ", prefix))?;
         }
     }
 
@@ -59,8 +59,8 @@ fn write_exn(f: &mut Formatter<'_>, exn: &ExnView, level: usize, prefix: &str) -
 }
 
 #[cfg(not(windows))]
-fn write_location(f: &mut Formatter<'_>, exn: &ExnView) -> fmt::Result {
-    let location = exn.location();
+fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
+    let location = exn.location;
     write!(
         f,
         ", at {}:{}:{}",
@@ -71,8 +71,8 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnView) -> fmt::Result {
 }
 
 #[cfg(windows)]
-fn pretty_location(f: &mut Formatter<'_>, exn: &ExnView) -> fmt::Result {
-    let location = exn.location();
+fn pretty_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
+    let location = exn.location;
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;
     use std::path::MAIN_SEPARATOR;

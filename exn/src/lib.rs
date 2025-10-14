@@ -75,7 +75,6 @@
 
 #![feature(error_generic_member_access)]
 #![deny(missing_docs)]
-#![feature(trait_alias)]
 
 #[rustversion::not(nightly)]
 compile_error!(
@@ -88,10 +87,12 @@ mod option;
 mod result;
 
 pub use self::impls::Exn;
-pub use self::impls::ExnView;
+pub use self::impls::ExnTree;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
 
 /// A trait bound of the error type of [`Exn`].
-pub trait Error = std::error::Error + Send + Sync + 'static;
+pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {}
+
+impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}
