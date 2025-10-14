@@ -38,19 +38,16 @@ fn write_exn(f: &mut Formatter<'_>, exn: &ExnTree, level: usize, prefix: &str) -
     let children_len = exn.children.len();
 
     for (i, child) in exn.children.iter().enumerate() {
+        write!(f, "\n{}|", prefix)?;
+        write!(f, "\n{}|-> ", prefix)?;
+
         let child_child_len = child.children.len();
 
         if level == 0 && children_len == 1 && child_child_len == 1 {
-            write!(f, "\n{}│", prefix)?;
-            write!(f, "\n{}├─▶ ", prefix)?;
             write_exn(f, child, 0, prefix)?;
         } else if i < children_len - 1 {
-            write!(f, "\n{}│", prefix)?;
-            write!(f, "\n{}├─▶ ", prefix)?;
-            write_exn(f, child, level + 1, &format!("{}│   ", prefix))?;
+            write_exn(f, child, level + 1, &format!("{}|   ", prefix))?;
         } else {
-            write!(f, "\n{}│   ", prefix)?;
-            write!(f, "\n{}╰─▶ ", prefix)?;
             write_exn(f, child, level + 1, &format!("{}    ", prefix))?;
         }
     }

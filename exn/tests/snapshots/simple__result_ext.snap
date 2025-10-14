@@ -3,5 +3,5 @@ source: exn/tests/simple.rs
 expression: result.unwrap_err()
 ---
 Another error, at exn/tests/simple.rs:66:25
-│   
-╰─▶ An error, at exn/tests/simple.rs:66:25
+|
+|-> An error, at exn/tests/simple.rs:66:25
