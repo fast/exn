@@ -97,7 +97,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
         }
         resolved.push('/');
     }
-    
+
     if path.as_os_str().encode_wide().last() != Some(MAIN_SEPARATOR as u16)
         && resolved != "/"
         && resolved.ends_with('/')
