@@ -126,7 +126,7 @@ impl<E: Error> Exn<E> {
     }
 
     /// Returns the current exception.
-    pub fn current_error(&self) -> &E {
+    pub fn as_current(&self) -> &E {
         self.exn_impl
             .error
             .as_any()
@@ -138,9 +138,7 @@ impl<E: Error> Exn<E> {
     pub fn as_view(&self) -> ExnView<'_> {
         ExnView::new(&self.exn_impl)
     }
-}
 
-impl<E> Exn<E> {
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error>(self, err: T) -> Exn<T> {

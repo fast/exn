@@ -14,7 +14,7 @@
 
 /// Creates an [`Exn`] and returns it as [`Result`].
 ///
-/// Shorthand for `return Err(err.into_exn())`.
+/// Shorthand for `return Err(Exn::from(err))`.
 ///
 /// # Examples
 ///
@@ -67,12 +67,8 @@ macro_rules! bail {
 /// struct PermissionDenied(User, Resource);
 ///
 /// impl fmt::Display for PermissionDenied {
-///     # #[allow(unused_variables)]
 ///     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-///         # const _: &str = stringify! {
-///         ...
-///         # };
-///         Ok(())
+///         write!(fmt, "permission denied")
 ///     }
 /// }
 ///

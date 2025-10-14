@@ -15,11 +15,15 @@
 use exn::Exn;
 use exn::OptionExt;
 use exn::ResultExt;
-use parse_display::Display;
 
-#[derive(Debug, Display)]
-#[display("{0}")]
+#[derive(Debug)]
 struct SimpleError(&'static str);
+
+impl std::fmt::Display for SimpleError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 impl std::error::Error for SimpleError {}
 

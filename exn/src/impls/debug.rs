@@ -52,7 +52,7 @@ impl DebugVisitor<'_, '_> {
         write!(self.f, "{}", exn.as_error())?;
         write!(self.f, "{}", make_locations(exn))?;
 
-        let children_len = exn.children_len();
+        let children_len = exn.children().len();
         for (i, child) in exn.children().enumerate() {
             if i != 0 {
                 write!(self.f, "\n{} |", self.prefix)?;
@@ -85,7 +85,7 @@ impl DebugVisitor<'_, '_> {
 fn make_locations(exn: &ExnView) -> String {
     let location = exn.location();
     format!(
-        " at {}:{}:{}",
+        ", at {}:{}:{}",
         location.file(),
         location.line(),
         location.column()
@@ -127,5 +127,5 @@ fn make_locations(exn: &ExnView) -> String {
 
     let line = location.line();
     let column = location.column();
-    format!(" at {resolved}:{line}:{column}")
+    format!(", at {resolved}:{line}:{column}")
 }

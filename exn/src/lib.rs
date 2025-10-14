@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(error_generic_member_access)]
-#![deny(missing_docs)]
-
 //! A context-aware concrete Error type built on `std::error::Error`
 //!
 //! # Examples
@@ -23,45 +20,61 @@
 //! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
-//! use parse_display::Display;
+//! use exn::bail;
 //!
-//! // Errors can enumerate variants users care about
-//! // but notably don't need to chain source/inner error manually.
-//! #[derive(Debug, Display)]
+//! // Errors can be enum but notably don't need to chain source error.
+//! #[derive(Debug)]
 //! enum AppError {
-//!     #[display("serious app error: {consequences}")]
-//!     Serious { consequences: &'static str },
-//!     #[display("trivial app error")]
+//!     Fatal { consequences: &'static str },
 //!     Trivial,
+//! }
+//!
+//! impl std::fmt::Display for AppError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         match self {
+//!             AppError::Fatal { consequences } => write!(f, "fatal error: {consequences}"),
+//!             AppError::Trivial => write!(f, "trivial error"),
+//!         }
+//!     }
 //! }
 //!
 //! impl std::error::Error for AppError {}
 //!
-//! type AppResult<T> = Result<T, AppError>;
+//! // Errors can also be a struct.
+//! #[derive(Debug)]
+//! struct LogicError(String);
 //!
-//! // Errors can also be a plain `struct`, somewhat like in `anyhow`.
-//! #[derive(Debug, Display)]
-//! #[display("logic error")]
-//! struct LogicError;
+//! impl std::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         write!(f, "logic error: {}", self.0)
+//!     }
+//! }
 //!
 //! impl std::error::Error for LogicError {}
 //!
-//! type LogicResult<T> = Result<T, LogicError>;
-//!
-//! fn do_logic() -> LogicResult<()> {
-//!     Ok(())
+//! fn do_logic() -> Result<(), LogicError> {
+//!     bail!(LogicError("0 == 1".to_string()));
 //! }
 //!
-//! fn main() -> AppResult<()> {
-//!     // `error-stack` requires developer to properly handle
-//!     // changing error contexts
-//!     do_logic().or_raise(|| AppError::Serious {
+//! fn main() -> Result<(), AppError> {
+//!     do_logic().or_raise(|| AppError::Fatal {
 //!         consequences: "math no longer works",
 //!     })?;
 //!
 //!     Ok(())
 //! }
 //! ```
+//!
+//! The above program will print an error message like:
+//!
+//! ```text
+//! fatal error: math no longer works, at exn/src/lib.rs:73:20
+//! |
+//! |-> logic error: 0 == 1, at exn/src/lib.rs:69:9
+//! ```
+
+#![feature(error_generic_member_access)]
+#![deny(missing_docs)]
 #![feature(trait_alias)]
 
 #[rustversion::not(nightly)]

@@ -29,7 +29,6 @@ rustversion = { version = "1.0" }
 
 [dev-dependencies]
 insta = { version = "1.43.2" }
-parse-display = { version = "0.10.0" }
 
 [lints]
 workspace = true

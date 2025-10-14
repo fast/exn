@@ -24,14 +24,9 @@ impl<'a> ExnView<'a> {
         Self(exn_impl)
     }
 
-    /// Return an iterator over the children of the exception.
-    pub fn children(&self) -> impl Iterator<Item = ExnView<'a>> {
-        self.0.children.iter().map(ExnView)
-    }
-
-    /// Return the size of the children of the exception.
-    pub fn children_len(&self) -> usize {
-        self.0.children.len()
+    /// Returns the location where this exception was created.
+    pub fn location(&self) -> &std::panic::Location<'static> {
+        &self.0.location
     }
 
     /// Return the error of this view as [`Any`].
@@ -54,8 +49,8 @@ impl<'a> ExnView<'a> {
         std::error::request_ref(&self.0.error)
     }
 
-    /// Returns the location where this exception was created.
-    pub fn location(&self) -> &std::panic::Location<'static> {
-        &self.0.location
+    /// Return an iterator over the children of the exception.
+    pub fn children(&self) -> impl ExactSizeIterator<Item = ExnView<'a>> {
+        self.0.children.iter().map(ExnView)
     }
 }
