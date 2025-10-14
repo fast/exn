@@ -23,25 +23,28 @@
 //! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
-//! // using `thiserror` is unnecessary but convenient
-//! use thiserror::Error;
+//! use parse_display::Display;
 //!
 //! // Errors can enumerate variants users care about
 //! // but notably don't need to chain source/inner error manually.
-//! #[derive(Debug, Error)]
+//! #[derive(Debug, Display)]
 //! enum AppError {
-//!     #[error("serious app error: {consequences}")]
+//!     #[display("serious app error: {consequences}")]
 //!     Serious { consequences: &'static str },
-//!     #[error("trivial app error")]
+//!     #[display("trivial app error")]
 //!     Trivial,
 //! }
+//!
+//! impl std::error::Error for AppError {}
 //!
 //! type AppResult<T> = Result<T, AppError>;
 //!
 //! // Errors can also be a plain `struct`, somewhat like in `anyhow`.
-//! #[derive(Debug, Error)]
-//! #[error("logic error")]
+//! #[derive(Debug, Display)]
+//! #[display("logic error")]
 //! struct LogicError;
+//!
+//! impl std::error::Error for LogicError {}
 //!
 //! type LogicResult<T> = Result<T, LogicError>;
 //!

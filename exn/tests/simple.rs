@@ -15,10 +15,13 @@
 use exn::Exn;
 use exn::OptionExt;
 use exn::ResultExt;
+use parse_display::Display;
 
-#[derive(Debug, thiserror::Error)]
-#[error("{0}")]
+#[derive(Debug, Display)]
+#[display("{0}")]
 struct SimpleError(&'static str);
+
+impl std::error::Error for SimpleError {}
 
 #[test]
 fn test_error_straightforward() {
