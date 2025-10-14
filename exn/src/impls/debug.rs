@@ -71,7 +71,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
 }
 
 #[cfg(windows)]
-fn pretty_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
+fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
     let location = exn.location;
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;
@@ -82,6 +82,7 @@ fn pretty_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
     let path = Path::new(file);
 
     let mut resolved = String::new();
+
     for c in path.components() {
         match c {
             Component::RootDir => {}
@@ -96,6 +97,7 @@ fn pretty_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
         }
         resolved.push('/');
     }
+    
     if path.as_os_str().encode_wide().last() != Some(MAIN_SEPARATOR as u16)
         && resolved != "/"
         && resolved.ends_with('/')
