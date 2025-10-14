@@ -23,18 +23,18 @@ use crate::Error;
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E> {
     // trade one more indirection for less stack size
-    tree: Box<ExnTree>,
+    frame: Box<ExnFrame>,
     _phantom: PhantomData<E>,
 }
 
-/// The internal representation of an exception.
-pub struct ExnTree {
-    /// The error held by this exception.
+/// A frame in the exception tree.
+pub struct ExnFrame {
+    /// The error that occurred at this frame.
     pub error: Box<dyn Error>,
-    /// The location where this exception was created.
+    /// The source code location where this exception frame was created.
     pub location: Location<'static>,
-    /// The children of this exception.    
-    pub children: Vec<ExnTree>,
+    /// Child exception frames that provide additional context or source errors.
+    pub children: Vec<ExnFrame>,
 }
 
 impl<E: Error> Exn<E> {
@@ -66,28 +66,28 @@ impl<E: Error> Exn<E> {
             }
 
             let (location, source) = sources.pop().expect("at least one source must exist");
-            let mut exn_impl = ExnTree {
+            let mut frame = ExnFrame {
                 error: Box::new(source),
                 location,
                 children: vec![],
             };
 
             while let Some((location, source)) = sources.pop() {
-                let mut new_exn_impl = ExnTree {
+                let mut new_frame = ExnFrame {
                     error: Box::new(source),
                     location,
                     children: vec![],
                 };
-                new_exn_impl.children.push(exn_impl);
-                exn_impl = new_exn_impl;
+                new_frame.children.push(frame);
+                frame = new_frame;
             }
 
-            Some(exn_impl)
+            Some(frame)
         } else {
             None
         };
 
-        let exn_impl = ExnTree {
+        let frame = ExnFrame {
             error: Box::new(error),
             location: *Location::caller(),
             children: match source {
@@ -97,7 +97,7 @@ impl<E: Error> Exn<E> {
         };
 
         Self {
-            tree: Box::new(exn_impl),
+            frame: Box::new(frame),
             _phantom: PhantomData,
         }
     }
@@ -108,33 +108,28 @@ impl<E: Error> Exn<E> {
         let mut new_exn = Exn::new(err);
         for exn in children {
             let exn = exn.into();
-            new_exn.tree.children.push(*exn.tree);
+            new_exn.frame.children.push(*exn.frame);
         }
         new_exn
     }
 
     /// Returns the current exception.
     pub fn as_current(&self) -> &E {
-        (&*self.tree.error as &dyn std::any::Any)
+        (&*self.frame.error as &dyn std::any::Any)
             .downcast_ref()
             .expect("error type must match")
     }
 
-    /// Returns the internal tree representation of the exception.
-    pub fn as_tree(&self) -> &ExnTree {
-        &self.tree
+    /// Returns the underlying exception frame.
+    pub fn as_frame(&self) -> &ExnFrame {
+        &self.frame
     }
-
-    // /// Returns an immutable view of the current exception.
-    // pub fn as_view(&self) -> ExnView<'_> {
-    //     ExnView::new(&self.tree)
-    // }
 
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
-        new_exn.tree.children.push(*self.tree);
+        new_exn.frame.children.push(*self.frame);
         new_exn
     }
 }

@@ -142,7 +142,6 @@ name = "exn"
 version = "0.1.4"
 dependencies = [
  "insta",
- "rustversion",
 ]
 
 [[package]]
@@ -216,12 +215,6 @@ dependencies = [
  "linux-raw-sys",
  "windows-sys",
 ]
-
-[[package]]
-name = "rustversion"
-version = "1.0.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eded382c5f5f786b989652c49544c4877d9f015cc22e145a5ea8ea66c2921cd2"
 
 [[package]]
 name = "similar"

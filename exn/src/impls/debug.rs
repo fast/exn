@@ -17,27 +17,27 @@ use std::fmt::Formatter;
 
 use crate::Error;
 use crate::Exn;
-use crate::ExnTree;
+use crate::ExnFrame;
 
 impl<E: Error> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write_exn(f, self.as_tree(), 0, "")
+        write_exn(f, self.as_frame(), 0, "")
     }
 }
 
-impl fmt::Debug for ExnTree {
+impl fmt::Debug for ExnFrame {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write_exn(f, self, 0, "")
     }
 }
 
-fn write_exn(f: &mut Formatter<'_>, exn: &ExnTree, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", exn.error)?;
-    write_location(f, exn)?;
+fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str) -> fmt::Result {
+    write!(f, "{}", frame.error)?;
+    write_location(f, frame)?;
 
-    let children_len = exn.children.len();
+    let children_len = frame.children.len();
 
-    for (i, child) in exn.children.iter().enumerate() {
+    for (i, child) in frame.children.iter().enumerate() {
         write!(f, "\n{}|", prefix)?;
         write!(f, "\n{}|-> ", prefix)?;
 
@@ -56,7 +56,7 @@ fn write_exn(f: &mut Formatter<'_>, exn: &ExnTree, level: usize, prefix: &str) -
 }
 
 #[cfg(not(windows))]
-fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
+fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
     let location = exn.location;
     write!(
         f,
@@ -68,7 +68,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
 }
 
 #[cfg(windows)]
-fn write_location(f: &mut Formatter<'_>, exn: &ExnTree) -> fmt::Result {
+fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
     let location = exn.location;
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;

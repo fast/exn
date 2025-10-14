@@ -69,16 +69,11 @@
 //!
 //! ```text
 //! fatal error: math no longer works, at exn/src/lib.rs:73:20
-//! │
-//! ╰─▶ logic error: 0 == 1, at exn/src/lib.rs:69:9
+//! |
+//! |-> logic error: 0 == 1, at exn/src/lib.rs:69:9
 //! ```
 
 #![deny(missing_docs)]
-
-#[rustversion::not(nightly)]
-compile_error!(
-    "This crate requires a nightly compiler. Please use `rustup default nightly` or `cargo +nightly`."
-);
 
 mod impls;
 mod macros;
@@ -86,7 +81,7 @@ mod option;
 mod result;
 
 pub use self::impls::Exn;
-pub use self::impls::ExnTree;
+pub use self::impls::ExnFrame;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
