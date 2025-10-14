@@ -18,7 +18,7 @@
 
 `exn` provides the missing context APIs for `std::error::Error`.
 
-It organizes errors as a tree structure, allowing you to easily access the root cause and all related errors with their context, by traversing the tree with a visitor.
+It organizes errors as a tree structure, allowing you to easily access the root cause and all related errors with their context.
 
 ## Documentation
 
