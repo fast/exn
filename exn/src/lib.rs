@@ -73,7 +73,6 @@
 //! ╰─▶ logic error: 0 == 1, at exn/src/lib.rs:69:9
 //! ```
 
-#![feature(error_generic_member_access)]
 #![deny(missing_docs)]
 
 #[rustversion::not(nightly)]

@@ -41,14 +41,6 @@ impl<E: Error> Exn<E> {
     /// Create a new exception with the given error.
     #[track_caller]
     pub fn new(error: E) -> Self {
-        #[track_caller]
-        fn make_location(err: &(impl std::error::Error + ?Sized)) -> Location<'static> {
-            match std::error::request_ref::<Location>(err) {
-                Some(loc) => *loc,
-                None => *Location::caller(),
-            }
-        }
-
         struct SourceError(String);
 
         impl fmt::Debug for SourceError {
@@ -66,13 +58,10 @@ impl<E: Error> Exn<E> {
         impl std::error::Error for SourceError {}
 
         let source = if let Some(mut current_source) = error.source() {
-            let mut sources = vec![(
-                make_location(current_source),
-                SourceError(current_source.to_string()),
-            )];
+            let mut sources = vec![(*Location::caller(), SourceError(current_source.to_string()))];
 
             while let Some(source) = current_source.source() {
-                sources.push((make_location(source), SourceError(source.to_string())));
+                sources.push((*Location::caller(), SourceError(source.to_string())));
                 current_source = source;
             }
 
@@ -98,10 +87,9 @@ impl<E: Error> Exn<E> {
             None
         };
 
-        let location = make_location(&error);
         let exn_impl = ExnTree {
             error: Box::new(error),
-            location,
+            location: *Location::caller(),
             children: match source {
                 Some(source) => vec![source],
                 None => vec![],
