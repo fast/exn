@@ -95,12 +95,6 @@ impl<E: Error> Exn<E> {
         new_exn
     }
 
-    /// Set the source code location of current exception frame.
-    pub fn with_location(mut self, location: Location<'static>) -> Self {
-        self.frame.location = location;
-        self
-    }
-
     /// Returns the current exception.
     pub fn as_current(&self) -> &E {
         (&*self.frame.error as &dyn std::any::Any)
