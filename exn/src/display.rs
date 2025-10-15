@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{Error, Exn};
 use std::fmt;
+
+use crate::Error;
+use crate::Exn;
 
 impl<E: Error> fmt::Display for Exn<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
