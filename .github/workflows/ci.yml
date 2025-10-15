@@ -65,8 +65,15 @@ jobs:
         with:
           toolchain: ${{ matrix.rust-version }}
       - name: Run unit tests
+        if: ${{ !startsWith(matrix.os, 'windows') }}
         run: cargo x test --no-capture
         shell: bash
+      - name: Run unit tests (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        run: cargo x test --no-capture
+        shell: bash
+        env:
+          RUSTFLAGS: --cfg windows_test
 
   required:
     name: Required
