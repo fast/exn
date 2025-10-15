@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use exn::Error;
 use exn::Exn;
 use exn::OptionExt;
 use exn::ResultExt;
@@ -29,7 +30,7 @@ impl std::error::Error for SimpleError {}
 
 #[test]
 fn test_error_straightforward() {
-    let e1 = Exn::new(SimpleError("E1"));
+    let e1 = SimpleError("E1").raise();
     let e2 = e1.raise(SimpleError("E2"));
     let e3 = e2.raise(SimpleError("E3"));
     let e4 = e3.raise(SimpleError("E4"));
@@ -39,21 +40,21 @@ fn test_error_straightforward() {
 
 #[test]
 fn test_error_tree() {
-    let e1 = Exn::new(SimpleError("E1"));
+    let e1 = SimpleError("E1").raise();
     let e3 = e1.raise(SimpleError("E3"));
 
-    let e9 = Exn::new(SimpleError("E9"));
+    let e9 = SimpleError("E9").raise();
     let e10 = e9.raise(SimpleError("E10"));
 
-    let e11 = Exn::new(SimpleError("E11"));
+    let e11 = SimpleError("E11").raise();
     let e12 = e11.raise(SimpleError("E12"));
 
     let e5 = Exn::from_iter([e3, e10, e12], SimpleError("E5"));
 
-    let e2 = Exn::new(SimpleError("E2"));
+    let e2 = SimpleError("E2").raise();
     let e4 = e2.raise(SimpleError("E4"));
 
-    let e7 = Exn::new(SimpleError("E7"));
+    let e7 = SimpleError("E7").raise();
     let e8 = e7.raise(SimpleError("E8"));
 
     let e6 = Exn::from_iter([e5, e4, e8], SimpleError("E6"));

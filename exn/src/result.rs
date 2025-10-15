@@ -50,7 +50,7 @@ where
     {
         match self {
             Ok(v) => Ok(v),
-            Err(e) => Err(Exn::new(e).raise(err())),
+            Err(e) => Err(e.raise().raise(err())),
         }
     }
 }
