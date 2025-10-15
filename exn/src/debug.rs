@@ -55,7 +55,7 @@ fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -
     Ok(())
 }
 
-#[cfg(not(windows_test))]
+#[cfg(any(not(windows), not(test)))]
 fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     let location = exn.location();
     write!(
@@ -67,7 +67,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     )
 }
 
-#[cfg(windows_test)]
+#[cfg(all(windows, test))]
 fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
