@@ -68,9 +68,9 @@
 //! The above program will print an error message like:
 //!
 //! ```text
-//! fatal error: math no longer works, at exn/src/lib.rs:73:20
+//! fatal error: math no longer works, at exn/src/lib.rs:44:16
 //! |
-//! |-> logic error: 0 == 1, at exn/src/lib.rs:69:9
+//! |-> logic error: 0 == 1, at exn/src/lib.rs:40:5
 //! ```
 
 #![deny(missing_docs)]

@@ -24,7 +24,8 @@ use crate::Error;
 pub struct Exn<E> {
     // trade one more indirection for less stack size
     frame: Box<ExnFrame>,
-    _phantom: PhantomData<E>,
+    // E is invariant
+    invariant: PhantomData<E>,
 }
 
 /// A frame in the exception tree.
@@ -80,13 +81,17 @@ impl<E: Error> Exn<E> {
 
         Self {
             frame: Box::new(frame),
-            _phantom: PhantomData,
+            invariant: PhantomData,
         }
     }
 
     /// Create a new exception with the given error and children.
     #[track_caller]
-    pub fn from_iter<CE>(children: impl IntoIterator<Item = impl Into<Exn<CE>>>, err: E) -> Self {
+    pub fn from_iter<T, I>(children: I, err: E) -> Self
+    where
+        I: IntoIterator,
+        I::Item: Into<Exn<T>>,
+    {
         let mut new_exn = Exn::new(err);
         for exn in children {
             let exn = exn.into();
@@ -95,25 +100,25 @@ impl<E: Error> Exn<E> {
         new_exn
     }
 
-    /// Returns the current exception.
-    pub fn as_current(&self) -> &E {
-        self.frame
-            .as_any()
-            .downcast_ref()
-            .expect("error type must match")
-    }
-
-    /// Returns the underlying exception frame.
-    pub fn as_frame(&self) -> &ExnFrame {
-        &self.frame
-    }
-
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.frame.children.push(*self.frame);
         new_exn
+    }
+
+    /// Return the current exception.
+    pub fn as_error(&self) -> &E {
+        self.frame
+            .as_any()
+            .downcast_ref()
+            .expect("error type must match")
+    }
+
+    /// Return the underlying exception frame.
+    pub fn as_frame(&self) -> &ExnFrame {
+        &self.frame
     }
 }
 
@@ -126,7 +131,7 @@ impl<E: Error> From<E> for Exn<E> {
 
 impl<E: Error> fmt::Display for Exn<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_current())
+        write!(f, "{}", self.as_error())
     }
 }
 
