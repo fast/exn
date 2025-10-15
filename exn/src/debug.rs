@@ -55,7 +55,7 @@ fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str
     Ok(())
 }
 
-#[cfg(not(windows))]
+#[cfg(not(windows_test))]
 fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
     let location = exn.location();
     write!(
@@ -67,7 +67,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
     )
 }
 
-#[cfg(windows)]
+#[cfg(windows_test)]
 fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
     let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
@@ -87,7 +87,6 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
             Component::ParentDir => resolved.push_str(".."),
             Component::Prefix(prefix) => {
                 resolved.push_str(&prefix.as_os_str().to_string_lossy());
-                // C:\foo is [Prefix, RootDir, Normal]. Avoid C://
                 continue;
             }
             Component::Normal(s) => resolved.push_str(&s.to_string_lossy()),

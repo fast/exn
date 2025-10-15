@@ -75,12 +75,12 @@
 
 #![deny(missing_docs)]
 
+mod debug;
+mod display;
 mod impls;
 mod macros;
 mod option;
 mod result;
-mod debug;
-mod display;
 
 pub use self::impls::Exn;
 pub use self::impls::ExnFrame;

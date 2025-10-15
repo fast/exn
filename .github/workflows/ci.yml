@@ -64,6 +64,9 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
+      - name: Setup RUSTFLAGS
+        if: startsWith(matrix.os, 'windows-')
+        run: echo "RUSTFLAGS='--cfg windows_test'" >> $GITHUB_ENV
       - name: Run unit tests
         run: cargo x test --no-capture
         shell: bash
