@@ -20,8 +20,12 @@ use crate::Error;
 
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E: Error> {
-    // trade one more indirection for less stack size
+    // Trade one more indirection for less stack size.
     frame: Box<Frame>,
+    // This is basically covariant, but since Error implies 'static,
+    // variance doesn't matter here.
+    //
+    // @see https://doc.rust-lang.org/nomicon/phantom-data.html
     phantom: PhantomData<E>,
 }
 

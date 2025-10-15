@@ -89,6 +89,15 @@ pub use self::result::Result;
 pub use self::result::ResultExt;
 
 /// A trait bound of the error type of [`Exn`].
-pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {}
+pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
+    /// Raise a new exception; this will make the current exception a child of the new one.
+    #[track_caller]
+    fn raise<T: Error>(self, err: T) -> Exn<T>
+    where
+        Self: Sized,
+    {
+        Exn::new(self).raise(err)
+    }
+}
 
 impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}
