@@ -128,7 +128,7 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Return the error as a reference to [`Any`].
+    /// Return the error as a reference to [`std::any::Any`].
     pub fn as_any(&self) -> &dyn std::any::Any {
         &*self.error
     }
