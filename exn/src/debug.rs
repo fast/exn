@@ -17,7 +17,7 @@ use std::fmt::Formatter;
 
 use crate::Error;
 use crate::Exn;
-use crate::ExnFrame;
+use crate::Frame;
 
 impl<E: Error> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -25,13 +25,13 @@ impl<E: Error> fmt::Debug for Exn<E> {
     }
 }
 
-impl fmt::Debug for ExnFrame {
+impl fmt::Debug for Frame {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write_exn(f, self, 0, "")
     }
 }
 
-fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str) -> fmt::Result {
+fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
     write!(f, "{}", frame.as_error())?;
     write_location(f, frame)?;
 
@@ -56,7 +56,7 @@ fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str
 }
 
 #[cfg(not(windows_test))]
-fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
+fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     let location = exn.location();
     write!(
         f,
@@ -68,7 +68,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
 }
 
 #[cfg(windows_test)]
-fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
+fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;

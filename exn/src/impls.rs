@@ -19,9 +19,9 @@ use std::panic::Location;
 use crate::Error;
 
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E> {
+pub struct Exn<E: Error> {
     // trade one more indirection for less stack size
-    frame: Box<ExnFrame>,
+    frame: Box<Frame>,
     // E is invariant
     invariant: PhantomData<E>,
 }
@@ -53,9 +53,9 @@ impl<E: Error> Exn<E> {
 
         impl std::error::Error for SourceError {}
 
-        fn walk(error: &dyn std::error::Error, location: Location<'static>) -> Vec<ExnFrame> {
+        fn walk(error: &dyn std::error::Error, location: Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
-                let children = vec![ExnFrame {
+                let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
                     location,
                     children: walk(source, location),
@@ -68,7 +68,7 @@ impl<E: Error> Exn<E> {
 
         let location = *Location::caller();
         let children = walk(&error, location);
-        let frame = ExnFrame {
+        let frame = Frame {
             error: Box::new(error),
             location,
             children,
@@ -84,6 +84,7 @@ impl<E: Error> Exn<E> {
     #[track_caller]
     pub fn from_iter<T, I>(children: I, err: E) -> Self
     where
+        T: Error,
         I: IntoIterator,
         I::Item: Into<Exn<T>>,
     {
@@ -112,22 +113,22 @@ impl<E: Error> Exn<E> {
     }
 
     /// Return the underlying exception frame.
-    pub fn as_frame(&self) -> &ExnFrame {
+    pub fn as_frame(&self) -> &Frame {
         &self.frame
     }
 }
 
 /// A frame in the exception tree.
-pub struct ExnFrame {
+pub struct Frame {
     /// The error that occurred at this frame.
     error: Box<dyn Error>,
     /// The source code location where this exception frame was created.
     location: Location<'static>,
     /// Child exception frames that provide additional context or source errors.
-    children: Vec<ExnFrame>,
+    children: Vec<Frame>,
 }
 
-impl ExnFrame {
+impl Frame {
     /// Return the error as a reference to [`Any`].
     pub fn as_any(&self) -> &dyn std::any::Any {
         &*self.error
@@ -144,7 +145,7 @@ impl ExnFrame {
     }
 
     /// Return a slice of the children of the exception.
-    pub fn children(&self) -> &[ExnFrame] {
+    pub fn children(&self) -> &[Frame] {
         &self.children
     }
 }

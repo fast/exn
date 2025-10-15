@@ -83,7 +83,7 @@ mod option;
 mod result;
 
 pub use self::impls::Exn;
-pub use self::impls::ExnFrame;
+pub use self::impls::Frame;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
