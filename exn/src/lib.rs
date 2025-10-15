@@ -90,7 +90,7 @@ pub use self::result::ResultExt;
 
 /// A trait bound of the error type of [`Exn`].
 pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
-    /// Raise a new exception with the given error as context.
+    /// Raise this error as a new exception.
     #[track_caller]
     fn raise(self) -> Exn<Self>
     where
