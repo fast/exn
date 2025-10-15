@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ContextBound;
-use crate::ErrorBound;
+use crate::Error;
 use crate::Exn;
-use crate::IntoExn;
 
 /// A reasonable return type to use throughout an application.
 pub type Result<T, E> = std::result::Result<T, Exn<E>>;
@@ -26,53 +24,53 @@ pub trait ResultExt {
     type Success;
 
     /// The `Err` type that would be wrapped in an [`Exn`].
-    type Error: ErrorBound;
-
-    /// Attach a new context to the [`Exn`] inside the [`Result`].
-    ///
-    /// Applies [`Exn::attach`] on the `Err` variant, refer to it for more information.
-    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
-    where
-        A: ContextBound,
-        F: FnOnce() -> A;
+    type Error: Error;
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
     /// Applies [`Exn::raise`] on the `Err` variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: ErrorBound,
+        A: Error,
         F: FnOnce() -> A;
 }
 
 impl<T, E> ResultExt for std::result::Result<T, E>
 where
-    E: IntoExn,
+    E: Error,
 {
     type Success = T;
-    type Error = E::Error;
-
-    #[track_caller]
-    fn or_attach<A, F>(self, context: F) -> Result<Self::Success, Self::Error>
-    where
-        A: ContextBound,
-        F: FnOnce() -> A,
-    {
-        match self {
-            Ok(v) => Ok(v),
-            Err(e) => Err(e.into_exn().attach(context())),
-        }
-    }
+    type Error = E;
 
     #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: ErrorBound,
+        A: Error,
         F: FnOnce() -> A,
     {
         match self {
             Ok(v) => Ok(v),
-            Err(e) => Err(e.into_exn().raise(err())),
+            Err(e) => Err(Exn::new(e).raise(err())),
+        }
+    }
+}
+
+impl<T, E> ResultExt for std::result::Result<T, Exn<E>>
+where
+    E: Error,
+{
+    type Success = T;
+    type Error = E;
+
+    #[track_caller]
+    fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
+    where
+        A: Error,
+        F: FnOnce() -> A,
+    {
+        match self {
+            Ok(v) => Ok(v),
+            Err(e) => Err(e.raise(err())),
         }
     }
 }

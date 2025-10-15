@@ -12,78 +12,83 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(error_generic_member_access)]
-#![deny(missing_docs)]
-
 //! A context-aware concrete Error type built on `std::error::Error`
 //!
 //! # Examples
 //!
-//! ```
+//! ```no_run
 //! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
-//! // using `thiserror` is unnecessary but convenient
-//! use thiserror::Error;
+//! use exn::bail;
 //!
-//! // Errors can enumerate variants users care about
-//! // but notably don't need to chain source/inner error manually.
-//! #[derive(Debug, Error)]
+//! // Errors can be enum but notably don't need to chain source error.
+//! #[derive(Debug)]
 //! enum AppError {
-//!     #[error("serious app error: {consequences}")]
-//!     Serious { consequences: &'static str },
-//!     #[error("trivial app error")]
+//!     Fatal { consequences: &'static str },
 //!     Trivial,
 //! }
 //!
-//! type AppResult<T> = Result<T, AppError>;
-//!
-//! // Errors can also be a plain `struct`, somewhat like in `anyhow`.
-//! #[derive(Debug, Error)]
-//! #[error("logic error")]
-//! struct LogicError;
-//!
-//! type LogicResult<T> = Result<T, LogicError>;
-//!
-//! fn do_logic() -> LogicResult<()> {
-//!     Ok(())
+//! impl std::fmt::Display for AppError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         match self {
+//!             AppError::Fatal { consequences } => write!(f, "fatal error: {consequences}"),
+//!             AppError::Trivial => write!(f, "trivial error"),
+//!         }
+//!     }
 //! }
 //!
-//! fn main() -> AppResult<()> {
-//!     // `error-stack` requires developer to properly handle
-//!     // changing error contexts
-//!     do_logic().or_raise(|| AppError::Serious {
+//! impl std::error::Error for AppError {}
+//!
+//! // Errors can also be a struct.
+//! #[derive(Debug)]
+//! struct LogicError(String);
+//!
+//! impl std::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         write!(f, "logic error: {}", self.0)
+//!     }
+//! }
+//!
+//! impl std::error::Error for LogicError {}
+//!
+//! fn do_logic() -> Result<(), LogicError> {
+//!     bail!(LogicError("0 == 1".to_string()));
+//! }
+//!
+//! fn main() -> Result<(), AppError> {
+//!     do_logic().or_raise(|| AppError::Fatal {
 //!         consequences: "math no longer works",
 //!     })?;
 //!
 //!     Ok(())
 //! }
 //! ```
+//!
+//! The above program will print an error message like:
+//!
+//! ```text
+//! fatal error: math no longer works, at exn/src/lib.rs:44:16
+//! |
+//! |-> logic error: 0 == 1, at exn/src/lib.rs:40:5
+//! ```
 
-#[rustversion::not(nightly)]
-compile_error!(
-    "This crate requires a nightly compiler. Please use `rustup default nightly` or `cargo +nightly`."
-);
+#![deny(missing_docs)]
 
-mod convert;
+mod debug;
+mod display;
 mod impls;
 mod macros;
 mod option;
 mod result;
-mod visitor;
 
-pub use self::convert::IntoExn;
 pub use self::impls::Exn;
-pub use self::impls::ExnView;
+pub use self::impls::Frame;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
-pub use self::visitor::Visitor;
 
-/// A trait to bound the error type of [`Exn`].
-pub trait ErrorBound: std::error::Error + Send + Sync + 'static {}
-impl<T: std::error::Error + Send + Sync + 'static> ErrorBound for T {}
+/// A trait bound of the error type of [`Exn`].
+pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {}
 
-/// A trait to bound the context type of [`Exn`].
-pub trait ContextBound: Send + Sync + 'static {}
-impl<T: Send + Sync + 'static> ContextBound for T {}
+impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}

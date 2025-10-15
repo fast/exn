@@ -14,7 +14,7 @@
 
 /// Creates an [`Exn`] and returns it as [`Result`].
 ///
-/// Shorthand for `return Err(err.into_exn())`.
+/// Shorthand for `return Err(Exn::from(err))`.
 ///
 /// # Examples
 ///
@@ -27,7 +27,7 @@
 /// use std::fs;
 ///
 /// use exn::bail;
-/// # fn wrapper() -> exn::Result<(), impl std::fmt::Debug> {
+/// # fn wrapper() -> exn::Result<(), impl exn::Error> {
 /// match fs::read_to_string("/path/to/file") {
 ///     Ok(content) => println!("file contents: {content}"),
 ///     Err(err) => bail!(err),
@@ -37,7 +37,7 @@
 #[macro_export]
 macro_rules! bail {
     ($err:expr) => {{
-        return ::std::result::Result::Err($crate::IntoExn::into_exn($err));
+        return ::std::result::Result::Err($crate::Exn::from($err));
     }};
 }
 
@@ -67,12 +67,8 @@ macro_rules! bail {
 /// struct PermissionDenied(User, Resource);
 ///
 /// impl fmt::Display for PermissionDenied {
-///     # #[allow(unused_variables)]
 ///     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-///         # const _: &str = stringify! {
-///         ...
-///         # };
-///         Ok(())
+///         write!(fmt, "permission denied")
 ///     }
 /// }
 ///

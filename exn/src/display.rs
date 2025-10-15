@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::impls::ExnView;
+use std::fmt;
 
-/// A trait for visiting an exception.
-pub trait Visitor {
-    /// The error type returned by the visitor.
-    type Error;
+use crate::Error;
+use crate::Exn;
 
-    /// Visit an immutable view of the exception.
-    fn visit(&mut self, exn: &ExnView) -> Result<(), Self::Error>;
+impl<E: Error> fmt::Display for Exn<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_error())
+    }
 }

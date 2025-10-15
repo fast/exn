@@ -25,11 +25,9 @@ readme.workspace = true
 repository.workspace = true
 
 [dependencies]
-rustversion = { version = "1.0" }
 
 [dev-dependencies]
 insta = { version = "1.43.2" }
-thiserror = { version = "2.0.12" }
 
 [lints]
 workspace = true

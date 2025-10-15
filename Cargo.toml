@@ -24,6 +24,7 @@ readme = "README.md"
 repository = "https://github.com/fast/exn"
 
 [workspace.lints.rust]
+unexpected_cfgs = { level = "deny", check-cfg = ['cfg(windows_test)'] }
 unknown_lints = "deny"
 
 [workspace.lints.clippy]
