@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod debug;
-
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
@@ -28,14 +26,11 @@ pub struct Exn<E> {
     invariant: PhantomData<E>,
 }
 
-/// A frame in the exception tree.
-pub struct ExnFrame {
-    /// The error that occurred at this frame.
-    pub error: Box<dyn Error>,
-    /// The source code location where this exception frame was created.
-    pub location: Location<'static>,
-    /// Child exception frames that provide additional context or source errors.
-    pub children: Vec<ExnFrame>,
+impl<E: Error> From<E> for Exn<E> {
+    #[track_caller]
+    fn from(error: E) -> Self {
+        Exn::new(error)
+    }
 }
 
 impl<E: Error> Exn<E> {
@@ -122,27 +117,34 @@ impl<E: Error> Exn<E> {
     }
 }
 
-impl<E: Error> From<E> for Exn<E> {
-    #[track_caller]
-    fn from(error: E) -> Self {
-        Exn::new(error)
-    }
-}
-
-impl<E: Error> fmt::Display for Exn<E> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_error())
-    }
+/// A frame in the exception tree.
+pub struct ExnFrame {
+    /// The error that occurred at this frame.
+    error: Box<dyn Error>,
+    /// The source code location where this exception frame was created.
+    location: Location<'static>,
+    /// Child exception frames that provide additional context or source errors.
+    children: Vec<ExnFrame>,
 }
 
 impl ExnFrame {
-    /// Returns the error as a reference to [`Any`].
+    /// Return the error as a reference to [`Any`].
     pub fn as_any(&self) -> &dyn std::any::Any {
         &*self.error
     }
 
-    /// Returns the error as a reference to [`std::error::Error`].
+    /// Return the error as a reference to [`std::error::Error`].
     pub fn as_error(&self) -> &dyn std::error::Error {
         &*self.error
+    }
+
+    /// Return the source code location where this exception frame was created.
+    pub fn location(&self) -> Location<'static> {
+        self.location
+    }
+
+    /// Return a slice of the children of the exception.
+    pub fn children(&self) -> &[ExnFrame] {
+        &self.children
     }
 }

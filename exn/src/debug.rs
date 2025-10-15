@@ -32,17 +32,17 @@ impl fmt::Debug for ExnFrame {
 }
 
 fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", frame.error)?;
+    write!(f, "{}", frame.as_error())?;
     write_location(f, frame)?;
 
-    let children_len = frame.children.len();
+    let children = frame.children();
+    let children_len = children.len();
 
-    for (i, child) in frame.children.iter().enumerate() {
+    for (i, child) in children.iter().enumerate() {
         write!(f, "\n{}|", prefix)?;
         write!(f, "\n{}|-> ", prefix)?;
 
-        let child_child_len = child.children.len();
-
+        let child_child_len = child.children().len();
         if level == 0 && children_len == 1 && child_child_len == 1 {
             write_exn(f, child, 0, prefix)?;
         } else if i < children_len - 1 {
@@ -57,7 +57,7 @@ fn write_exn(f: &mut Formatter<'_>, frame: &ExnFrame, level: usize, prefix: &str
 
 #[cfg(not(windows))]
 fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
-    let location = exn.location;
+    let location = exn.location();
     write!(
         f,
         ", at {}:{}:{}",
@@ -69,7 +69,7 @@ fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
 
 #[cfg(windows)]
 fn write_location(f: &mut Formatter<'_>, exn: &ExnFrame) -> fmt::Result {
-    let location = exn.location;
+    let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;
     use std::path::MAIN_SEPARATOR;
