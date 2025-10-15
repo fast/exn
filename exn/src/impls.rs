@@ -22,8 +22,7 @@ use crate::Error;
 pub struct Exn<E: Error> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
-    // E is invariant
-    invariant: PhantomData<E>,
+    phantom: PhantomData<E>,
 }
 
 impl<E: Error> From<E> for Exn<E> {
@@ -76,7 +75,7 @@ impl<E: Error> Exn<E> {
 
         Self {
             frame: Box::new(frame),
-            invariant: PhantomData,
+            phantom: PhantomData,
         }
     }
 
