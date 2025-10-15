@@ -14,7 +14,7 @@
 
 [package]
 name = "exn"
-version = "0.1.4"
+version = "0.2.0"
 
 description = "A context-aware concrete Error type built on `std::error::Error`."
 
