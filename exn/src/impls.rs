@@ -52,7 +52,7 @@ impl<E: Error> Exn<E> {
 
         impl std::error::Error for SourceError {}
 
-        fn walk(error: &dyn std::error::Error, location: Location<'static>) -> Vec<Frame> {
+        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
                 let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
@@ -65,7 +65,7 @@ impl<E: Error> Exn<E> {
             }
         }
 
-        let location = *Location::caller();
+        let location = Location::caller();
         let children = walk(&error, location);
         let frame = Frame {
             error: Box::new(error),
@@ -122,7 +122,7 @@ pub struct Frame {
     /// The error that occurred at this frame.
     error: Box<dyn Error>,
     /// The source code location where this exception frame was created.
-    location: Location<'static>,
+    location: &'static Location<'static>,
     /// Child exception frames that provide additional context or source errors.
     children: Vec<Frame>,
 }
@@ -139,7 +139,7 @@ impl Frame {
     }
 
     /// Return the source code location where this exception frame was created.
-    pub fn location(&self) -> Location<'static> {
+    pub fn location(&self) -> &'static Location<'static> {
         self.location
     }
 
