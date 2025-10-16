@@ -28,7 +28,7 @@ pub trait ResultExt {
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
-    /// Applies [`Exn::raise`] on the `Err` variant, refer to it for more information.
+    /// Apply [`Exn::raise`] on the `Err` variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
         A: Error,
@@ -50,7 +50,7 @@ where
     {
         match self {
             Ok(v) => Ok(v),
-            Err(e) => Err(e.raise().raise(err())),
+            Err(e) => Err(Exn::new(e).raise(err())),
         }
     }
 }
