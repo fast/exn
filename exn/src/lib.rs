@@ -16,7 +16,7 @@
 //!
 //! # Examples
 //!
-//! ```no_run
+//! ```should_panic
 //! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
