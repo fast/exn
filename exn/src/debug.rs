@@ -32,7 +32,7 @@ impl fmt::Debug for Frame {
 }
 
 fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", frame.as_error())?;
+    write!(f, "{}", frame.as_error().to_string().trim())?;
     write_location(f, frame)?;
 
     let children = frame.children();
