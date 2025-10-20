@@ -137,8 +137,8 @@ fn run_example_tests() {
 
     if !failed.is_empty() {
         eprintln!("{}/{} example tests failed:", failed.len(), total);
-        for (name, actual, expected_comment) in failed {
-            eprintln!("\nexample: {}", name.display());
+        for (path, actual, expected_comment) in failed {
+            eprintln!("\nexample: {}", path.display());
             eprintln!("actual stderr:\n{}", actual);
             eprintln!("expected comment in file:\n{}", expected_comment);
         }
