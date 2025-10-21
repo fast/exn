@@ -66,6 +66,7 @@ struct CommandTest {
 impl CommandTest {
     fn run(self) {
         run_command(make_test_cmd(self.no_capture, true, &[]));
+        #[cfg(not(windows_test))]
         run_example_tests();
     }
 }
@@ -87,6 +88,7 @@ impl CommandLint {
     }
 }
 
+#[cfg(not(windows_test))]
 fn run_example_tests() {
     let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("exn/examples");
 
@@ -125,11 +127,7 @@ fn run_example_tests() {
             .join("\n");
 
         if !content.contains(&commented_stderr) {
-            failed.push((
-                path,
-                stderr.to_string(),
-                commented_stderr,
-            ));
+            failed.push((path, stderr.to_string(), commented_stderr));
         }
 
         total += 1;
