@@ -122,7 +122,7 @@ fn run_example_tests() {
 
         let commented_stderr = stderr
             .lines()
-            .map(|line| format!("// {}", line))
+            .map(|line| format!("// {}", line).trim().to_string())
             .collect::<Vec<_>>()
             .join("\n");
 
