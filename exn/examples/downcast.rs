@@ -62,7 +62,7 @@ fn extract_http_status<E: exn::Error>(err: &Exn<E>) -> Option<u16> {
         }
 
         // Check children recursively
-        frame.children().iter().find_map(|child| walk(child))
+        frame.children().iter().find_map(walk)
     }
 
     walk(err.as_frame())
@@ -83,8 +83,7 @@ mod app {
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        crate::http::make_http_request()
-            .or_raise(|| AppError("failed to run app".to_string()))?;
+        crate::http::make_http_request().or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
@@ -129,13 +128,13 @@ mod http {
 //
 // HTTP error with status code: 503
 // Retryable error, attempting retry #1
-// 
+//
 // HTTP error with status code: 503
 // Retryable error, attempting retry #2
-// 
+//
 // HTTP error with status code: 503
 // Retryable error, attempting retry #3
-// 
+//
 // HTTP error with status code: 503
 // Error: fatal error occurred in application, at exn/examples/downcast.rs:50:32
 // |

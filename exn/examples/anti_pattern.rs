@@ -51,8 +51,7 @@ mod app {
 
     pub fn run() -> Result<(), AppError> {
         // ❌ ANTI-PATTERN: Describing the HTTP layer's job, not the app layer's purpose
-        crate::http::send_request()
-            .or_raise(|| AppError("failed to send request".to_string()))?;
+        crate::http::send_request().or_raise(|| AppError("failed to send request".to_string()))?;
 
         // ✅ CORRECT: Describe what THIS layer does
         // crate::http::send_request()

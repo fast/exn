@@ -16,15 +16,14 @@
 //!
 //! This example demonstrates the recommended patterns for using `exn`:
 //!
-//! 1. **Define Error Types Per Module** - Each module has its own error type.
-//!    The type system enforces proper error context via `or_raise()`.
+//! 1. **Define Error Types Per Module** - Each module has its own error type. The type system
+//!    enforces proper error context via `or_raise()`.
 //!
-//! 2. **Don't Chain Errors Manually** - Unlike traditional error handling,
-//!    you don't need `source: Box<dyn Error>` in your types. The `exn`
-//!    framework maintains the error chain automatically.
+//! 2. **Don't Chain Errors Manually** - Unlike traditional error handling, you don't need `source:
+//!    Box<dyn Error>` in your types. The `exn` framework maintains the error chain automatically.
 //!
-//! 3. **Keep Errors Simple** - Use `struct Error(String)` by default.
-//!    Only add complexity (enums, fields) when needed for programmatic handling.
+//! 3. **Keep Errors Simple** - Use `struct Error(String)` by default. Only add complexity (enums,
+//!    fields) when needed for programmatic handling.
 
 use exn::Result;
 use exn::ResultExt;

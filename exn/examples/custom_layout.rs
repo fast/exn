@@ -17,12 +17,13 @@
 //! This example shows how to traverse the error chain and create custom
 //! formatting to match your application's needs.
 
+use std::fmt::Write;
+
 use exn::Exn;
 use exn::Frame;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
-use std::fmt::Write;
 
 fn main() -> std::result::Result<(), MainError> {
     crate::app::run().map_err(MainError::new)?;
@@ -77,8 +78,7 @@ mod app {
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        crate::http::send_request()
-            .or_raise(|| AppError("failed to run app".to_string()))?;
+        crate::http::send_request().or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
