@@ -12,41 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! # Basic Example - Best Practices for Using `exn` in Real Projects
+//! # Basic Example - Error Handling Best Practices
 //!
-//! This example demonstrates the recommended patterns for error handling with `exn`.
+//! This example demonstrates the recommended patterns for using `exn`:
 //!
-//! ## Key Principles
+//! 1. **Define Error Types Per Module** - Each module has its own error type.
+//!    The type system enforces proper error context via `or_raise()`.
 //!
-//! ### 1. Define Error Types Per Module/Crate
+//! 2. **Don't Chain Errors Manually** - Unlike traditional error handling,
+//!    you don't need `source: Box<dyn Error>` in your types. The `exn`
+//!    framework maintains the error chain automatically.
 //!
-//! Create a dedicated error type for each functional module or crate in your application.
-//! The type system will enforce you to use `or_raise()` when errors cross module boundaries,
-//! ensuring proper error context is added at each layer.
-//!
-//! ### 2. Don't Chain Source Errors in Type Definitions
-//!
-//! Unlike traditional error handling where you might store `source: Box<dyn Error>`,
-//! with `exn` you DON'T need to manually orchestrate child/source errors in your type
-//! definitions. The `exn` framework automatically maintains the error chain for you
-//! when you use `or_raise()`.
-//!
-//! ### 3. Prefer Simple String-Based Errors
-//!
-//! Use `struct Error(String)` as your default error template. For most errors that aren't
-//! meant to be programmatically recovered from or downcast, the only consumer is the
-//! end user reading error messages. Keep errors simple initially, and only add structure
-//! (enums, fields, etc.) when you actually need it for error handling logic.
+//! 3. **Keep Errors Simple** - Use `struct Error(String)` by default.
+//!    Only add complexity (enums, fields) when needed for programmatic handling.
 
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
 
 fn main() -> Result<(), MainError> {
-    // When an error crosses the module boundary from `runner` to `main`,
-    // we use `or_raise()` to add a new error layer with context.
-    let make_error = || MainError;
-    crate::runner::run().or_raise(make_error)?;
+    crate::app::run().or_raise(|| MainError)?;
     Ok(())
 }
 
@@ -61,54 +46,43 @@ impl std::fmt::Display for MainError {
 
 impl std::error::Error for MainError {}
 
-mod runner {
+mod app {
     use super::*;
 
-    pub fn run() -> Result<(), RunError> {
-        // Crossing from `http` module to `runner` module boundary.
-        // The type system enforces `or_raise()` to convert HttpError to RunError.
-        let make_error = || RunError("failed to run".to_string());
-        crate::http::send_request().or_raise(make_error)?;
+    pub fn run() -> Result<(), AppError> {
+        // When crossing module boundaries, use or_raise() to add context
+        crate::http::send_request("http://example.com")
+            .or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
-    // RunError uses the simple string-based pattern: `struct Error(String)`.
-    // This is the recommended default for errors that end users will read.
-    // No need for complex enums or multiple fields unless you have specific
-    // requirements for programmatic error handling.
     #[derive(Debug)]
-    pub struct RunError(String);
+    pub struct AppError(String);
 
-    impl std::fmt::Display for RunError {
+    impl std::fmt::Display for AppError {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             write!(f, "{}", self.0)
         }
     }
 
-    impl std::error::Error for RunError {}
+    impl std::error::Error for AppError {}
 }
 
 mod http {
     use super::*;
 
-    pub fn send_request() -> Result<(), HttpError> {
-        // Use `bail!` macro to return early with an error.
-        // This is the leaf error in our chain.
-        bail!(HttpError {
-            url: "http://example.com".to_string(),
-        });
+    pub fn send_request(url: &str) -> Result<(), HttpError> {
+        bail!(HttpError(format!(
+            "failed to send request to server: {url}"
+        )));
     }
 
-    // HttpError demonstrates a slightly more structured error with a field.
-    // Still simple, but includes the URL for better error messages.
     #[derive(Debug)]
-    pub struct HttpError {
-        url: String,
-    }
+    pub struct HttpError(String);
 
     impl std::fmt::Display for HttpError {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "failed to send request to server: {}", self.url)
+            write!(f, "{}", self.0)
         }
     }
 
@@ -117,8 +91,8 @@ mod http {
 
 // Output when running `cargo run --example basic`:
 //
-// Error: fatal error occurred in application, at exn/examples/basic.rs:49:26
+// Error: fatal error occurred in application, at exn/examples/basic.rs:34:23
 // |
-// |-> failed to run, at exn/examples/basic.rs:71:37
+// |-> failed to run app, at exn/examples/basic.rs:55:14
 // |
-// |-> failed to send request to server: http://example.com, at exn/examples/basic.rs:97:9
+// |-> failed to send request to server: http://example.com, at exn/examples/basic.rs:75:9
