@@ -99,6 +99,6 @@ mod http {
 //
 // Error: fatal error occurred in application, at exn/examples/anti_pattern.rs:34:23
 // |
-// |-> failed to send request, at exn/examples/anti_pattern.rs:55:14
+// |-> failed to send request, at exn/examples/anti_pattern.rs:54:37
 // |
-// |-> failed to send request to server: http://example.com, at exn/examples/anti_pattern.rs:80:9
+// |-> failed to send request to server: http://example.com, at exn/examples/anti_pattern.rs:79:9

@@ -90,8 +90,8 @@ mod http {
 
 // Output when running `cargo run --example basic`:
 //
-// Error: fatal error occurred in application, at exn/examples/basic.rs:34:23
+// Error: fatal error occurred in application, at exn/examples/basic.rs:33:23
 // |
-// |-> failed to run app, at exn/examples/basic.rs:55:14
+// |-> failed to run app, at exn/examples/basic.rs:54:14
 // |
-// |-> failed to send request to server: http://example.com, at exn/examples/basic.rs:75:9
+// |-> failed to send request to server: http://example.com, at exn/examples/basic.rs:74:9

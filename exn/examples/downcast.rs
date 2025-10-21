@@ -138,6 +138,6 @@ mod http {
 // HTTP error with status code: 503
 // Error: fatal error occurred in application, at exn/examples/downcast.rs:50:32
 // |
-// |-> failed to run app, at exn/examples/downcast.rs:87:14
+// |-> failed to run app, at exn/examples/downcast.rs:86:42
 // |
-// |-> HTTP 503: service unavailable, at exn/examples/downcast.rs:107:9
+// |-> HTTP 503: service unavailable, at exn/examples/downcast.rs:106:9

@@ -50,12 +50,12 @@ impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
     pub fn new<E: exn::Error>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
-            // Collect children first (depth-first)
+            // Add this frame first
+            frames.push(format!("{}, at {}", frame.as_error(), frame.location()));
+            // Then collect children
             for child in frame.children() {
                 collect_frames(child, frames);
             }
-            // Then add this frame
-            frames.push(format!("{}, at {}", frame.as_error(), frame.location()));
         }
 
         let mut frames = vec![];
@@ -63,7 +63,7 @@ impl MainError {
 
         // Format as numbered list
         let mut report = String::new();
-        for (i, frame) in frames.iter().rev().enumerate() {
+        for (i, frame) in frames.iter().enumerate() {
             if i > 0 {
                 writeln!(&mut report).unwrap();
             }
@@ -120,5 +120,5 @@ mod http {
 // Output when running `cargo run --example custom_layout`:
 //
 // Error: fatal error occurred in application:
-// 0: failed to run app, at exn/examples/custom_layout.rs:81:14
+// 0: failed to run app, at exn/examples/custom_layout.rs:81:37
 // 1: failed to send request to server: http://example.com, at exn/examples/custom_layout.rs:101:9
