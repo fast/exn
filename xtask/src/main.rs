@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::fs;
+use std::path::PathBuf;
 use std::process::Command as StdCommand;
 
 use clap::Parser;
@@ -64,6 +66,8 @@ struct CommandTest {
 impl CommandTest {
     fn run(self) {
         run_command(make_test_cmd(self.no_capture, true, &[]));
+        #[cfg(not(windows_test))]
+        run_example_tests();
     }
 }
 
@@ -81,6 +85,64 @@ impl CommandLint {
         run_command(make_taplo_cmd(self.fix));
         run_command(make_typos_cmd());
         run_command(make_hawkeye_cmd(self.fix));
+    }
+}
+
+#[cfg(not(windows_test))]
+fn run_example_tests() {
+    let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("exn/examples");
+
+    assert!(
+        examples_dir.exists(),
+        "No examples directory found at {:?}",
+        examples_dir
+    );
+
+    let mut total = 0;
+    let mut failed = Vec::new();
+    let entries = fs::read_dir(&examples_dir).unwrap();
+
+    for entry in entries {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.extension().and_then(|s| s.to_str()) != Some("rs") {
+            continue;
+        }
+
+        let example_name = path.file_stem().unwrap().to_str().unwrap();
+
+        let mut cmd = find_command("cargo");
+        cmd.args(["--quiet", "run", "--example", example_name]);
+
+        let output = cmd.output().unwrap();
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        let content = fs::read_to_string(&path).unwrap();
+
+        let commented_stderr = stderr
+            .lines()
+            .map(|line| format!("// {}", line).trim().to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        if !content.contains(&commented_stderr) {
+            failed.push((path, stderr.to_string(), commented_stderr));
+        }
+
+        total += 1;
+    }
+
+    if !failed.is_empty() {
+        eprintln!("{}/{} example tests failed:", failed.len(), total);
+        for (path, actual, expected_comment) in failed {
+            eprintln!("\nexample: {}", path.display());
+            eprintln!("actual stderr:\n{}", actual);
+            eprintln!("expected comment in file:\n{}", expected_comment);
+        }
+        std::process::exit(1);
+    } else {
+        println!("all {} example tests passed", total);
     }
 }
 
