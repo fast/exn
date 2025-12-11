@@ -14,7 +14,7 @@
 
 [workspace]
 members = ["exn", "xtask"]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
 edition = "2024"
@@ -22,6 +22,7 @@ homepage = "https://github.com/fast/exn"
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/fast/exn"
+rust-version = "1.85.0"
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "deny", check-cfg = ['cfg(windows_test)'] }

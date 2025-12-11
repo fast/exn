@@ -23,6 +23,7 @@ homepage.workspace = true
 license.workspace = true
 readme.workspace = true
 repository.workspace = true
+rust-version.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true
@@ -31,6 +32,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 [dependencies]
 
 [dev-dependencies]
+derive_more = { version = "2.1.0", features = ["full"] }
 insta = { version = "1.43.2" }
 
 [lints]
