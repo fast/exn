@@ -24,6 +24,10 @@ license.workspace = true
 readme.workspace = true
 repository.workspace = true
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [dependencies]
 
 [dev-dependencies]
