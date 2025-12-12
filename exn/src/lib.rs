@@ -17,10 +17,25 @@
 //! # Examples
 //!
 //! ```
-//! use exn::Exn;
 //! use exn::Result;
 //! use exn::ResultExt;
 //! use exn::bail;
+//!
+//! // It's recommended to define errors as structs. Exn will maintain the error tree automatically.
+//! #[derive(Debug)]
+//! struct LogicError(String);
+//!
+//! impl std::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         write!(f, "logic error: {}", self.0)
+//!     }
+//! }
+//!
+//! impl std::error::Error for LogicError {}
+//!
+//! fn do_logic() -> Result<(), LogicError> {
+//!     bail!(LogicError("0 == 1".to_string()));
+//! }
 //!
 //! // Errors can be enum but notably don't need to chain source error.
 //! #[derive(Debug)]
@@ -39,22 +54,6 @@
 //! }
 //!
 //! impl std::error::Error for AppError {}
-//!
-//! // Errors can also be a struct.
-//! #[derive(Debug)]
-//! struct LogicError(String);
-//!
-//! impl std::fmt::Display for LogicError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//!         write!(f, "logic error: {}", self.0)
-//!     }
-//! }
-//!
-//! impl std::error::Error for LogicError {}
-//!
-//! fn do_logic() -> Result<(), LogicError> {
-//!     bail!(LogicError("0 == 1".to_string()));
-//! }
 //!
 //! fn main() {
 //!     if let Err(err) = do_logic().or_raise(|| AppError::Fatal {
