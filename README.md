@@ -2,7 +2,6 @@
 
 [![Crates.io][crates-badge]][crates-url]
 [![Documentation][docs-badge]][docs-url]
-[![MSRV 1.85][msrv-badge]](https://www.whatrustisit.com)
 [![Apache 2.0 licensed][license-badge]][license-url]
 [![Build Status][actions-badge]][actions-url]
 
@@ -10,7 +9,6 @@
 [crates-url]: https://crates.io/crates/exn
 [docs-badge]: https://docs.rs/exn/badge.svg
 [docs-url]: https://docs.rs/exn
-[msrv-badge]: https://img.shields.io/badge/MSRV-1.85-green?logo=rust
 [license-badge]: https://img.shields.io/crates/l/exn
 [license-url]: LICENSE
 [actions-badge]: https://github.com/fast/exn/workflows/CI/badge.svg
