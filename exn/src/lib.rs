@@ -105,7 +105,7 @@ impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + '
 /// Equivalent to `Ok::<_, Exn<E>>(value)`.
 ///
 /// This simplifies creation of an `exn::Result` in places where type inference cannot deduce the
-/// `E` type of the result &mdash; without needing to write`Ok::<_, Exn<E>>(value)`.
+/// `E` type of the result &mdash; without needing to write `Ok::<_, Exn<E>>(value)`.
 ///
 /// One might think that `exn::Result::Ok(value)` would work in such cases, but it does not.
 ///
