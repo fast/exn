@@ -25,24 +25,19 @@
 //! 3. **Keep Errors Simple** - Use `struct Error(String)` by default. Only add complexity (enums,
 //!    fields) when needed for programmatic handling.
 
+use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
 
 fn main() -> Result<(), MainError> {
-    crate::app::run().or_raise(|| MainError)?;
+    app::run().or_raise(|| MainError)?;
     Ok(())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Display)]
+#[display("fatal error occurred in application")]
 struct MainError;
-
-impl std::fmt::Display for MainError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "fatal error occurred in application")
-    }
-}
-
 impl std::error::Error for MainError {}
 
 mod app {
@@ -50,20 +45,13 @@ mod app {
 
     pub fn run() -> Result<(), AppError> {
         // When crossing module boundaries, use or_raise() to add context
-        crate::http::send_request("http://example.com")
+        http::send_request("https://example.com")
             .or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
     pub struct AppError(String);
-
-    impl std::fmt::Display for AppError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0)
-        }
-    }
-
     impl std::error::Error for AppError {}
 }
 
@@ -76,22 +64,15 @@ mod http {
         )));
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
     pub struct HttpError(String);
-
-    impl std::fmt::Display for HttpError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0)
-        }
-    }
-
     impl std::error::Error for HttpError {}
 }
 
 // Output when running `cargo run --example basic`:
 //
-// Error: fatal error occurred in application, at exn/examples/basic.rs:33:23
+// Error: fatal error occurred in application, at exn/examples/basic.rs:34:16
 // |
-// |-> failed to run app, at exn/examples/basic.rs:54:14
+// |-> failed to run app, at exn/examples/basic.rs:49:14
 // |
-// |-> failed to send request to server: http://example.com, at exn/examples/basic.rs:74:9
+// |-> failed to send request to server: https://example.com, at exn/examples/basic.rs:62:9

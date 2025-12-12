@@ -26,7 +26,7 @@ use exn::ResultExt;
 use exn::bail;
 
 fn main() -> std::result::Result<(), MainError> {
-    crate::app::run().map_err(MainError::new)?;
+    app::run().map_err(MainError::new)?;
     Ok(())
 }
 
@@ -51,7 +51,7 @@ impl MainError {
     pub fn new<E: exn::Error>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
             // Add this frame first
-            frames.push(format!("{}, at {}", frame.as_error(), frame.location()));
+            frames.push(format!("[{}] {}", frame.location(), frame.as_error()));
             // Then collect children
             for child in frame.children() {
                 collect_frames(child, frames);
@@ -78,7 +78,7 @@ mod app {
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        crate::http::send_request().or_raise(|| AppError("failed to run app".to_string()))?;
+        http::send_request().or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
@@ -99,7 +99,7 @@ mod http {
 
     pub fn send_request() -> Result<(), HttpError> {
         bail!(HttpError {
-            url: "http://example.com".to_string(),
+            url: "https://example.com".to_string(),
         });
     }
 
@@ -120,5 +120,5 @@ mod http {
 // Output when running `cargo run --example custom_layout`:
 //
 // Error: fatal error occurred in application:
-// 0: failed to run app, at exn/examples/custom_layout.rs:81:37
-// 1: failed to send request to server: http://example.com, at exn/examples/custom_layout.rs:101:9
+// 0: [exn/examples/custom_layout.rs:81:30] failed to run app
+// 1: [exn/examples/custom_layout.rs:101:9] failed to send request to server: https://example.com

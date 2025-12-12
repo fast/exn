@@ -16,11 +16,26 @@
 //!
 //! # Examples
 //!
-//! ```no_run
-//! use exn::Exn;
+//! ```
 //! use exn::Result;
 //! use exn::ResultExt;
 //! use exn::bail;
+//!
+//! // It's recommended to define errors as structs. Exn will maintain the error tree automatically.
+//! #[derive(Debug)]
+//! struct LogicError(String);
+//!
+//! impl std::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//!         write!(f, "logic error: {}", self.0)
+//!     }
+//! }
+//!
+//! impl std::error::Error for LogicError {}
+//!
+//! fn do_logic() -> Result<(), LogicError> {
+//!     bail!(LogicError("0 == 1".to_string()));
+//! }
 //!
 //! // Errors can be enum but notably don't need to chain source error.
 //! #[derive(Debug)]
@@ -40,28 +55,12 @@
 //!
 //! impl std::error::Error for AppError {}
 //!
-//! // Errors can also be a struct.
-//! #[derive(Debug)]
-//! struct LogicError(String);
-//!
-//! impl std::fmt::Display for LogicError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//!         write!(f, "logic error: {}", self.0)
-//!     }
-//! }
-//!
-//! impl std::error::Error for LogicError {}
-//!
-//! fn do_logic() -> Result<(), LogicError> {
-//!     bail!(LogicError("0 == 1".to_string()));
-//! }
-//!
-//! fn main() -> Result<(), AppError> {
-//!     do_logic().or_raise(|| AppError::Fatal {
+//! fn main() {
+//!     if let Err(err) = do_logic().or_raise(|| AppError::Fatal {
 //!         consequences: "math no longer works",
-//!     })?;
-//!
-//!     Ok(())
+//!     }) {
+//!         eprintln!("{err:?}");
+//!     }
 //! }
 //! ```
 //!
@@ -73,6 +72,7 @@
 //! |-> logic error: 0 == 1, at exn/src/lib.rs:40:5
 //! ```
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
 
 mod debug;
@@ -88,7 +88,7 @@ pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
 
-/// A trait bound of the error type of [`Exn`].
+/// A trait bound of the supported error type of [`Exn`].
 pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
     /// Raise this error as a new exception.
     #[track_caller]
@@ -101,3 +101,24 @@ pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
 }
 
 impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}
+
+/// Equivalent to `Ok::<_, Exn<E>>(value)`.
+///
+/// This simplifies creation of an `exn::Result` in places where type inference cannot deduce the
+/// `E` type of the result &mdash; without needing to write `Ok::<_, Exn<E>>(value)`.
+///
+/// One might think that `exn::Result::Ok(value)` would work in such cases, but it does not.
+///
+/// ```console
+/// error[E0282]: type annotations needed for `std::result::Result<i32, E>`
+///   --> src/main.rs:11:13
+///    |
+/// 11 |     let _ = exn::Result::Ok(1);
+///    |         -   ^^^^^^^^^^^^^^^ cannot infer type for type parameter `E` declared on the enum `Result`
+///    |         |
+///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
+/// ```
+#[expect(non_snake_case)]
+pub fn Ok<T, E: Error>(value: T) -> Result<T, E> {
+    Result::Ok(value)
+}

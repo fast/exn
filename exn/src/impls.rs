@@ -34,6 +34,13 @@ impl<E: Error> From<E> for Exn<E> {
 
 impl<E: Error> Exn<E> {
     /// Create a new exception with the given error.
+    ///
+    /// This will automatically walk the [source chain of the error] and add them as children
+    /// frames.
+    ///
+    /// See also [`Error::raise`] for a fluent way to convert an error into an `Exn` instance.
+    ///
+    /// [source chain of the error]: std::error::Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);

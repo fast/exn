@@ -26,24 +26,19 @@
 //! **The Fix:** Describe what **this layer** is doing. The app runs tasks,
 //! so say "failed to run app" - the HTTP details come from the child error.
 
+use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
 
 fn main() -> Result<(), MainError> {
-    crate::app::run().or_raise(|| MainError)?;
+    app::run().or_raise(|| MainError)?;
     Ok(())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Display)]
+#[display("fatal error occurred in application")]
 struct MainError;
-
-impl std::fmt::Display for MainError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "fatal error occurred in application")
-    }
-}
-
 impl std::error::Error for MainError {}
 
 mod app {
@@ -51,7 +46,7 @@ mod app {
 
     pub fn run() -> Result<(), AppError> {
         // ❌ ANTI-PATTERN: Describing the HTTP layer's job, not the app layer's purpose
-        crate::http::send_request().or_raise(|| AppError("failed to send request".to_string()))?;
+        http::send_request().or_raise(|| AppError("failed to send request".to_string()))?;
 
         // ✅ CORRECT: Describe what THIS layer does
         // crate::http::send_request()
@@ -60,15 +55,8 @@ mod app {
         Ok(())
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
     pub struct AppError(String);
-
-    impl std::fmt::Display for AppError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0)
-        }
-    }
-
     impl std::error::Error for AppError {}
 }
 
@@ -77,28 +65,23 @@ mod http {
 
     pub fn send_request() -> Result<(), HttpError> {
         bail!(HttpError {
-            url: "http://example.com".to_string(),
+            url: "https://anti-pattern.com".to_string(),
         });
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
+    #[display("failed to send request to server: {url}")]
     pub struct HttpError {
         url: String,
     }
-
-    impl std::fmt::Display for HttpError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "failed to send request to server: {}", self.url)
-        }
-    }
-
     impl std::error::Error for HttpError {}
 }
 
-// Output: Notice "failed to send request" appears twice with no new information!
+// Output when running `cargo run --example anti_pattern`.
+// Notice "failed to send request" appears twice with no new information!
 //
-// Error: fatal error occurred in application, at exn/examples/anti_pattern.rs:34:23
+// Error: fatal error occurred in application, at exn/examples/anti_pattern.rs:35:16
 // |
-// |-> failed to send request, at exn/examples/anti_pattern.rs:54:37
+// |-> failed to send request, at exn/examples/anti_pattern.rs:49:30
 // |
-// |-> failed to send request to server: http://example.com, at exn/examples/anti_pattern.rs:79:9
+// |-> failed to send request to server: https://anti-pattern.com, at exn/examples/anti_pattern.rs:67:9

@@ -21,6 +21,7 @@
 //! - Recover from specific error types
 //! - Extract structured data (HTTP codes, retry hints, etc.)
 
+use derive_more::Display;
 use exn::Exn;
 use exn::Frame;
 use exn::Result;
@@ -32,24 +33,23 @@ use crate::http::HttpError;
 fn main() -> Result<(), MainError> {
     let mut attempt = 0;
     loop {
-        match crate::app::run() {
-            Ok(_) => return Ok(()),
-            Err(err) => {
-                // Extract HTTP status code from anywhere in the error chain
-                if let Some(status) = extract_http_status(&err) {
-                    eprintln!("HTTP error with status code: {status}");
+        let Err(err) = app::run() else {
+            return Ok(());
+        };
 
-                    if attempt < 3 && status == 503 {
-                        eprintln!("Retryable error, attempting retry #{}", attempt + 1);
-                        eprintln!();
-                        attempt += 1;
-                        continue;
-                    }
-                }
+        // Extract HTTP status code from anywhere in the error chain
+        if let Some(status) = extract_http_status(&err) {
+            eprintln!("HTTP error with status code: {status}");
 
-                return Err(err.raise(MainError));
+            if attempt < 3 && status == 503 {
+                eprintln!("Retryable error, attempting retry #{}", attempt + 1);
+                eprintln!();
+                attempt += 1;
+                continue;
             }
         }
+
+        return Err(err.raise(MainError));
     }
 }
 
@@ -68,34 +68,21 @@ fn extract_http_status<E: exn::Error>(err: &Exn<E>) -> Option<u16> {
     walk(err.as_frame())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Display)]
+#[display("fatal error occurred in application")]
 struct MainError;
-
-impl std::fmt::Display for MainError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "fatal error occurred in application")
-    }
-}
-
 impl std::error::Error for MainError {}
 
 mod app {
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        crate::http::make_http_request().or_raise(|| AppError("failed to run app".to_string()))?;
+        http::make_http_request().or_raise(|| AppError("failed to run app".to_string()))?;
         Ok(())
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
     pub struct AppError(String);
-
-    impl std::fmt::Display for AppError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{}", self.0)
-        }
-    }
-
     impl std::error::Error for AppError {}
 }
 
@@ -109,18 +96,12 @@ mod http {
         });
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Display)]
+    #[display("HTTP {status}: {message}")]
     pub struct HttpError {
-        message: String,
         pub status: u16,
+        pub message: String,
     }
-
-    impl std::fmt::Display for HttpError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "HTTP {}: {}", self.status, self.message)
-        }
-    }
-
     impl std::error::Error for HttpError {}
 }
 
@@ -136,8 +117,8 @@ mod http {
 // Retryable error, attempting retry #3
 //
 // HTTP error with status code: 503
-// Error: fatal error occurred in application, at exn/examples/downcast.rs:50:32
+// Error: fatal error occurred in application, at exn/examples/downcast.rs:52:24
 // |
-// |-> failed to run app, at exn/examples/downcast.rs:86:42
+// |-> failed to run app, at exn/examples/downcast.rs:80:35
 // |
-// |-> HTTP 503: service unavailable, at exn/examples/downcast.rs:106:9
+// |-> HTTP 503: service unavailable, at exn/examples/downcast.rs:93:9
