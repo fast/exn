@@ -80,8 +80,8 @@ mod http {
 // Output when running `cargo run --example anti_pattern`.
 // Notice "failed to send request" appears twice with no new information!
 //
-// Error: fatal error occurred in application, at exn/examples/anti_pattern.rs:35:16
+// Error: fatal error occurred in application, at examples/src/anti-pattern.rs:35:16
 // |
-// |-> failed to send request, at exn/examples/anti_pattern.rs:49:30
+// |-> failed to send request, at examples/src/anti-pattern.rs:49:30
 // |
-// |-> failed to send request to server: https://anti-pattern.com, at exn/examples/anti_pattern.rs:67:9
+// |-> failed to send request to server: https://anti-pattern.com, at examples/src/anti-pattern.rs:67:9
