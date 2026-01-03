@@ -117,8 +117,8 @@ mod http {
 // Retryable error, attempting retry #3
 //
 // HTTP error with status code: 503
-// Error: fatal error occurred in application, at exn/examples/downcast.rs:52:24
+// Error: fatal error occurred in application, at examples/src/downcast.rs:52:24
 // |
-// |-> failed to run app, at exn/examples/downcast.rs:80:35
+// |-> failed to run app, at examples/src/downcast.rs:80:35
 // |
-// |-> HTTP 503: service unavailable, at exn/examples/downcast.rs:93:9
+// |-> HTTP 503: service unavailable, at examples/src/downcast.rs:93:9

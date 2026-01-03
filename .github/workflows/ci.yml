@@ -37,7 +37,7 @@ jobs:
     name: Check
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
@@ -46,17 +46,17 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: typos-cli,taplo-cli,hawkeye
-      - run: cargo +nightly x lint
+      - run: cargo x lint
 
   test:
     name: Run tests
     strategy:
       matrix:
         os: [ ubuntu-24.04, macos-14, windows-2022 ]
-        rust-version: [ "stable" ]
+        rust-version: [ "stable", "nightly" ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: Swatinem/rust-cache@v2
       - name: Delete rust-toolchain.toml
         run: rm rust-toolchain.toml

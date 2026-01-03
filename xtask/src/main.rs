@@ -90,18 +90,16 @@ impl CommandLint {
 
 #[cfg(not(windows_test))]
 fn run_example_tests() {
-    let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("exn/examples");
+    let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR"))
+        .join("examples")
+        .join("src");
 
-    assert!(
-        examples_dir.exists(),
-        "No examples directory found at {:?}",
-        examples_dir
-    );
+    let entries = fs::read_dir(&examples_dir).unwrap_or_else(|err| {
+        panic!("failed to read examples directory at {examples_dir:?}: {err:?}")
+    });
 
     let mut total = 0;
-    let mut failed = Vec::new();
-    let entries = fs::read_dir(&examples_dir).unwrap();
-
+    let mut failed = vec![];
     for entry in entries {
         let entry = entry.unwrap();
         let path = entry.path();
@@ -120,14 +118,20 @@ fn run_example_tests() {
 
         let content = fs::read_to_string(&path).unwrap();
 
-        let commented_stderr = stderr
+        let actual = stderr
             .lines()
-            .map(|line| format!("// {}", line).trim().to_string())
+            .map(|line| {
+                if line.is_empty() {
+                    "//".to_string()
+                } else {
+                    format!("// {}", line)
+                }
+            })
             .collect::<Vec<_>>()
             .join("\n");
 
-        if !content.contains(&commented_stderr) {
-            failed.push((path, stderr.to_string(), commented_stderr));
+        if !content.contains(&actual) {
+            failed.push((path, actual));
         }
 
         total += 1;
@@ -135,10 +139,9 @@ fn run_example_tests() {
 
     if !failed.is_empty() {
         eprintln!("{}/{} example tests failed:", failed.len(), total);
-        for (path, actual, expected_comment) in failed {
+        for (path, actual) in failed {
             eprintln!("\nexample: {}", path.display());
             eprintln!("actual stderr:\n{}", actual);
-            eprintln!("expected comment in file:\n{}", expected_comment);
         }
         std::process::exit(1);
     } else {
@@ -207,7 +210,7 @@ fn make_test_cmd(no_capture: bool, default_features: bool, features: &[&str]) ->
 
 fn make_format_cmd(fix: bool) -> StdCommand {
     let mut cmd = find_command("cargo");
-    cmd.args(["fmt", "--all"]);
+    cmd.args(["+nightly", "fmt", "--all"]);
     if !fix {
         cmd.arg("--check");
     }
@@ -217,6 +220,7 @@ fn make_format_cmd(fix: bool) -> StdCommand {
 fn make_clippy_cmd(fix: bool) -> StdCommand {
     let mut cmd = find_command("cargo");
     cmd.args([
+        "+nightly",
         "clippy",
         "--tests",
         "--all-features",
