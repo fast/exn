@@ -13,17 +13,33 @@
 # limitations under the License.
 
 [package]
-name = "x"
+name = "examples"
 publish = false
 
 edition.workspace = true
+
+[[example]]
+name = "anti-pattern"
+path = "src/anti-pattern.rs"
+
+[[example]]
+name = "basic"
+path = "src/basic.rs"
+
+[[example]]
+name = "custom-layout"
+path = "src/custom-layout.rs"
+
+[[example]]
+name = "downcast"
+path = "src/downcast.rs"
 
 [package.metadata.release]
 release = false
 
 [dependencies]
-clap = { workspace = true }
-which = { workspace = true }
+derive_more = { workspace = true }
+exn = { workspace = true }
 
 [lints]
 workspace = true
