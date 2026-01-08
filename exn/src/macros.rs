@@ -21,7 +21,7 @@
 /// Create an [`Exn`] from [`Error`]:
 ///
 /// [`Exn`]: crate::Exn
-/// [`Error`]: std::error::Error
+/// [`Error`]: core::error::Error
 ///
 /// ```
 /// use std::fs;
@@ -37,7 +37,7 @@
 #[macro_export]
 macro_rules! bail {
     ($err:expr) => {{
-        return ::std::result::Result::Err($crate::Exn::from($err));
+        return ::core::result::Result::Err($crate::Exn::from($err));
     }};
 }
 
@@ -50,7 +50,7 @@ macro_rules! bail {
 /// Create an [`Exn`] from an [`Error`]:
 ///
 /// [`Exn`]: crate::Exn
-/// [`Error`]: std::error::Error
+/// [`Error`]: core::error::Error
 ///
 /// ```
 /// # fn has_permission(_: &u32, _: &u32) -> bool { true }
@@ -58,7 +58,7 @@ macro_rules! bail {
 /// # let user = 0;
 /// # type Resource = u32;
 /// # let resource = 0;
-/// use std::error::Error;
+/// use core::error::Error;
 /// use std::fmt;
 ///
 /// use exn::ensure;

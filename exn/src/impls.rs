@@ -44,7 +44,7 @@ impl<E: Error> Exn<E> {
     ///
     /// See also [`Error::raise`] for a fluent way to convert an error into an `Exn` instance.
     ///
-    /// [source chain of the error]: std::error::Error::source
+    /// [source chain of the error]: core::error::Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -142,12 +142,12 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Return the error as a reference to [`std::any::Any`].
+    /// Return the error as a reference to [`core::any::Any`].
     pub fn as_any(&self) -> &dyn core::any::Any {
         &*self.error
     }
 
-    /// Return the error as a reference to [`std::error::Error`].
+    /// Return the error as a reference to [`core::error::Error`].
     pub fn as_error(&self) -> &dyn core::error::Error {
         &*self.error
     }

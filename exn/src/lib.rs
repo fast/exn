@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A context-aware concrete Error type built on `std::error::Error`
+//! A context-aware concrete Error type built on `core::error::Error`
 //!
 //! # Examples
 //!
@@ -25,13 +25,13 @@
 //! #[derive(Debug)]
 //! struct LogicError(String);
 //!
-//! impl std::fmt::Display for LogicError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//! impl core::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 //!         write!(f, "logic error: {}", self.0)
 //!     }
 //! }
 //!
-//! impl std::error::Error for LogicError {}
+//! impl core::error::Error for LogicError {}
 //!
 //! fn do_logic() -> Result<(), LogicError> {
 //!     bail!(LogicError("0 == 1".to_string()));
@@ -44,8 +44,8 @@
 //!     Trivial,
 //! }
 //!
-//! impl std::fmt::Display for AppError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//! impl core::fmt::Display for AppError {
+//!     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 //!         match self {
 //!             AppError::Fatal { consequences } => write!(f, "fatal error: {consequences}"),
 //!             AppError::Trivial => write!(f, "trivial error"),
@@ -53,7 +53,7 @@
 //!     }
 //! }
 //!
-//! impl std::error::Error for AppError {}
+//! impl core::error::Error for AppError {}
 //!
 //! fn main() {
 //!     if let Err(err) = do_logic().or_raise(|| AppError::Fatal {
@@ -113,13 +113,13 @@ impl<T> Error for T where T: core::error::Error + core::any::Any + Send + Sync +
 /// One might think that `exn::Result::Ok(value)` would work in such cases, but it does not.
 ///
 /// ```console
-/// error[E0282]: type annotations needed for `std::result::Result<i32, E>`
+/// error[E0282]: type annotations needed for `core::result::Result<i32, E>`
 ///   --> src/main.rs:11:13
 ///    |
 /// 11 |     let _ = exn::Result::Ok(1);
 ///    |         -   ^^^^^^^^^^^^^^^ cannot infer type for type parameter `E` declared on the enum `Result`
 ///    |         |
-///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
+///    |         consider giving this pattern the explicit type `core::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
 #[expect(non_snake_case)]
 pub fn Ok<T, E: Error>(value: T) -> Result<T, E> {
