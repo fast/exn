@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt;
-use std::marker::PhantomData;
-use std::panic::Location;
+use core::fmt;
+use core::marker::PhantomData;
+use core::panic::Location;
+
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 
 use crate::Error;
 
@@ -40,7 +44,7 @@ impl<E: Error> Exn<E> {
     ///
     /// See also [`Error::raise`] for a fluent way to convert an error into an `Exn` instance.
     ///
-    /// [source chain of the error]: std::error::Error::source
+    /// [source chain of the error]: core::error::Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -57,18 +61,21 @@ impl<E: Error> Exn<E> {
             }
         }
 
-        impl std::error::Error for SourceError {}
+        impl core::error::Error for SourceError {}
 
-        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
+        fn walk(
+            error: &dyn core::error::Error,
+            location: &'static Location<'static>,
+        ) -> Vec<Frame> {
             if let Some(source) = error.source() {
-                let children = vec![Frame {
+                let children = alloc::vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
                     location,
                     children: walk(source, location),
                 }];
                 children
             } else {
-                vec![]
+                alloc::vec![]
             }
         }
 
@@ -135,13 +142,13 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Return the error as a reference to [`std::any::Any`].
-    pub fn as_any(&self) -> &dyn std::any::Any {
+    /// Return the error as a reference to [`core::any::Any`].
+    pub fn as_any(&self) -> &dyn core::any::Any {
         &*self.error
     }
 
-    /// Return the error as a reference to [`std::error::Error`].
-    pub fn as_error(&self) -> &dyn std::error::Error {
+    /// Return the error as a reference to [`core::error::Error`].
+    pub fn as_error(&self) -> &dyn core::error::Error {
         &*self.error
     }
 

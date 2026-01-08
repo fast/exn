@@ -16,7 +16,7 @@
 name = "exn"
 version = "0.2.1"
 
-description = "A context-aware concrete Error type built on `std::error::Error`."
+description = "A context-aware concrete Error type built on `core::error::Error`."
 
 edition.workspace = true
 homepage.workspace = true
