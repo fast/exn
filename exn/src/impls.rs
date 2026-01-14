@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::error::Error;
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
-
-use std::error::Error;
 
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E: Error + 'static> {
