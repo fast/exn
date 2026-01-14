@@ -21,7 +21,7 @@ use crate::Frame;
 
 impl<E: Error> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write_exn(f, self.as_frame(), 0, "")
+        write_exn(f, self.frame(), 0, "")
     }
 }
 
@@ -32,7 +32,7 @@ impl fmt::Debug for Frame {
 }
 
 fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", frame.as_error())?;
+    write!(f, "{}", frame.error())?;
     write_location(f, frame)?;
 
     let children = frame.children();

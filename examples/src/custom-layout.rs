@@ -17,6 +17,7 @@
 //! This example shows how to traverse the error chain and create custom
 //! formatting to match your application's needs.
 
+use std::error::Error;
 use std::fmt::Write;
 
 use exn::Exn;
@@ -48,10 +49,10 @@ impl std::error::Error for MainError {}
 
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
-    pub fn new<E: exn::Error>(err: Exn<E>) -> Self {
+    pub fn new<E: Error>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
             // Add this frame first
-            frames.push(format!("[{}] {}", frame.location(), frame.as_error()));
+            frames.push(format!("[{}] {}", frame.location(), frame.error()));
             // Then collect children
             for child in frame.children() {
                 collect_frames(child, frames);
@@ -59,7 +60,7 @@ impl MainError {
         }
 
         let mut frames = vec![];
-        collect_frames(err.as_frame(), &mut frames);
+        collect_frames(err.frame(), &mut frames);
 
         // Format as numbered list
         let mut report = String::new();

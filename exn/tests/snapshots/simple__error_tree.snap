@@ -2,26 +2,26 @@
 source: exn/tests/simple.rs
 expression: e6
 ---
-E6, at exn/tests/simple.rs:60:14
+E6, at exn/tests/simple.rs:59:14
 |
-|-> E5, at exn/tests/simple.rs:52:14
+|-> E5, at exn/tests/simple.rs:51:14
 |   |
-|   |-> E3, at exn/tests/simple.rs:44:17
+|   |-> E3, at exn/tests/simple.rs:43:17
 |   |   |
-|   |   |-> E1, at exn/tests/simple.rs:43:32
+|   |   |-> E1, at exn/tests/simple.rs:42:14
 |   |
-|   |-> E10, at exn/tests/simple.rs:47:18
+|   |-> E10, at exn/tests/simple.rs:46:18
 |   |   |
-|   |   |-> E9, at exn/tests/simple.rs:46:32
+|   |   |-> E9, at exn/tests/simple.rs:45:14
 |   |
-|   |-> E12, at exn/tests/simple.rs:50:19
+|   |-> E12, at exn/tests/simple.rs:49:19
 |       |
-|       |-> E11, at exn/tests/simple.rs:49:34
+|       |-> E11, at exn/tests/simple.rs:48:15
 |
-|-> E4, at exn/tests/simple.rs:55:17
+|-> E4, at exn/tests/simple.rs:54:17
 |   |
-|   |-> E2, at exn/tests/simple.rs:54:32
+|   |-> E2, at exn/tests/simple.rs:53:14
 |
-|-> E8, at exn/tests/simple.rs:58:17
+|-> E8, at exn/tests/simple.rs:57:17
     |
-    |-> E7, at exn/tests/simple.rs:57:32
+    |-> E7, at exn/tests/simple.rs:56:14

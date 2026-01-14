@@ -82,25 +82,13 @@ mod macros;
 mod option;
 mod result;
 
+use std::error::Error;
+
 pub use self::impls::Exn;
 pub use self::impls::Frame;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
-
-/// A trait bound of the supported error type of [`Exn`].
-pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
-    /// Raise this error as a new exception.
-    #[track_caller]
-    fn raise(self) -> Exn<Self>
-    where
-        Self: Sized,
-    {
-        Exn::new(self)
-    }
-}
-
-impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}
 
 /// Equivalent to `Ok::<_, Exn<E>>(value)`.
 ///
@@ -119,6 +107,6 @@ impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + '
 ///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
 #[expect(non_snake_case)]
-pub fn Ok<T, E: Error>(value: T) -> Result<T, E> {
+pub fn Ok<T, E: Error + 'static>(value: T) -> Result<T, E> {
     Result::Ok(value)
 }

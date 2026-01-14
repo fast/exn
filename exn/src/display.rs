@@ -19,6 +19,6 @@ use crate::Exn;
 
 impl<E: Error> fmt::Display for Exn<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_error())
+        write!(f, "{}", self.error())
     }
 }

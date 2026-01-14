@@ -21,6 +21,8 @@
 //! - Recover from specific error types
 //! - Extract structured data (HTTP codes, retry hints, etc.)
 
+use std::error::Error;
+
 use derive_more::Display;
 use exn::Exn;
 use exn::Frame;
@@ -54,10 +56,10 @@ fn main() -> Result<(), MainError> {
 }
 
 /// Walk the error chain and extract HTTP status code if present.
-fn extract_http_status<E: exn::Error>(err: &Exn<E>) -> Option<u16> {
+fn extract_http_status<E: Error>(err: &Exn<E>) -> Option<u16> {
     fn walk(frame: &Frame) -> Option<u16> {
         // Try to downcast current frame
-        if let Some(http_err) = frame.as_any().downcast_ref::<HttpError>() {
+        if let Some(http_err) = frame.error().downcast_ref::<HttpError>() {
             return Some(http_err.status);
         }
 
@@ -65,7 +67,7 @@ fn extract_http_status<E: exn::Error>(err: &Exn<E>) -> Option<u16> {
         frame.children().iter().find_map(walk)
     }
 
-    walk(err.as_frame())
+    walk(err.frame())
 }
 
 #[derive(Debug, Display)]
