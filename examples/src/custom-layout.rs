@@ -121,5 +121,5 @@ mod http {
 // Output when running `cargo run --example custom_layout`:
 //
 // Error: fatal error occurred in application:
-// 0: [examples/src/custom-layout.rs:81:30] failed to run app
-// 1: [examples/src/custom-layout.rs:101:9] failed to send request to server: https://example.com
+// 0: [examples/src/custom-layout.rs:82:30] failed to run app
+// 1: [examples/src/custom-layout.rs:102:9] failed to send request to server: https://example.com
