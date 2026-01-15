@@ -64,16 +64,15 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust-version }}
-      - name: Run unit tests
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-        run: cargo x test --no-capture
-        shell: bash
-      - name: Run unit tests (Windows)
+      - name: Adjust snapshots on Windows
         if: ${{ startsWith(matrix.os, 'windows') }}
+        run: |
+          perl -i -pe 's/\//\\/g if /at exn/' exn/tests/snapshots/*.snap
+          perl -i -pe 's/(?<!\/)\/(?!\/)/\\/g if /examples\/src/' examples/src/*.rs
+        shell: bash
+      - name: Run unit tests
         run: cargo x test --no-capture
         shell: bash
-        env:
-          RUSTFLAGS: --cfg windows_test
 
   required:
     name: Required
