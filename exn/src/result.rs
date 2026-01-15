@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Error;
+use std::error::Error;
+
 use crate::Exn;
 
 /// A reasonable return type to use throughout an application.

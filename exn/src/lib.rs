@@ -82,8 +82,6 @@ mod macros;
 mod option;
 mod result;
 
-use std::error::Error;
-
 pub use self::impls::Exn;
 pub use self::impls::Frame;
 pub use self::option::OptionExt;
@@ -107,6 +105,6 @@ pub use self::result::ResultExt;
 ///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
 #[expect(non_snake_case)]
-pub fn Ok<T, E: Error + 'static>(value: T) -> Result<T, E> {
+pub fn Ok<T, E: std::error::Error + 'static>(value: T) -> Result<T, E> {
     Result::Ok(value)
 }

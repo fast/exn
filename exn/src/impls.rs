@@ -37,7 +37,7 @@ impl<E: Error + 'static> Exn<E> {
     /// This will automatically walk the [source chain of the error] and add them as children
     /// frames.
     ///
-    /// [source chain of the error]: std::error::Error::source
+    /// [source chain of the error]: Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -54,9 +54,9 @@ impl<E: Error + 'static> Exn<E> {
             }
         }
 
-        impl std::error::Error for SourceError {}
+        impl Error for SourceError {}
 
-        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
+        fn walk(error: &dyn Error, location: &'static Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
                 let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
@@ -133,7 +133,7 @@ pub struct Frame {
 
 impl Frame {
     /// Return the error that occurred at this frame.
-    pub fn error(&self) -> &(dyn std::error::Error + 'static) {
+    pub fn error(&self) -> &(dyn Error + 'static) {
         &*self.error
     }
 

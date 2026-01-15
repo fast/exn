@@ -28,8 +28,6 @@ repository.workspace = true
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
-[dependencies]
-
 [dev-dependencies]
 insta = { workspace = true }
 
