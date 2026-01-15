@@ -27,7 +27,7 @@
 /// use std::fs;
 ///
 /// use exn::bail;
-/// # fn wrapper() -> exn::Result<(), impl exn::Error> {
+/// # fn wrapper() -> exn::Result<(), std::io::Error> {
 /// match fs::read_to_string("/path/to/file") {
 ///     Ok(content) => println!("file contents: {content}"),
 ///     Err(err) => bail!(err),

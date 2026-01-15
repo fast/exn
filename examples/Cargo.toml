@@ -37,7 +37,7 @@ path = "src/downcast.rs"
 [package.metadata.release]
 release = false
 
-[dependencies]
+[dev-dependencies]
 derive_more = { workspace = true }
 exn = { workspace = true }
 

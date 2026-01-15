@@ -12,35 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::error::Error;
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
 
-use crate::Error;
-
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error> {
+pub struct Exn<E: Error + 'static> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
 }
 
-impl<E: Error> From<E> for Exn<E> {
+impl<E: Error + 'static> From<E> for Exn<E> {
     #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
     }
 }
 
-impl<E: Error> Exn<E> {
+impl<E: Error + 'static> Exn<E> {
     /// Create a new exception with the given error.
     ///
     /// This will automatically walk the [source chain of the error] and add them as children
     /// frames.
     ///
-    /// See also [`Error::raise`] for a fluent way to convert an error into an `Exn` instance.
-    ///
-    /// [source chain of the error]: std::error::Error::source
+    /// [source chain of the error]: Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -57,9 +54,9 @@ impl<E: Error> Exn<E> {
             }
         }
 
-        impl std::error::Error for SourceError {}
+        impl Error for SourceError {}
 
-        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
+        fn walk(error: &dyn Error, location: &'static Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
                 let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
@@ -90,7 +87,7 @@ impl<E: Error> Exn<E> {
     #[track_caller]
     pub fn from_iter<T, I>(children: I, err: E) -> Self
     where
-        T: Error,
+        T: Error + 'static,
         I: IntoIterator,
         I::Item: Into<Exn<T>>,
     {
@@ -111,15 +108,15 @@ impl<E: Error> Exn<E> {
     }
 
     /// Return the current exception.
-    pub fn as_error(&self) -> &E {
+    pub fn error(&self) -> &E {
         self.frame
-            .as_any()
+            .error()
             .downcast_ref()
             .expect("error type must match")
     }
 
     /// Return the underlying exception frame.
-    pub fn as_frame(&self) -> &Frame {
+    pub fn frame(&self) -> &Frame {
         &self.frame
     }
 }
@@ -127,7 +124,7 @@ impl<E: Error> Exn<E> {
 /// A frame in the exception tree.
 pub struct Frame {
     /// The error that occurred at this frame.
-    error: Box<dyn Error>,
+    error: Box<dyn Error + 'static>,
     /// The source code location where this exception frame was created.
     location: &'static Location<'static>,
     /// Child exception frames that provide additional context or source errors.
@@ -135,13 +132,8 @@ pub struct Frame {
 }
 
 impl Frame {
-    /// Return the error as a reference to [`std::any::Any`].
-    pub fn as_any(&self) -> &dyn std::any::Any {
-        &*self.error
-    }
-
-    /// Return the error as a reference to [`std::error::Error`].
-    pub fn as_error(&self) -> &dyn std::error::Error {
+    /// Return the error that occurred at this frame.
+    pub fn error(&self) -> &(dyn Error + 'static) {
         &*self.error
     }
 
