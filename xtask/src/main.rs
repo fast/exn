@@ -135,7 +135,6 @@ fn run_example_tests() {
         total += 1;
     }
 
-    #[cfg(not(windows))] // windows has different path separator
     if !failed.is_empty() {
         eprintln!("{}/{} example tests failed:", failed.len(), total);
         for (path, actual) in failed {
