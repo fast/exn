@@ -21,9 +21,8 @@
 //! - Recover from specific error types
 //! - Extract structured data (HTTP codes, retry hints, etc.)
 
-use std::error::Error;
-
 use derive_more::Display;
+use exn::Error;
 use exn::Exn;
 use exn::Frame;
 use exn::Result;
@@ -119,8 +118,8 @@ mod http {
 // Retryable error, attempting retry #3
 //
 // HTTP error with status code: 503
-// Error: fatal error occurred in application, at examples/src/downcast.rs:54:24
+// Error: fatal error occurred in application, at examples/src/downcast.rs:53:24
 // |
-// |-> failed to run app, at examples/src/downcast.rs:82:35
+// |-> failed to run app, at examples/src/downcast.rs:81:35
 // |
-// |-> HTTP 503: service unavailable, at examples/src/downcast.rs:95:9
+// |-> HTTP 503: service unavailable, at examples/src/downcast.rs:94:9

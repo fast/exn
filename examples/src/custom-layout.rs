@@ -17,9 +17,9 @@
 //! This example shows how to traverse the error chain and create custom
 //! formatting to match your application's needs.
 
-use std::error::Error;
 use std::fmt::Write;
 
+use exn::Error;
 use exn::Exn;
 use exn::Frame;
 use exn::Result;

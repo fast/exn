@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
-
+use crate::Error;
 use crate::Exn;
 use crate::Result;
 

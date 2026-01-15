@@ -12,32 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::Location;
 
+use crate::Error;
+
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error + 'static> {
+pub struct Exn<E: Error> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
 }
 
-impl<E: Error + 'static> From<E> for Exn<E> {
+impl<E: Error> From<E> for Exn<E> {
     #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
     }
 }
 
-impl<E: Error + 'static> Exn<E> {
+impl<E: Error> Exn<E> {
     /// Create a new exception with the given error.
     ///
     /// This will automatically walk the [source chain of the error] and add them as children
     /// frames.
     ///
-    /// [source chain of the error]: Error::source
+    /// See also [`Error::raise`] for a fluent way to convert an error into an `Exn` instance.
+    ///
+    /// [source chain of the error]: std::error::Error::source
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -54,9 +57,9 @@ impl<E: Error + 'static> Exn<E> {
             }
         }
 
-        impl Error for SourceError {}
+        impl std::error::Error for SourceError {}
 
-        fn walk(error: &dyn Error, location: &'static Location<'static>) -> Vec<Frame> {
+        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
                 let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
@@ -87,7 +90,7 @@ impl<E: Error + 'static> Exn<E> {
     #[track_caller]
     pub fn from_iter<T, I>(children: I, err: E) -> Self
     where
-        T: Error + 'static,
+        T: Error,
         I: IntoIterator,
         I::Item: Into<Exn<T>>,
     {
@@ -124,7 +127,7 @@ impl<E: Error + 'static> Exn<E> {
 /// A frame in the exception tree.
 pub struct Frame {
     /// The error that occurred at this frame.
-    error: Box<dyn Error + 'static>,
+    error: Box<dyn Error>,
     /// The source code location where this exception frame was created.
     location: &'static Location<'static>,
     /// Child exception frames that provide additional context or source errors.
@@ -133,7 +136,7 @@ pub struct Frame {
 
 impl Frame {
     /// Return the error that occurred at this frame.
-    pub fn error(&self) -> &(dyn Error + 'static) {
+    pub fn error(&self) -> &(dyn std::error::Error + 'static) {
         &*self.error
     }
 

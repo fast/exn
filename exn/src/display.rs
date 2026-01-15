@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
 use std::fmt;
 
+use crate::Error;
 use crate::Exn;
 
 impl<E: Error> fmt::Display for Exn<E> {
