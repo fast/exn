@@ -68,7 +68,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'windows') }}
         run: |
           perl -i -pe 's/\//\\/g if /at exn/' exn/tests/snapshots/*.snap
-          perl -i -pe 's/\//\\/g if /at examples/' examples/src/*.rs
+          perl -i -pe 's/(?<!\/)\/(?!\/)/\\/g if /at examples/' examples/src/*.rs
         shell: bash
       - name: Run unit tests
         run: cargo x test --no-capture
