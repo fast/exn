@@ -112,7 +112,7 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         self.frame
             .error()
             .downcast_ref()
-            .expect("error type must match")
+            .unwrap_or_else(|| unreachable!("error type must match"))
     }
 
     /// Return the underlying exception frame.
