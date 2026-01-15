@@ -33,7 +33,15 @@ impl fmt::Debug for Frame {
 
 fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
     write!(f, "{}", frame.error())?;
-    write_location(f, frame)?;
+
+    let location = frame.location();
+    write!(
+        f,
+        ", at {}:{}:{}",
+        location.file(),
+        location.line(),
+        location.column()
+    )?;
 
     let children = frame.children();
     let children_len = children.len();
@@ -53,54 +61,4 @@ fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -
     }
 
     Ok(())
-}
-
-fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
-    let location = exn.location();
-
-    let file = location.file();
-    let line = location.line();
-    let column = location.column();
-
-    #[cfg(not(all(test, windows)))]
-    {
-        write!(f, ", at {file}:{line}:{column}")
-    }
-
-    #[cfg(all(test, windows))]
-    {
-        use std::os::windows::ffi::OsStrExt;
-        use std::path::Component;
-        use std::path::MAIN_SEPARATOR;
-        use std::path::Path;
-
-        let path = Path::new(file);
-        let mut resolved = String::new();
-
-        for c in path.components() {
-            match c {
-                Component::RootDir => {}
-                Component::CurDir => resolved.push('.'),
-                Component::ParentDir => resolved.push_str(".."),
-                Component::Prefix(prefix) => {
-                    resolved.push_str(&prefix.as_os_str().to_string_lossy());
-                    continue;
-                }
-                Component::Normal(s) => resolved.push_str(&s.to_string_lossy()),
-            }
-            resolved.push('/');
-        }
-
-        if path.as_os_str().encode_wide().last() != Some(MAIN_SEPARATOR as u16)
-            && resolved != "/"
-            && resolved.ends_with('/')
-        {
-            resolved.pop(); // Pop last '/'
-        }
-
-        let line = location.line();
-        let column = location.column();
-
-        write!(f, ", at {resolved}:{line}:{column}")
-    }
 }

@@ -136,7 +136,7 @@ pub struct Frame {
 
 impl Frame {
     /// Return the error that occurred at this frame.
-    pub fn error(&self) -> &(dyn std::error::Error + 'static) {
+    pub fn error(&self) -> &(dyn std::error::Error + Send + Sync + 'static) {
         &*self.error
     }
 

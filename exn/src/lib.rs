@@ -118,7 +118,7 @@ impl<T> Error for T where T: std::error::Error + Send + Sync + 'static {}
 ///    |         |
 ///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
-#[allow(non_snake_case)]
+#[expect(non_snake_case)]
 pub fn Ok<T, E: Error>(value: T) -> Result<T, E> {
     Result::Ok(value)
 }
