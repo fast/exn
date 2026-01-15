@@ -34,7 +34,6 @@ insta = { version = "1.45.1" }
 which = { version = "8.0.0" }
 
 [workspace.lints.rust]
-unexpected_cfgs = { level = "deny", check-cfg = ['cfg(windows_test)'] }
 unknown_lints = "deny"
 
 [workspace.lints.clippy]

@@ -66,7 +66,6 @@ struct CommandTest {
 impl CommandTest {
     fn run(self) {
         run_command(make_test_cmd(self.no_capture, true, &[]));
-        #[cfg(not(windows_test))]
         run_example_tests();
     }
 }
@@ -88,7 +87,6 @@ impl CommandLint {
     }
 }
 
-#[cfg(not(windows_test))]
 fn run_example_tests() {
     let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR"))
         .join("examples")
@@ -137,6 +135,7 @@ fn run_example_tests() {
         total += 1;
     }
 
+    #[cfg(not(windows))] // windows has different path separator
     if !failed.is_empty() {
         eprintln!("{}/{} example tests failed:", failed.len(), total);
         for (path, actual) in failed {
