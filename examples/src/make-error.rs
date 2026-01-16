@@ -56,8 +56,8 @@ impl Error for ConfigError {}
 
 // Output when running `cargo run -p examples --example make-error`:
 //
-// Error: fatal error occurred in application, at examples/src/make-error.rs:40:34
+// Error: fatal error occurred in application, at examples/src/make-error.rs:31:40
 // |
-// |-> failed to load server config, at examples/src/make-error.rs:51:39
+// |-> failed to load server config, at examples/src/make-error.rs:42:39
 // |
-// |-> invalid digit found in string, at examples/src/make-error.rs:51:39
+// |-> invalid digit found in string, at examples/src/make-error.rs:42:39
