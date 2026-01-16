@@ -25,7 +25,7 @@ pub trait OptionExt {
     /// Construct a new [`Exn`] on the `None` variant.
     fn ok_or_raise<A, F>(self, err: F) -> Result<Self::Some, A>
     where
-        A: Error,
+        A: Error + Send + Sync,
         F: FnOnce() -> A;
 }
 
@@ -35,7 +35,7 @@ impl<T> OptionExt for Option<T> {
     #[track_caller]
     fn ok_or_raise<A, F>(self, err: F) -> Result<T, A>
     where
-        A: Error,
+        A: Error + Send + Sync,
         F: FnOnce() -> A,
     {
         match self {
