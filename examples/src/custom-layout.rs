@@ -45,11 +45,11 @@ impl std::fmt::Display for MainError {
     }
 }
 
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
-    pub fn new<E: Error>(err: Exn<E>) -> Self {
+    pub fn new<E: Error + Send + Sync + 'static>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
             // Add this frame first
             frames.push(format!("[{}] {}", frame.location(), frame.error()));
@@ -92,7 +92,7 @@ mod app {
         }
     }
 
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -115,7 +115,7 @@ mod http {
         }
     }
 
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example custom_layout`:

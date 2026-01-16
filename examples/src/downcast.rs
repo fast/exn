@@ -56,7 +56,7 @@ fn main() -> Result<(), MainError> {
 }
 
 /// Walk the error chain and extract HTTP status code if present.
-fn extract_http_status<E: Error>(err: &Exn<E>) -> Option<u16> {
+fn extract_http_status<E: Error + Send + Sync + 'static>(err: &Exn<E>) -> Option<u16> {
     fn walk(frame: &Frame) -> Option<u16> {
         // Try to downcast current frame
         if let Some(http_err) = frame.error().downcast_ref::<HttpError>() {
@@ -73,7 +73,7 @@ fn extract_http_status<E: Error>(err: &Exn<E>) -> Option<u16> {
 #[derive(Debug, Display)]
 #[display("fatal error occurred in application")]
 struct MainError;
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 mod app {
     use super::*;
@@ -85,7 +85,7 @@ mod app {
 
     #[derive(Debug, Display)]
     pub struct AppError(String);
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -104,7 +104,7 @@ mod http {
         pub status: u16,
         pub message: String,
     }
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example downcast`:

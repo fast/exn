@@ -77,34 +77,16 @@
 
 mod debug;
 mod display;
+mod ext;
 mod impls;
 mod macros;
 mod option;
 mod result;
 
+pub use self::ext::ErrorExt;
+pub use self::ext::Ok;
 pub use self::impls::Exn;
 pub use self::impls::Frame;
 pub use self::option::OptionExt;
 pub use self::result::Result;
 pub use self::result::ResultExt;
-
-/// Equivalent to `Ok::<_, Exn<E>>(value)`.
-///
-/// This simplifies creation of an `exn::Result` in places where type inference cannot deduce the
-/// `E` type of the result &mdash; without needing to write `Ok::<_, Exn<E>>(value)`.
-///
-/// One might think that `exn::Result::Ok(value)` would work in such cases, but it does not.
-///
-/// ```console
-/// error[E0282]: type annotations needed for `std::result::Result<i32, E>`
-///   --> src/main.rs:11:13
-///    |
-/// 11 |     let _ = exn::Result::Ok(1);
-///    |         -   ^^^^^^^^^^^^^^^ cannot infer type for type parameter `E` declared on the enum `Result`
-///    |         |
-///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
-/// ```
-#[expect(non_snake_case)]
-pub fn Ok<T, E: std::error::Error + 'static>(value: T) -> Result<T, E> {
-    Result::Ok(value)
-}

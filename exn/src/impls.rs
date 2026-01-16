@@ -18,20 +18,20 @@ use std::marker::PhantomData;
 use std::panic::Location;
 
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error + 'static> {
+pub struct Exn<E: Error + Send + Sync + 'static> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
 }
 
-impl<E: Error + 'static> From<E> for Exn<E> {
+impl<E: Error + Send + Sync + 'static> From<E> for Exn<E> {
     #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
     }
 }
 
-impl<E: Error + 'static> Exn<E> {
+impl<E: Error + Send + Sync + 'static> Exn<E> {
     /// Create a new exception with the given error.
     ///
     /// This will automatically walk the [source chain of the error] and add them as children
@@ -87,7 +87,7 @@ impl<E: Error + 'static> Exn<E> {
     #[track_caller]
     pub fn from_iter<T, I>(children: I, err: E) -> Self
     where
-        T: Error + 'static,
+        T: Error + Send + Sync + 'static,
         I: IntoIterator,
         I::Item: Into<Exn<T>>,
     {
@@ -101,7 +101,7 @@ impl<E: Error + 'static> Exn<E> {
 
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
-    pub fn raise<T: Error>(self, err: T) -> Exn<T> {
+    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.frame.children.push(*self.frame);
         new_exn
@@ -124,7 +124,7 @@ impl<E: Error + 'static> Exn<E> {
 /// A frame in the exception tree.
 pub struct Frame {
     /// The error that occurred at this frame.
-    error: Box<dyn Error + 'static>,
+    error: Box<dyn Error + Send + Sync + 'static>,
     /// The source code location where this exception frame was created.
     location: &'static Location<'static>,
     /// Child exception frames that provide additional context or source errors.
@@ -133,7 +133,7 @@ pub struct Frame {
 
 impl Frame {
     /// Return the error that occurred at this frame.
-    pub fn error(&self) -> &(dyn Error + 'static) {
+    pub fn error(&self) -> &(dyn Error + Send + Sync + 'static) {
         &*self.error
     }
 
