@@ -19,7 +19,7 @@ use std::fmt::Formatter;
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error> fmt::Debug for Exn<E> {
+impl<E: Error + Send + Sync> fmt::Debug for Exn<E> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write_exn(f, self.frame(), 0, "")
     }

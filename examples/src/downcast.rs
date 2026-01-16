@@ -56,7 +56,7 @@ fn main() -> Result<(), MainError> {
 }
 
 /// Walk the error chain and extract HTTP status code if present.
-fn extract_http_status<E: Error>(err: &Exn<E>) -> Option<u16> {
+fn extract_http_status<E: Error + Send + Sync>(err: &Exn<E>) -> Option<u16> {
     fn walk(frame: &Frame) -> Option<u16> {
         // Try to downcast current frame
         if let Some(http_err) = frame.error().downcast_ref::<HttpError>() {
