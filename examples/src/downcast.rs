@@ -73,7 +73,7 @@ fn extract_http_status<E: Error + Send + Sync>(err: &Exn<E>) -> Option<u16> {
 #[derive(Debug, Display)]
 #[display("fatal error occurred in application")]
 struct MainError;
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 mod app {
     use super::*;
@@ -85,7 +85,7 @@ mod app {
 
     #[derive(Debug, Display)]
     pub struct AppError(String);
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -104,7 +104,7 @@ mod http {
         pub status: u16,
         pub message: String,
     }
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example downcast`:
