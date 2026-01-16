@@ -49,7 +49,7 @@ impl Error for MainError {}
 
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
-    pub fn new<E: Error + Send + Sync + 'static>(err: Exn<E>) -> Self {
+    pub fn new<E: Error + Send + Sync>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
             // Add this frame first
             frames.push(format!("[{}] {}", frame.location(), frame.error()));

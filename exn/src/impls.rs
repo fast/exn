@@ -101,7 +101,7 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
 
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
-    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
+    pub fn raise<T: Error + Send + Sync>(self, err: T) -> Exn<T> {
         let mut new_exn = Exn::new(err);
         new_exn.frame.children.push(*self.frame);
         new_exn

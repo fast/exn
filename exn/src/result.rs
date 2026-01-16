@@ -32,7 +32,7 @@ pub trait ResultExt {
     /// Apply [`Exn::raise`] on the `Err` variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: Error + Send + Sync + 'static,
+        A: Error + Send + Sync,
         F: FnOnce() -> A;
 }
 
@@ -58,7 +58,7 @@ where
 
 impl<T, E> ResultExt for std::result::Result<T, Exn<E>>
 where
-    E: Error + Send + Sync + 'static,
+    E: Error + Send + Sync,
 {
     type Success = T;
     type Error = E;
