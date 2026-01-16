@@ -45,7 +45,7 @@ impl std::fmt::Display for MainError {
     }
 }
 
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
@@ -92,7 +92,7 @@ mod app {
         }
     }
 
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -115,7 +115,7 @@ mod http {
         }
     }
 
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example custom_layout`:

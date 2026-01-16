@@ -25,7 +25,7 @@ pub trait ResultExt {
     type Success;
 
     /// The `Err` type that would be wrapped in an [`Exn`].
-    type Error: Error + 'static;
+    type Error: Error + Send + Sync + 'static;
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
