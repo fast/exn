@@ -57,17 +57,17 @@ fn main() -> Result<(), MainError> {
 
 /// Walk the error chain and extract HTTP status code if present.
 fn extract_http_status<E: Error + Send + Sync>(err: &Exn<E>) -> Option<u16> {
-    fn walk(frame: &Frame) -> Option<u16> {
-        // Try to downcast current frame
-        if let Some(http_err) = frame.error().downcast_ref::<HttpError>() {
-            return Some(http_err.status);
-        }
+    find_error::<HttpError>(err).map(|http_err| http_err.status)
+}
 
-        // Check children recursively
+fn find_error<T: Error + 'static>(exn: &Exn<impl Error + Send + Sync>) -> Option<&T> {
+    fn walk<T: Error + 'static>(frame: &Frame) -> Option<&T> {
+        if let Some(e) = frame.error().downcast_ref::<T>() {
+            return Some(e);
+        }
         frame.children().iter().find_map(walk)
     }
-
-    walk(err.frame())
+    walk(exn.frame())
 }
 
 #[derive(Debug, Display)]
