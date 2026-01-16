@@ -14,24 +14,23 @@
 
 use std::error::Error;
 use std::fmt;
-use std::fmt::Formatter;
 
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error + Send + Sync> fmt::Debug for Exn<E> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl<E: Error + Send + Sync + 'static> fmt::Debug for Exn<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write_exn(f, self.frame(), 0, "")
     }
 }
 
 impl fmt::Debug for Frame {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write_exn(f, self, 0, "")
     }
 }
 
-fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
+fn write_exn(f: &mut fmt::Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
     write!(f, "{}", frame.error())?;
 
     let location = frame.location();
