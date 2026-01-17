@@ -49,7 +49,7 @@ fn test_error_tree() {
     let e11 = SimpleError("E11").raise();
     let e12 = e11.raise(SimpleError("E12"));
 
-    let e5 = Exn::from_iter([e3, e10, e12], SimpleError("E5"));
+    let e5 = Exn::raise_all(SimpleError("E5"), [e3, e10, e12]);
 
     let e2 = SimpleError("E2").raise();
     let e4 = e2.raise(SimpleError("E4"));
@@ -57,7 +57,7 @@ fn test_error_tree() {
     let e7 = SimpleError("E7").raise();
     let e8 = e7.raise(SimpleError("E8"));
 
-    let e6 = Exn::from_iter([e5, e4, e8], SimpleError("E6"));
+    let e6 = Exn::raise_all(SimpleError("E6"), [e5, e4, e8]);
     insta::assert_debug_snapshot!(e6);
 }
 

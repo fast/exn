@@ -83,9 +83,18 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         }
     }
 
-    /// Create a new exception with the given error and children.
+    /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
-    pub fn from_iter<T, I>(children: I, err: E) -> Self
+    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
+        let mut new_exn = Exn::new(err);
+        new_exn.frame.children.push(*self.frame);
+        new_exn
+    }
+
+    /// Raise a new exception with multiple children; this will make all given exceptions
+    /// children of the new one.
+    #[track_caller]
+    pub fn raise_all<T, I>(err: E, children: I) -> Self
     where
         T: Error + Send + Sync + 'static,
         I: IntoIterator,
@@ -96,14 +105,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
             let exn = exn.into();
             new_exn.frame.children.push(*exn.frame);
         }
-        new_exn
-    }
-
-    /// Raise a new exception; this will make the current exception a child of the new one.
-    #[track_caller]
-    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
-        let mut new_exn = Exn::new(err);
-        new_exn.frame.children.push(*self.frame);
         new_exn
     }
 
