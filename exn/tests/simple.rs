@@ -14,6 +14,7 @@
 
 use exn::ErrorExt;
 use exn::Exn;
+use exn::IteratorExt;
 use exn::OptionExt;
 use exn::ResultExt;
 
@@ -114,5 +115,28 @@ fn test_ensure_fail() {
     }
 
     let result = foo();
+    insta::assert_debug_snapshot!(result.unwrap_err());
+}
+
+#[test]
+fn test_iterator_ext_ok() {
+    [Ok::<_, SimpleError>(()), Ok(()), Ok(())]
+        .into_iter()
+        .collect_all::<(), Vec<_>>()
+        .unwrap();
+}
+
+#[test]
+fn test_iterator_ext_err() {
+    let result = [
+        Ok(()),
+        Err(SimpleError("E1")),
+        Ok(()),
+        Err(SimpleError("E2")),
+    ]
+    .into_iter()
+    .collect_all::<(), Vec<_>>()
+    .map_err(|errs| Exn::from_iter(errs, SimpleError("An error")));
+
     insta::assert_debug_snapshot!(result.unwrap_err());
 }

@@ -1,0 +1,9 @@
+---
+source: exn/tests/simple.rs
+expression: result.unwrap_err()
+---
+An error, at exn/tests/simple.rs:139:21
+|
+|-> E1, at exn/tests/simple.rs:139:21
+|
+|-> E2, at exn/tests/simple.rs:139:21

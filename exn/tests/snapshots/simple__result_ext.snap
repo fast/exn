@@ -2,6 +2,6 @@
 source: exn/tests/simple.rs
 expression: result.unwrap_err()
 ---
-Another error, at exn/tests/simple.rs:67:25
+Another error, at exn/tests/simple.rs:68:25
 |
-|-> An error, at exn/tests/simple.rs:67:25
+|-> An error, at exn/tests/simple.rs:68:25
