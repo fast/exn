@@ -75,6 +75,8 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
 
+pub mod report;
+
 mod debug;
 mod display;
 mod ext;

@@ -1,0 +1,9 @@
+---
+source: exn/tests/report_compact.rs
+expression: "Compact::from(e5)"
+---
+E5, at exn/tests/report_compact.rs:36:17
+├─ E4, at exn/tests/report_compact.rs:35:17
+├─ E3, at exn/tests/report_compact.rs:34:17
+├─ E2, at exn/tests/report_compact.rs:33:17
+└─ E1, at exn/tests/report_compact.rs:32:32
