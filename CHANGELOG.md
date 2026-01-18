@@ -12,4 +12,4 @@ All significant changes to this project will be documented in this file.
 
 ### New Features
 
-* This crate is now `no_std` compatible, while the crate still depends on the `alloc` crate for heap allocations. It is worth noting that `no_std` support is a nice-to-have feature now, and can be dropped if it blocks other important features in the future. Before 1.0, once the exn APIs settle down, the decision on whether to keep `no_std` as a promise will be finalized.
+* This crate is now `no_std` compatible, while the `alloc` crate is still required for heap allocations. It is worth noting that `no_std` support is a nice-to-have feature, and can be dropped if it blocks other important features in the future. Before 1.0, once `exn` APIs settle down, the decision on whether to keep `no_std` as a promise will be finalized.
