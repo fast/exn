@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! # Into Error Example - Returning `Result<_, Box<dyn Error>>`
+//! # Anyhow Interoperate Example - Returning `anyhow::Result<_>`
 //!
 //! This example shows a common pattern:
-//! - Keep using `exn::Result<T, E>` internally (typed errors + `or_raise()` context).
-//! - At the boundary, convert `Exn<E>` into `Box<dyn Error>` by wrapping it in a local type that
-//!   implements `std::error::Error`.
+//! - Using `exn::Result<T, E>` internally.
+//! - At the boundary, convert `Exn<E>` into `anyhow::Error`.
 
 use std::error::Error;
 
