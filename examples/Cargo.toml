@@ -38,6 +38,10 @@ path = "src/downcast.rs"
 name = "make-error"
 path = "src/make-error.rs"
 
+[[example]]
+name = "into-error"
+path = "src/into-error.rs"
+
 [package.metadata.release]
 release = false
 

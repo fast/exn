@@ -148,3 +148,29 @@ impl Frame {
         &self.children
     }
 }
+
+impl Error for Frame {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        self.children
+            .first()
+            .map(|child| child as &(dyn Error + 'static))
+    }
+}
+
+impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + 'static> {
+    fn from(exn: Exn<E>) -> Self {
+        Box::new(exn.frame)
+    }
+}
+
+impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + 'static> {
+    fn from(exn: Exn<E>) -> Self {
+        Box::new(exn.frame)
+    }
+}
+
+impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + Sync + 'static> {
+    fn from(exn: Exn<E>) -> Self {
+        Box::new(exn.frame)
+    }
+}
