@@ -42,7 +42,13 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
     /// This will automatically walk the [source chain of the error] and add them as children
     /// frames.
     ///
+    /// See also [`ErrorExt::raise`] for a fluent way to convert an error into an `Exn` instance.
+    ///
+    /// Note that **sources of `error` are degenerated to their string representation** and all type
+    /// information is erased.
+    ///
     /// [source chain of the error]: Error::source
+    /// [`ErrorExt::raise`](crate::ErrorExt)
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
@@ -88,28 +94,27 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         }
     }
 
-    /// Raise a new exception; this will make the current exception a child of the new one.
+    /// Create a new exception with the given error and its children.
     #[track_caller]
-    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
-        let mut new_exn = Exn::new(err);
-        new_exn.frame.children.push(*self.frame);
-        new_exn
-    }
-
-    /// Raise a new exception with multiple children; this will make all given exceptions
-    /// children of the new one.
-    #[track_caller]
-    pub fn raise_all<T, I>(err: E, children: I) -> Self
+    pub fn raise_all<T, I>(error: E, children: I) -> Self
     where
         T: Error + Send + Sync + 'static,
         I: IntoIterator,
         I::Item: Into<Exn<T>>,
     {
-        let mut new_exn = Exn::new(err);
+        let mut new_exn = Exn::new(error);
         for exn in children {
             let exn = exn.into();
             new_exn.frame.children.push(*exn.frame);
         }
+        new_exn
+    }
+
+    /// Raise a new exception; this will make the current exception a child of the new one.
+    #[track_caller]
+    pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
+        let mut new_exn = Exn::new(err);
+        new_exn.frame.children.push(*self.frame);
         new_exn
     }
 
