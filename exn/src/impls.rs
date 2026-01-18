@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt;
-use core::marker::PhantomData;
-use core::panic::Location;
-
-use alloc::boxed::Box;
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
+use std::fmt;
+use std::marker::PhantomData;
+use std::panic::Location;
 
 use crate::Error;
 
@@ -61,21 +57,18 @@ impl<E: Error> Exn<E> {
             }
         }
 
-        impl core::error::Error for SourceError {}
+        impl std::error::Error for SourceError {}
 
-        fn walk(
-            error: &dyn core::error::Error,
-            location: &'static Location<'static>,
-        ) -> Vec<Frame> {
+        fn walk(error: &dyn std::error::Error, location: &'static Location<'static>) -> Vec<Frame> {
             if let Some(source) = error.source() {
-                let children = alloc::vec![Frame {
+                let children = vec![Frame {
                     error: Box::new(SourceError(source.to_string())),
                     location,
                     children: walk(source, location),
                 }];
                 children
             } else {
-                alloc::vec![]
+                vec![]
             }
         }
 
@@ -143,12 +136,12 @@ pub struct Frame {
 
 impl Frame {
     /// Return the error as a reference to [`std::any::Any`].
-    pub fn as_any(&self) -> &dyn core::any::Any {
+    pub fn as_any(&self) -> &dyn std::any::Any {
         &*self.error
     }
 
     /// Return the error as a reference to [`std::error::Error`].
-    pub fn as_error(&self) -> &dyn core::error::Error {
+    pub fn as_error(&self) -> &dyn std::error::Error {
         &*self.error
     }
 

@@ -16,7 +16,7 @@ use crate::Error;
 use crate::Exn;
 
 /// A reasonable return type to use throughout an application.
-pub type Result<T, E> = core::result::Result<T, Exn<E>>;
+pub type Result<T, E> = std::result::Result<T, Exn<E>>;
 
 /// An extension trait for [`Result`] to provide context information on [`Exn`]s.
 pub trait ResultExt {
@@ -35,7 +35,7 @@ pub trait ResultExt {
         F: FnOnce() -> A;
 }
 
-impl<T, E> ResultExt for core::result::Result<T, E>
+impl<T, E> ResultExt for std::result::Result<T, E>
 where
     E: Error,
 {
@@ -55,7 +55,7 @@ where
     }
 }
 
-impl<T, E> ResultExt for core::result::Result<T, Exn<E>>
+impl<T, E> ResultExt for std::result::Result<T, Exn<E>>
 where
     E: Error,
 {

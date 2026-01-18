@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt;
-use core::fmt::Formatter;
-
-use alloc::format;
+use std::fmt;
+use std::fmt::Formatter;
 
 use crate::Error;
 use crate::Exn;
@@ -74,8 +72,8 @@ fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
     let location = exn.location();
     use std::os::windows::ffi::OsStrExt;
     use std::path::Component;
-    use std::path::Path;
     use std::path::MAIN_SEPARATOR;
+    use std::path::Path;
 
     let file = location.file();
     let path = Path::new(file);

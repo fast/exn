@@ -74,9 +74,6 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
-#![no_std]
-
-extern crate alloc;
 
 mod debug;
 mod display;
@@ -92,7 +89,7 @@ pub use self::result::Result;
 pub use self::result::ResultExt;
 
 /// A trait bound of the supported error type of [`Exn`].
-pub trait Error: core::error::Error + core::any::Any + Send + Sync + 'static {
+pub trait Error: std::error::Error + std::any::Any + Send + Sync + 'static {
     /// Raise this error as a new exception.
     #[track_caller]
     fn raise(self) -> Exn<Self>
@@ -103,7 +100,7 @@ pub trait Error: core::error::Error + core::any::Any + Send + Sync + 'static {
     }
 }
 
-impl<T> Error for T where T: core::error::Error + core::any::Any + Send + Sync + 'static {}
+impl<T> Error for T where T: std::error::Error + std::any::Any + Send + Sync + 'static {}
 
 /// Equivalent to `Ok::<_, Exn<E>>(value)`.
 ///
