@@ -20,13 +20,13 @@ use exn::ResultExt;
 #[derive(Debug)]
 struct SimpleError(&'static str);
 
-impl core::fmt::Display for SimpleError {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+impl std::fmt::Display for SimpleError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl core::error::Error for SimpleError {}
+impl std::error::Error for SimpleError {}
 
 #[test]
 fn test_error_straightforward() {
