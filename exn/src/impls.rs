@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
-use std::fmt;
-use std::marker::PhantomData;
-use std::panic::Location;
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::error::Error;
+use core::fmt;
+use core::marker::PhantomData;
+use core::panic::Location;
 
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E: Error + Send + Sync + 'static> {

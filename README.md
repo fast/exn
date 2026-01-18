@@ -1,4 +1,4 @@
-# A context-aware concrete Error type built on `std::error::Error`
+# A context-aware concrete Error type built on `core::error::Error`
 
 [![Crates.io][crates-badge]][crates-url]
 [![Documentation][docs-badge]][docs-url]
@@ -16,13 +16,19 @@
 
 ## Overview
 
-`exn` provides the missing context APIs for `std::error::Error`.
+`exn` provides the missing context APIs for `core::error::Error`.
 
 It organizes errors as a tree structure, allowing you to easily access the root cause and all related errors with their context.
 
 ## Documentation
 
 Read the online documents at https://docs.rs/exn.
+
+## `no_std` crates
+
+This crate is `no_std` compatible, while the `alloc` crate is still required for heap allocations.
+
+It is worth noting that `no_std` support is a nice-to-have feature, and can be dropped if it blocks other important features in the future. Before 1.0, once `exn` APIs settle down, the decision on whether to keep `no_std` as a promise will be finalized.
 
 ## License
 
