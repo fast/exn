@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! # Anyhow Interoperate Example - Returning `anyhow::Result<_>`
+//! # std::error::Error Interoperate Example - Returning `Result<_, Box<dyn std::error::Error>>`
 //!
 //! This example shows a common pattern:
 //! - Using `exn::Result<T, E>` internally.
-//! - At the boundary, convert `Exn<E>` into `anyhow::Error`.
+//! - At the boundary, convert `Exn<E>` into `Box<dyn std::error::Error>`.
 
 use std::error::Error;
 
@@ -24,13 +24,9 @@ use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 
-fn main() -> anyhow::Result<()> {
-    app::run().map_err(convert_error)?;
+fn main() -> std::result::Result<(), Box<dyn Error>> {
+    app::run()?;
     Ok(())
-}
-
-fn convert_error<E: Error + Send + Sync + 'static>(err: exn::Exn<E>) -> anyhow::Error {
-    anyhow::Error::from_boxed(err.into())
 }
 
 mod app {
@@ -66,10 +62,10 @@ mod config {
     impl Error for ConfigError {}
 }
 
-// Output when running `cargo run -p examples --example anyhow`:
+// Output when running `cargo run -p examples --example into-std-error`:
 //
-// Error: failed to start app
-//
-// Caused by:
-//     0: PORT must be a number; got "not-a-number"
-//     1: invalid digit found in string
+// Error: failed to start app, at examples/src/into-std-error.rs:36:40
+// |
+// |-> PORT must be a number; got "not-a-number", at examples/src/into-std-error.rs:55:14
+// |
+// |-> invalid digit found in string, at examples/src/into-std-error.rs:55:14
