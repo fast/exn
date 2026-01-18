@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A context-aware concrete Error type built on `std::error::Error`
+//! A context-aware concrete Error type built on `core::error::Error`
 //!
 //! # Examples
 //!
@@ -25,13 +25,13 @@
 //! #[derive(Debug)]
 //! struct LogicError(String);
 //!
-//! impl std::fmt::Display for LogicError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//! impl core::fmt::Display for LogicError {
+//!     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 //!         write!(f, "logic error: {}", self.0)
 //!     }
 //! }
 //!
-//! impl std::error::Error for LogicError {}
+//! impl core::error::Error for LogicError {}
 //!
 //! fn do_logic() -> Result<(), LogicError> {
 //!     bail!(LogicError("0 == 1".to_string()));
@@ -44,8 +44,8 @@
 //!     Trivial,
 //! }
 //!
-//! impl std::fmt::Display for AppError {
-//!     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//! impl core::fmt::Display for AppError {
+//!     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 //!         match self {
 //!             AppError::Fatal { consequences } => write!(f, "fatal error: {consequences}"),
 //!             AppError::Trivial => write!(f, "trivial error"),
@@ -53,7 +53,7 @@
 //!     }
 //! }
 //!
-//! impl std::error::Error for AppError {}
+//! impl core::error::Error for AppError {}
 //!
 //! fn main() {
 //!     if let Err(err) = do_logic().or_raise(|| AppError::Fatal {
@@ -74,6 +74,9 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
+#![no_std]
+
+extern crate alloc;
 
 mod debug;
 mod display;

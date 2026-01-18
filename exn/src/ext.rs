@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
+use core::error::Error;
 
 use crate::Exn;
 use crate::Result;
@@ -25,13 +25,13 @@ use crate::Result;
 /// One might think that `exn::Result::Ok(value)` would work in such cases, but it does not.
 ///
 /// ```console
-/// error[E0282]: type annotations needed for `std::result::Result<i32, E>`
+/// error[E0282]: type annotations needed for `core::result::Result<i32, E>`
 ///   --> src/main.rs:11:13
 ///    |
 /// 11 |     let _ = exn::Result::Ok(1);
 ///    |         -   ^^^^^^^^^^^^^^^ cannot infer type for type parameter `E` declared on the enum `Result`
 ///    |         |
-///    |         consider giving this pattern the explicit type `std::result::Result<i32, E>`, where the type parameter `E` is specified
+///    |         consider giving this pattern the explicit type `core::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
 #[expect(non_snake_case)]
 pub fn Ok<T, E: Error + Send + Sync + 'static>(value: T) -> Result<T, E> {

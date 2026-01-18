@@ -19,8 +19,8 @@ publish = false
 edition.workspace = true
 
 [[example]]
-name = "anti-pattern"
-path = "src/anti-pattern.rs"
+name = "antipattern"
+path = "src/antipattern.rs"
 
 [[example]]
 name = "basic"

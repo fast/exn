@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::error::Error;
-use std::fmt;
+use alloc::format;
+use core::error::Error;
+use core::fmt;
 
 use crate::Exn;
 use crate::Frame;

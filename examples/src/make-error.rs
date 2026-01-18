@@ -17,7 +17,7 @@
 //! When a function has several fallible calls, it's common to want one *function-level* context
 //! string for all of them.
 //!
-//! This reduces boilerplate and avoids the anti-pattern of writing per-callsite context that
+//! This reduces boilerplate and avoids the antipattern of writing per-caller-site context that
 //! simply repeats what the child error already says.
 
 use std::error::Error;
