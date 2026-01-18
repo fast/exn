@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn convert_error<E: Error + Send + Sync + 'static>(err: exn::Exn<E>) -> anyhow::Error {
-    anyhow::Error::from_boxed(Box::<dyn Error + Send + Sync + 'static>::from(err))
+    anyhow::Error::from_boxed(err.into())
 }
 
 mod app {
