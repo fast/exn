@@ -28,6 +28,7 @@ repository = "https://github.com/fast/exn"
 exn = { path = "exn" }
 
 # Crates.io dependencies
+anyhow = { version = "1.0.100" }
 clap = { version = "4.5.20", features = ["derive"] }
 derive_more = { version = "2.1.0", features = ["full"] }
 insta = { version = "1.45.1" }

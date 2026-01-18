@@ -46,6 +46,7 @@ path = "src/into-error.rs"
 release = false
 
 [dev-dependencies]
+anyhow = { workspace = true }
 derive_more = { workspace = true }
 exn = { workspace = true }
 

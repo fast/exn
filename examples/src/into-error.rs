@@ -25,9 +25,13 @@ use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 
-fn main() -> std::result::Result<(), Box<dyn Error + 'static>> {
-    app::run()?;
+fn main() -> anyhow::Result<()> {
+    app::run().map_err(convert_error)?;
     Ok(())
+}
+
+fn convert_error<E: Error + Send + Sync + 'static>(err: exn::Exn<E>) -> anyhow::Error {
+    anyhow::Error::from_boxed(Box::<dyn Error + Send + Sync + 'static>::from(err))
 }
 
 mod app {
@@ -65,8 +69,8 @@ mod config {
 
 // Output when running `cargo run -p examples --example into-error`:
 //
-// Error: failed to start app, at examples/src/into-error.rs:37:40
-// |
-// |-> PORT must be a number; got "not-a-number", at examples/src/into-error.rs:56:14
-// |
-// |-> invalid digit found in string, at examples/src/into-error.rs:56:14
+// Error: failed to start app
+//
+// Caused by:
+//     0: PORT must be a number; got "not-a-number"
+//     1: invalid digit found in string
