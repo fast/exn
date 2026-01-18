@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fs;
-use std::path::PathBuf;
-use std::process::Command as StdCommand;
+use core::fs;
+use core::path::PathBuf;
+use core::process::Command as StdCommand;
 
 use clap::Parser;
 use clap::Subcommand;
@@ -142,7 +142,7 @@ fn run_example_tests() {
             eprintln!("\nexample: {}", path.display());
             eprintln!("actual stderr:\n{}", actual);
         }
-        std::process::exit(1);
+        core::process::exit(1);
     } else {
         println!("all {} example tests passed", total);
     }

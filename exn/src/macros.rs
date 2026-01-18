@@ -21,13 +21,13 @@
 /// Create an [`Exn`] from [`Error`]:
 ///
 /// [`Exn`]: crate::Exn
-/// [`Error`]: std::error::Error
+/// [`Error`]: core::error::Error
 ///
 /// ```
-/// use std::fs;
+/// use core::fs;
 ///
 /// use exn::bail;
-/// # fn wrapper() -> exn::Result<(), std::io::Error> {
+/// # fn wrapper() -> exn::Result<(), core::io::Error> {
 /// match fs::read_to_string("/path/to/file") {
 ///     Ok(content) => println!("file contents: {content}"),
 ///     Err(err) => bail!(err),
@@ -37,7 +37,7 @@
 #[macro_export]
 macro_rules! bail {
     ($err:expr) => {{
-        return ::std::result::Result::Err($crate::Exn::from($err));
+        return ::core::result::Result::Err($crate::Exn::from($err));
     }};
 }
 
@@ -50,7 +50,7 @@ macro_rules! bail {
 /// Create an [`Exn`] from an [`Error`]:
 ///
 /// [`Exn`]: crate::Exn
-/// [`Error`]: std::error::Error
+/// [`Error`]: core::error::Error
 ///
 /// ```
 /// # fn has_permission(_: &u32, _: &u32) -> bool { true }
@@ -58,8 +58,8 @@ macro_rules! bail {
 /// # let user = 0;
 /// # type Resource = u32;
 /// # let resource = 0;
-/// use std::error::Error;
-/// use std::fmt;
+/// use core::error::Error;
+/// use core::fmt;
 ///
 /// use exn::ensure;
 ///

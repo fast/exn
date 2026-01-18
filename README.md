@@ -1,4 +1,4 @@
-# A context-aware concrete Error type built on `std::error::Error`
+# A context-aware concrete Error type built on `core::error::Error`
 
 [![Crates.io][crates-badge]][crates-url]
 [![Documentation][docs-badge]][docs-url]
@@ -16,7 +16,7 @@
 
 ## Overview
 
-`exn` provides the missing context APIs for `std::error::Error`.
+`exn` provides the missing context APIs for `core::error::Error`.
 
 It organizes errors as a tree structure, allowing you to easily access the root cause and all related errors with their context.
 
