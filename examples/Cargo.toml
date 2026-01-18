@@ -34,10 +34,14 @@ path = "src/custom-layout.rs"
 name = "downcast"
 path = "src/downcast.rs"
 
+[[example]]
+name = "make-error"
+path = "src/make-error.rs"
+
 [package.metadata.release]
 release = false
 
-[dependencies]
+[dev-dependencies]
 derive_more = { workspace = true }
 exn = { workspace = true }
 

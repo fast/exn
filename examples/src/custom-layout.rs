@@ -17,6 +17,7 @@
 //! This example shows how to traverse the error chain and create custom
 //! formatting to match your application's needs.
 
+use std::error::Error;
 use std::fmt::Write;
 
 use exn::Exn;
@@ -44,14 +45,14 @@ impl std::fmt::Display for MainError {
     }
 }
 
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
-    pub fn new<E: exn::Error>(err: Exn<E>) -> Self {
+    pub fn new<E: Error + Send + Sync>(err: Exn<E>) -> Self {
         fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
             // Add this frame first
-            frames.push(format!("[{}] {}", frame.location(), frame.as_error()));
+            frames.push(format!("[{}] {}", frame.location(), frame.error()));
             // Then collect children
             for child in frame.children() {
                 collect_frames(child, frames);
@@ -59,7 +60,7 @@ impl MainError {
         }
 
         let mut frames = vec![];
-        collect_frames(err.as_frame(), &mut frames);
+        collect_frames(err.frame(), &mut frames);
 
         // Format as numbered list
         let mut report = String::new();
@@ -91,7 +92,7 @@ mod app {
         }
     }
 
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -114,11 +115,11 @@ mod http {
         }
     }
 
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example custom_layout`:
 //
 // Error: fatal error occurred in application:
-// 0: [examples/src/custom-layout.rs:81:30] failed to run app
-// 1: [examples/src/custom-layout.rs:101:9] failed to send request to server: https://example.com
+// 0: [examples/src/custom-layout.rs:82:30] failed to run app
+// 1: [examples/src/custom-layout.rs:102:9] failed to send request to server: https://example.com

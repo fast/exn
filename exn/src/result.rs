@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Error;
+use std::error::Error;
+
 use crate::Exn;
 
 /// A reasonable return type to use throughout an application.
@@ -24,20 +25,20 @@ pub trait ResultExt {
     type Success;
 
     /// The `Err` type that would be wrapped in an [`Exn`].
-    type Error: Error;
+    type Error: Error + Send + Sync + 'static;
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
     /// Apply [`Exn::raise`] on the `Err` variant, refer to it for more information.
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: Error,
+        A: Error + Send + Sync + 'static,
         F: FnOnce() -> A;
 }
 
 impl<T, E> ResultExt for std::result::Result<T, E>
 where
-    E: Error,
+    E: Error + Send + Sync + 'static,
 {
     type Success = T;
     type Error = E;
@@ -45,7 +46,7 @@ where
     #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: Error,
+        A: Error + Send + Sync + 'static,
         F: FnOnce() -> A,
     {
         match self {
@@ -57,7 +58,7 @@ where
 
 impl<T, E> ResultExt for std::result::Result<T, Exn<E>>
 where
-    E: Error,
+    E: Error + Send + Sync + 'static,
 {
     type Success = T;
     type Error = E;
@@ -65,7 +66,7 @@ where
     #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
-        A: Error,
+        A: Error + Send + Sync + 'static,
         F: FnOnce() -> A,
     {
         match self {

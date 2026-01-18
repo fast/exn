@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::error::Error;
 use std::fmt;
 
-use crate::Error;
 use crate::Exn;
+use crate::Frame;
 
-impl<E: Error> fmt::Display for Exn<E> {
+impl<E: Error + Send + Sync + 'static> fmt::Display for Exn<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_error())
+        write!(f, "{}", self.error())
+    }
+}
+
+impl fmt::Display for Frame {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.error())
     }
 }

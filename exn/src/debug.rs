@@ -12,28 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::error::Error;
 use std::fmt;
-use std::fmt::Formatter;
 
-use crate::Error;
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error> fmt::Debug for Exn<E> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write_exn(f, self.as_frame(), 0, "")
+impl<E: Error + Send + Sync + 'static> fmt::Debug for Exn<E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write_exn(f, self.frame(), 0, "")
     }
 }
 
 impl fmt::Debug for Frame {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write_exn(f, self, 0, "")
     }
 }
 
-fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
-    write!(f, "{}", frame.as_error())?;
-    write_location(f, frame)?;
+fn write_exn(f: &mut fmt::Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -> fmt::Result {
+    write!(f, "{}", frame.error())?;
+
+    let location = frame.location();
+    write!(
+        f,
+        ", at {}:{}:{}",
+        location.file(),
+        location.line(),
+        location.column()
+    )?;
 
     let children = frame.children();
     let children_len = children.len();
@@ -53,56 +60,4 @@ fn write_exn(f: &mut Formatter<'_>, frame: &Frame, level: usize, prefix: &str) -
     }
 
     Ok(())
-}
-
-#[cfg(not(windows_test))]
-fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
-    let location = exn.location();
-    write!(
-        f,
-        ", at {}:{}:{}",
-        location.file(),
-        location.line(),
-        location.column()
-    )
-}
-
-#[cfg(windows_test)]
-fn write_location(f: &mut Formatter<'_>, exn: &Frame) -> fmt::Result {
-    let location = exn.location();
-    use std::os::windows::ffi::OsStrExt;
-    use std::path::Component;
-    use std::path::MAIN_SEPARATOR;
-    use std::path::Path;
-
-    let file = location.file();
-    let path = Path::new(file);
-
-    let mut resolved = String::new();
-
-    for c in path.components() {
-        match c {
-            Component::RootDir => {}
-            Component::CurDir => resolved.push('.'),
-            Component::ParentDir => resolved.push_str(".."),
-            Component::Prefix(prefix) => {
-                resolved.push_str(&prefix.as_os_str().to_string_lossy());
-                continue;
-            }
-            Component::Normal(s) => resolved.push_str(&s.to_string_lossy()),
-        }
-        resolved.push('/');
-    }
-
-    if path.as_os_str().encode_wide().last() != Some(MAIN_SEPARATOR as u16)
-        && resolved != "/"
-        && resolved.ends_with('/')
-    {
-        resolved.pop(); // Pop last '/'
-    }
-
-    let line = location.line();
-    let column = location.column();
-
-    write!(f, ", at {resolved}:{line}:{column}")
 }

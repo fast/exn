@@ -21,6 +21,8 @@
 //! - Recover from specific error types
 //! - Extract structured data (HTTP codes, retry hints, etc.)
 
+use std::error::Error;
+
 use derive_more::Display;
 use exn::Exn;
 use exn::Frame;
@@ -54,24 +56,24 @@ fn main() -> Result<(), MainError> {
 }
 
 /// Walk the error chain and extract HTTP status code if present.
-fn extract_http_status<E: exn::Error>(err: &Exn<E>) -> Option<u16> {
-    fn walk(frame: &Frame) -> Option<u16> {
-        // Try to downcast current frame
-        if let Some(http_err) = frame.as_any().downcast_ref::<HttpError>() {
-            return Some(http_err.status);
-        }
+fn extract_http_status<E: Error + Send + Sync>(err: &Exn<E>) -> Option<u16> {
+    find_error::<HttpError>(err).map(|http_err| http_err.status)
+}
 
-        // Check children recursively
+fn find_error<T: Error + 'static>(exn: &Exn<impl Error + Send + Sync>) -> Option<&T> {
+    fn walk<T: Error + 'static>(frame: &Frame) -> Option<&T> {
+        if let Some(e) = frame.error().downcast_ref::<T>() {
+            return Some(e);
+        }
         frame.children().iter().find_map(walk)
     }
-
-    walk(err.as_frame())
+    walk(exn.frame())
 }
 
 #[derive(Debug, Display)]
 #[display("fatal error occurred in application")]
 struct MainError;
-impl std::error::Error for MainError {}
+impl Error for MainError {}
 
 mod app {
     use super::*;
@@ -83,7 +85,7 @@ mod app {
 
     #[derive(Debug, Display)]
     pub struct AppError(String);
-    impl std::error::Error for AppError {}
+    impl Error for AppError {}
 }
 
 mod http {
@@ -102,7 +104,7 @@ mod http {
         pub status: u16,
         pub message: String,
     }
-    impl std::error::Error for HttpError {}
+    impl Error for HttpError {}
 }
 
 // Output when running `cargo run --example downcast`:
@@ -117,8 +119,8 @@ mod http {
 // Retryable error, attempting retry #3
 //
 // HTTP error with status code: 503
-// Error: fatal error occurred in application, at examples/src/downcast.rs:52:24
+// Error: fatal error occurred in application, at examples/src/downcast.rs:54:24
 // |
-// |-> failed to run app, at examples/src/downcast.rs:80:35
+// |-> failed to run app, at examples/src/downcast.rs:82:35
 // |
-// |-> HTTP 503: service unavailable, at examples/src/downcast.rs:93:9
+// |-> HTTP 503: service unavailable, at examples/src/downcast.rs:95:9
