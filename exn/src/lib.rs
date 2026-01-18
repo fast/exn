@@ -74,6 +74,9 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
+#![no_std]
+
+extern crate alloc;
 
 mod debug;
 mod display;

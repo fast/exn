@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use alloc::format;
 use core::error::Error;
 use core::fmt;
 
