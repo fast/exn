@@ -66,7 +66,7 @@ mod config {
     impl Error for ConfigError {}
 }
 
-// Output when running `cargo run -p examples --example into-error`:
+// Output when running `cargo run -p examples --example anyhow`:
 //
 // Error: failed to start app
 //
