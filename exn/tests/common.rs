@@ -33,7 +33,7 @@ pub fn new_tree_error() -> Exn<Error> {
     let e7 = Error("E7").raise();
     let e8 = e7.raise(Error("E8"));
 
-    Error("E6").raise_all([e5, e4, e8])
+    Exn::raise_all(Error("E6"), [e5, e4, e8])
 }
 
 pub fn new_linear_error() -> Exn<Error> {

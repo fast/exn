@@ -48,18 +48,6 @@ pub trait ErrorExt: Error + Send + Sync + 'static {
     {
         Exn::new(self)
     }
-
-    /// Raise this error as a new exception, with `sources` as causes.
-    #[track_caller]
-    fn raise_all<T, I>(self, sources: I) -> Exn<Self>
-    where
-        Self: Sized,
-        T: Error + Send + Sync + 'static,
-        I: IntoIterator,
-        I::Item: Into<Exn<T>>,
-    {
-        Exn::raise_all(self, sources)
-    }
 }
 
 impl<T> ErrorExt for T where T: Error + Send + Sync + 'static {}

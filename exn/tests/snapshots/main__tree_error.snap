@@ -4,7 +4,7 @@ expression: e
 ---
 topmost, at exn/tests/main.rs:32:38
 |
-|-> E6, at exn/tests/common.rs:36:17
+|-> E6, at exn/tests/common.rs:36:5
     |
     |-> E5, at exn/tests/common.rs:28:14
     |   |
