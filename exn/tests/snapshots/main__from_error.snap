@@ -1,0 +1,5 @@
+---
+source: exn/tests/main.rs
+expression: result.unwrap_err()
+---
+An error, at exn/tests/main.rs:60:9

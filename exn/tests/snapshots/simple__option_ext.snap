@@ -1,5 +1,0 @@
----
-source: exn/tests/simple.rs
-expression: result.unwrap_err()
----
-An error, at exn/tests/simple.rs:74:25

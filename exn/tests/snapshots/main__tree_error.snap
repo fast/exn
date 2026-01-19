@@ -1,0 +1,29 @@
+---
+source: exn/tests/main.rs
+expression: e
+---
+topmost, at exn/tests/main.rs:32:38
+|
+|-> E6, at exn/tests/common.rs:36:17
+    |
+    |-> E5, at exn/tests/common.rs:28:14
+    |   |
+    |   |-> E3, at exn/tests/common.rs:20:17
+    |   |   |
+    |   |   |-> E1, at exn/tests/common.rs:19:26
+    |   |
+    |   |-> E10, at exn/tests/common.rs:23:18
+    |   |   |
+    |   |   |-> E9, at exn/tests/common.rs:22:26
+    |   |
+    |   |-> E12, at exn/tests/common.rs:26:19
+    |       |
+    |       |-> E11, at exn/tests/common.rs:25:28
+    |
+    |-> E4, at exn/tests/common.rs:31:17
+    |   |
+    |   |-> E2, at exn/tests/common.rs:30:26
+    |
+    |-> E8, at exn/tests/common.rs:34:17
+        |
+        |-> E7, at exn/tests/common.rs:33:26
