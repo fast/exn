@@ -119,14 +119,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         new_exn
     }
 
-    /// Return the current exception.
-    pub fn error(&self) -> &E {
-        self.frame
-            .error()
-            .downcast_ref()
-            .expect("error type must match")
-    }
-
     /// Return the underlying exception frame.
     pub fn frame(&self) -> &Frame {
         &self.frame
@@ -140,7 +132,10 @@ where
     type Target = E;
 
     fn deref(&self) -> &Self::Target {
-        self.error()
+        self.frame
+            .error()
+            .downcast_ref()
+            .expect("error type must match")
     }
 }
 

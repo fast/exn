@@ -9,6 +9,7 @@ All significant changes to this project will be documented in this file.
 * `Exn::from_iter` has been renamed to `Exn::raise_all`
 * `exn::Error` trait bound has been removed in favor of inlined `StdError + Send + Sync + 'static` bounds.
 * `err.raise()` has been moved to the `exn::ErrorExt` extension trait.
+* `Exn::error(&self)` has been replaced with `impl Deref<Target = E> for Exn<E>`.
 
 ### New Features
 
