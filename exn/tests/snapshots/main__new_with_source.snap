@@ -1,0 +1,7 @@
+---
+source: exn/tests/main.rs
+expression: e
+---
+top, at exn/tests/main.rs:39:13
+|
+|-> source, at exn/tests/main.rs:39:13

@@ -20,6 +20,7 @@ use alloc::vec::Vec;
 use core::error::Error;
 use core::fmt;
 use core::marker::PhantomData;
+use core::ops::Deref;
 use core::panic::Location;
 
 /// An exception type that can hold an error tree and additional context.
@@ -118,17 +119,23 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         new_exn
     }
 
-    /// Return the current exception.
-    pub fn error(&self) -> &E {
+    /// Return the underlying exception frame.
+    pub fn frame(&self) -> &Frame {
+        &self.frame
+    }
+}
+
+impl<E> Deref for Exn<E>
+where
+    E: Error + Send + Sync + 'static,
+{
+    type Target = E;
+
+    fn deref(&self) -> &Self::Target {
         self.frame
             .error()
             .downcast_ref()
             .expect("error type must match")
-    }
-
-    /// Return the underlying exception frame.
-    pub fn frame(&self) -> &Frame {
-        &self.frame
     }
 }
 
