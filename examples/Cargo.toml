@@ -38,10 +38,19 @@ path = "src/downcast.rs"
 name = "make-error"
 path = "src/make-error.rs"
 
+[[example]]
+name = "into-anyhow"
+path = "src/into-anyhow.rs"
+
+[[example]]
+name = "into-std-error"
+path = "src/into-std-error.rs"
+
 [package.metadata.release]
 release = false
 
 [dev-dependencies]
+anyhow = { workspace = true }
 derive_more = { workspace = true }
 exn = { workspace = true }
 
