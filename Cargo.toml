@@ -22,6 +22,7 @@ homepage = "https://github.com/fast/exn"
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/fast/exn"
+rust-version = "1.85.0"
 
 [workspace.dependencies]
 # Workspace dependencies
@@ -34,8 +35,8 @@ insta = { version = "1.45.1" }
 which = { version = "8.0.0" }
 
 [workspace.lints.rust]
-unexpected_cfgs = { level = "deny", check-cfg = ['cfg(windows_test)'] }
 unknown_lints = "deny"
+unused_must_use = "deny"
 
 [workspace.lints.clippy]
 dbg_macro = "deny"
