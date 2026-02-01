@@ -42,15 +42,21 @@ struct MainError;
 impl std::error::Error for MainError {}
 
 mod app {
+    use std::net::IpAddr;
+
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        // ❌ ANTI-PATTERN: Describing the HTTP layer's job, not the app layer's purpose
-        http::send_request().or_raise(|| AppError("failed to send request".to_string()))?;
+        // CORRECT: Describe what this layer does
+        // let make_error = || AppError("failed to run app".to_string());
+        // let host = "127.0.0.1".parse::<IpAddr>().or_raise(make_error)?;
+        // crate::http::send_request(host).or_raise(make_error)?;
 
-        // ✅ CORRECT: Describe what THIS layer does
-        // crate::http::send_request()
-        //     .or_raise(|| AppError("failed to run app".to_string()))?;
+        // ANTI-PATTERN: Describing the HTTP layer's job, not the app layer's purpose
+        let host = "127.0.0.1"
+            .parse::<IpAddr>()
+            .or_raise(|| AppError("failed to parse host".to_string()))?;
+        http::send_request(host).or_raise(|| AppError("failed to send request".to_string()))?;
 
         Ok(())
     }
@@ -61,11 +67,13 @@ mod app {
 }
 
 mod http {
+    use std::net::IpAddr;
+
     use super::*;
 
-    pub fn send_request() -> Result<(), HttpError> {
+    pub fn send_request(host: IpAddr) -> Result<(), HttpError> {
         bail!(HttpError {
-            url: "https://anti-pattern.com".to_string(),
+            url: host.to_string(),
         });
     }
 
@@ -77,11 +85,11 @@ mod http {
     impl std::error::Error for HttpError {}
 }
 
-// Output when running `cargo run --example anti_pattern`.
-// Notice "failed to send request" appears twice with no new information!
+// Output when running `cargo run --example antipattern`.
+// Notice "failed to send request" appears twice with no new information.
 //
 // Error: fatal error occurred in application, at examples/src/antipattern.rs:35:16
 // |
-// |-> failed to send request, at examples/src/antipattern.rs:49:30
+// |-> failed to send request, at examples/src/antipattern.rs:59:34
 // |
-// |-> failed to send request to server: https://anti-pattern.com, at examples/src/antipattern.rs:67:9
+// |-> failed to send request to server: 127.0.0.1, at examples/src/antipattern.rs:75:9
