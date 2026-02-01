@@ -34,6 +34,19 @@ pub trait ResultExt {
     where
         A: Error + Send + Sync + 'static,
         F: FnOnce() -> A;
+
+    /// Raise a new exception on the [`Exn`] inside the [`Result`] with additional data for
+    /// recovery.
+    ///
+    /// Apply [`Exn::raise_with_recovery`] on the `Err` variant, refer to it for more information.
+    fn or_raise_with_recovery<A, F, R>(
+        self,
+        err: F,
+        recovery: R,
+    ) -> core::result::Result<Self::Success, Exn<A, R>>
+    where
+        A: Error + Send + Sync + 'static,
+        F: FnOnce() -> A;
 }
 
 impl<T, E> ResultExt for core::result::Result<T, E>
@@ -54,9 +67,24 @@ where
             Err(e) => Err(Exn::new(e).raise(err())),
         }
     }
+
+    fn or_raise_with_recovery<A, F, R>(
+        self,
+        err: F,
+        recovery: R,
+    ) -> core::result::Result<Self::Success, Exn<A, R>>
+    where
+        A: Error + Send + Sync + 'static,
+        F: FnOnce() -> A,
+    {
+        match self {
+            Ok(v) => Ok(v),
+            Err(e) => Err(Exn::new(e).raise_with_recovery(err(), recovery)),
+        }
+    }
 }
 
-impl<T, E> ResultExt for core::result::Result<T, Exn<E>>
+impl<T, E, R> ResultExt for core::result::Result<T, Exn<E, R>>
 where
     E: Error + Send + Sync + 'static,
 {
@@ -71,7 +99,22 @@ where
     {
         match self {
             Ok(v) => Ok(v),
-            Err(e) => Err(e.raise(err())),
+            Err(e) => Err(e.discard_recovery().raise(err())),
+        }
+    }
+
+    fn or_raise_with_recovery<A, F, R_>(
+        self,
+        err: F,
+        recovery: R_,
+    ) -> core::result::Result<Self::Success, Exn<A, R_>>
+    where
+        A: Error + Send + Sync + 'static,
+        F: FnOnce() -> A,
+    {
+        match self {
+            Ok(v) => Ok(v),
+            Err(e) => Err(e.discard_recovery().raise_with_recovery(err(), recovery)),
         }
     }
 }

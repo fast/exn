@@ -48,6 +48,15 @@ pub trait ErrorExt: Error + Send + Sync + 'static {
     {
         Exn::new(self)
     }
+
+    /// Raise this error as a new exception with recovery data.
+    #[track_caller]
+    fn with_recovery<R>(self, recovery: R) -> Exn<Self, R>
+    where
+        Self: Sized,
+    {
+        Exn::with_recovery(self, recovery)
+    }
 }
 
 impl<T> ErrorExt for T where T: Error + Send + Sync + 'static {}

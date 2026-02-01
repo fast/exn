@@ -24,9 +24,10 @@ use core::ops::Deref;
 use core::panic::Location;
 
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error + Send + Sync + 'static> {
+pub struct Exn<E: Error + Send + Sync + 'static, R = ()> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
+    recovery: R,
     phantom: PhantomData<E>,
 }
 
@@ -91,6 +92,7 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
 
         Self {
             frame: Box::new(frame),
+            recovery: (),
             phantom: PhantomData,
         }
     }
@@ -119,9 +121,71 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         new_exn
     }
 
+    /// Raise a new exception with recovery data; this will make the current exception a child of
+    /// the new one.
+    #[track_caller]
+    pub fn raise_with_recovery<T: Error + Send + Sync + 'static, R_>(
+        self,
+        err: T,
+        recovery: R_,
+    ) -> Exn<T, R_> {
+        let mut new_exn = Exn::with_recovery(err, recovery);
+        new_exn.frame.children.push(*self.frame);
+        new_exn
+    }
+
+    /// Create a new exception with the given error, its children and recovery data.
+    #[track_caller]
+    pub fn raise_all_with_recovery<T, I, R>(error: E, children: I, recovery: R) -> Exn<E, R>
+    where
+        T: Error + Send + Sync + 'static,
+        I: IntoIterator,
+        I::Item: Into<Exn<T>>,
+    {
+        let mut new_exn = Exn::with_recovery(error, recovery);
+        for exn in children {
+            let exn = exn.into();
+            new_exn.frame.children.push(*exn.frame);
+        }
+        new_exn
+    }
+
     /// Return the underlying exception frame.
     pub fn frame(&self) -> &Frame {
         &self.frame
+    }
+}
+
+impl<E: Error + Send + Sync + 'static, R> Exn<E, R> {
+    /// Create a new exception with the given error and a recovery value for the caller.
+    ///
+    /// See [`Exn::new`] for more information.
+    #[track_caller]
+    pub fn with_recovery(error: E, recovery: R) -> Self {
+        Self {
+            frame: Exn::new(error).frame,
+            recovery,
+            phantom: PhantomData,
+        }
+    }
+
+    /// Discard the recovery value.
+    pub fn discard_recovery(self) -> Exn<E> {
+        Exn {
+            frame: self.frame,
+            recovery: (),
+            phantom: PhantomData,
+        }
+    }
+
+    /// Extract the recovery value.
+    pub fn recover(self) -> (R, Exn<E>) {
+        let err = Exn {
+            frame: self.frame,
+            recovery: (),
+            phantom: PhantomData,
+        };
+        (self.recovery, err)
     }
 }
 
