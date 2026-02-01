@@ -126,7 +126,7 @@ mod library {
 
     /// Public API: returns `Exn<LibError>` while keeping internal errors private.
     pub fn fetch_profile(user_id: u64) -> Result<Profile, LibError> {
-        // Explicit boundary mapping: downcast internal errors into a flat LibError.
+        // Explicit boundary mapping: downcast internal errors into a flat `LibError`.
         service::fetch_profile(user_id).map_err(map_to_lib_error)
     }
 
@@ -145,7 +145,7 @@ mod library {
             LibError::internal("unexpected library error")
         };
 
-        // Context stays in frames; only LibError is public.
+        // Context stays in frames; only `LibError` is public.
         err.raise(lib_error)
     }
 
