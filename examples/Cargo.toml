@@ -35,16 +35,16 @@ name = "downcast"
 path = "src/downcast.rs"
 
 [[example]]
-name = "make-error"
-path = "src/make-error.rs"
-
-[[example]]
 name = "into-anyhow"
 path = "src/into-anyhow.rs"
 
 [[example]]
 name = "into-std-error"
 path = "src/into-std-error.rs"
+
+[[example]]
+name = "library-boundary"
+path = "src/library-boundary.rs"
 
 [package.metadata.release]
 release = false
