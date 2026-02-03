@@ -50,26 +50,18 @@ impl Error for MainError {}
 impl MainError {
     /// Convert an `Exn<E>` into MainError with custom numbered list formatting.
     pub fn new<E: Error + Send + Sync>(err: Exn<E>) -> Self {
-        fn collect_frames(frame: &Frame, frames: &mut Vec<String>) {
-            // Add this frame first
-            frames.push(format!("[{}] {}", frame.location(), frame.error()));
-            // Then collect children
-            for child in frame.children() {
-                collect_frames(child, frames);
-            }
-        }
-
-        let mut frames = vec![];
-        collect_frames(err.frame(), &mut frames);
-
-        // Format as numbered list
-        let mut report = String::new();
-        for (i, frame) in frames.iter().enumerate() {
+        fn collect_frames(report: &mut String, i: usize, frame: &Frame) {
             if i > 0 {
-                writeln!(&mut report).unwrap();
+                report.push('\n');
             }
-            write!(&mut report, "{i}: {frame}").unwrap();
+            write!(report, "{}: {}, at {}", i, frame.error(), frame.location()).unwrap();
+            for child in frame.children() {
+                collect_frames(report, i + 1, child);
+            }
         }
+
+        let mut report = String::new();
+        collect_frames(&mut report, 0, err.frame());
 
         MainError(report)
     }
@@ -121,5 +113,5 @@ mod http {
 // Output when running `cargo run --example custom_layout`:
 //
 // Error: fatal error occurred in application:
-// 0: [examples/src/custom-layout.rs:82:30] failed to run app
-// 1: [examples/src/custom-layout.rs:102:9] failed to send request to server: https://example.com
+// 0: failed to run app, at examples/src/custom-layout.rs:74:30
+// 1: failed to send request to server: https://example.com, at examples/src/custom-layout.rs:94:9
