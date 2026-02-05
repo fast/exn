@@ -121,6 +121,16 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         new_exn
     }
 
+    /// Attach a recovery value to this exception.
+    #[track_caller]
+    pub fn attach<R_>(self, recovery: R_) -> Exn<E, R_> {
+        Exn {
+            frame: self.frame,
+            recovery,
+            phantom: PhantomData,
+        }
+    }
+
     /// Raise a new exception with recovery data; this will make the current exception a child of
     /// the new one.
     #[track_caller]
@@ -148,11 +158,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
             new_exn.frame.children.push(*exn.frame);
         }
         new_exn
-    }
-
-    /// Return the underlying exception frame.
-    pub fn frame(&self) -> &Frame {
-        &self.frame
     }
 }
 
@@ -187,9 +192,23 @@ impl<E: Error + Send + Sync + 'static, R> Exn<E, R> {
         };
         (self.recovery, err)
     }
+
+    /// Transform the recovery value
+    pub fn map<S>(self, f: impl FnOnce(R) -> S) -> Exn<E, S> {
+        Exn {
+            frame: self.frame,
+            recovery: f(self.recovery),
+            phantom: PhantomData,
+        }
+    }
+
+    /// Return the underlying exception frame.
+    pub fn frame(&self) -> &Frame {
+        &self.frame
+    }
 }
 
-impl<E> Deref for Exn<E>
+impl<E, R> Deref for Exn<E, R>
 where
     E: Error + Send + Sync + 'static,
 {

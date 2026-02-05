@@ -19,7 +19,7 @@ use core::fmt;
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error + Send + Sync + 'static> fmt::Debug for Exn<E> {
+impl<E: Error + Send + Sync + 'static, R> fmt::Debug for Exn<E, R> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write_exn(f, self.frame(), 0, "")
     }

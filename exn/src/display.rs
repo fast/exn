@@ -19,7 +19,7 @@ use core::ops::Deref;
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error + Send + Sync + 'static> fmt::Display for Exn<E> {
+impl<E: Error + Send + Sync + 'static, R> fmt::Display for Exn<E, R> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.deref())
     }
