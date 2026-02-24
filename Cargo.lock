@@ -189,6 +189,7 @@ dependencies = [
  "anyhow",
  "derive_more",
  "exn",
+ "exn-anyhow",
 ]
 
 [[package]]
@@ -196,6 +197,14 @@ name = "exn"
 version = "0.3.0"
 dependencies = [
  "insta",
+]
+
+[[package]]
+name = "exn-anyhow"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "exn",
 ]
 
 [[package]]

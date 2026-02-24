@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [workspace]
-members = ["examples", "exn", "xtask"]
+members = ["examples", "exn", "exn-anyhow", "xtask"]
 resolver = "3"
 
 [workspace.package]
@@ -27,6 +27,7 @@ rust-version = "1.85.0"
 [workspace.dependencies]
 # Workspace dependencies
 exn = { path = "exn" }
+exn-anyhow = { path = "exn-anyhow" }
 
 # Crates.io dependencies
 anyhow = { version = "1.0.100" }

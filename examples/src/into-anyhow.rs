@@ -16,21 +16,18 @@
 //!
 //! This example shows a common pattern:
 //! - Using `exn::Result<T, E>` internally.
-//! - At the boundary, convert `Exn<E>` into `anyhow::Error`.
+//! - At the boundary, convert into `anyhow::Error`.
 
 use std::error::Error;
 
 use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
+use exn_anyhow::to_anyhow;
 
 fn main() -> anyhow::Result<()> {
-    app::run().map_err(convert_error)?;
+    app::run().map_err(to_anyhow)?;
     Ok(())
-}
-
-fn convert_error<E: Error + Send + Sync + 'static>(err: exn::Exn<E>) -> anyhow::Error {
-    anyhow::Error::from_boxed(err.into())
 }
 
 mod app {
