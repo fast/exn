@@ -37,7 +37,9 @@ mod app {
     use super::*;
 
     pub fn run() -> Result<(), AppError> {
-        legacy::load_port().map_err(from_anyhow).or_raise(|| AppError)?;
+        legacy::load_port()
+            .map_err(from_anyhow)
+            .or_raise(|| AppError)?;
         Ok(())
     }
 
