@@ -35,6 +35,10 @@ name = "downcast"
 path = "src/downcast.rs"
 
 [[example]]
+name = "from-anyhow"
+path = "src/from-anyhow.rs"
+
+[[example]]
 name = "into-anyhow"
 path = "src/into-anyhow.rs"
 
@@ -53,6 +57,7 @@ release = false
 anyhow = { workspace = true }
 derive_more = { workspace = true }
 exn = { workspace = true }
+exn-anyhow = { workspace = true }
 
 [lints]
 workspace = true
