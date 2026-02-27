@@ -123,7 +123,7 @@ fn run_example_tests() {
                 if line.is_empty() {
                     "//".to_string()
                 } else {
-                    format!("// {}", line)
+                    format!("// {}", line.replace("\\", "/"))
                 }
             })
             .collect::<Vec<_>>()
