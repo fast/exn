@@ -20,7 +20,7 @@ use std::fmt;
 use exn::Exn;
 
 /// Convert an [`Exn`] into [`anyhow::Error`].
-pub fn to_anyhow<E>(err: Exn<E>) -> anyhow::Error
+pub fn into_anyhow<E>(err: Exn<E>) -> anyhow::Error
 where
     E: Error + Send + Sync + 'static,
 {
@@ -29,7 +29,7 @@ where
 
 /// A plain message error frame used while converting from [`anyhow::Error`].
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct AnyhowError(pub String);
+pub struct AnyhowError(String);
 
 impl fmt::Display for AnyhowError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

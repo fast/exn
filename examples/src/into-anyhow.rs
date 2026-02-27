@@ -23,10 +23,10 @@ use std::error::Error;
 use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
-use exn_anyhow::to_anyhow;
+use exn_anyhow::into_anyhow;
 
 fn main() -> anyhow::Result<()> {
-    app::run().map_err(to_anyhow)?;
+    app::run().map_err(into_anyhow)?;
     Ok(())
 }
 
