@@ -123,6 +123,11 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
     pub fn frame(&self) -> &Frame {
         &self.frame
     }
+
+    /// Extract the top-level error using move semantics
+    pub fn into_error(self) -> E {
+        *self.frame.error.downcast().expect("error type must match")
+    }
 }
 
 impl<E> Deref for Exn<E>
