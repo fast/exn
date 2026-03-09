@@ -35,6 +35,10 @@ name = "downcast"
 path = "src/downcast.rs"
 
 [[example]]
+name = "into-error"
+path = "src/into-error.rs"
+
+[[example]]
 name = "into-anyhow"
 path = "src/into-anyhow.rs"
 
