@@ -4,6 +4,10 @@ All significant changes to this project will be documented in this file.
 
 ## Unreleased
 
+### New Features
+
+* `Exn<E>` now implements `.into_error()`, allowing to recover the top-level error with move semantics.
+
 ## v0.3.0 (2026-01-31)
 
 ### Breaking Changes
@@ -15,7 +19,6 @@ All significant changes to this project will be documented in this file.
 
 ### New Features
 
-* `Exn<E>` now implements `.into_error()`, allowing to recover the top-level error with move semantics.
 * `Exn<E>` now implements `Deref<Target = E>`, allowing for more ergonomic access to the inner error.
 * This crate is now `no_std` compatible, while the `alloc` crate is still required for heap allocations. It is worth noting that `no_std` support is a nice-to-have feature, and can be dropped if it blocks other important features in the future. Before 1.0, once `exn` APIs settle down, the decision on whether to keep `no_std` as a promise will be finalized.
 * `Frame` now implements `std::error::Error`.
