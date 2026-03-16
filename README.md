@@ -40,4 +40,4 @@ The policy is that the minimum Rust version required to use this crate can be in
 
 ## License
 
-This project is licensed under [Apache License, Version 2.0](LICENSE).
+This project is licensed under [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
