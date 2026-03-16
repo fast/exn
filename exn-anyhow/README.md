@@ -20,17 +20,17 @@
 
 `exn-anyhow` provides explicit boundary conversion helpers:
 
-- `exn_anyhow::to_anyhow`: `exn::Exn<E>` -> `anyhow::Error`
+- `exn_anyhow::into_anyhow`: `exn::Exn<E>` -> `anyhow::Error`
 - `exn_anyhow::from_anyhow`: `anyhow::Error` -> `exn::Exn<exn_anyhow::AnyhowError>`
 
 Recommended usage is explicit error conversion at API boundaries via `map_err`:
 
 ```rust
 use exn_anyhow::from_anyhow;
-use exn_anyhow::to_anyhow;
+use exn_anyhow::into_anyhow;
 
 let exn_result = anyhow_result.map_err(from_anyhow);
-let anyhow_result = exn_result.map_err(to_anyhow);
+let anyhow_result = exn_result.map_err(into_anyhow);
 ```
 
 ## Documentation
