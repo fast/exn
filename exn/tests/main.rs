@@ -95,3 +95,10 @@ fn ensure_fail() {
     let result = foo();
     insta::assert_debug_snapshot!(result.unwrap_err());
 }
+
+#[test]
+fn into_error_roundtrip() {
+    let err = Exn::new(Error("An error"));
+    let err = Box::<dyn std::error::Error>::from(err);
+    assert!(err.downcast_ref::<exn::Frame>().is_some());
+}

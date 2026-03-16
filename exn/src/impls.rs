@@ -181,18 +181,18 @@ impl Error for Frame {
 
 impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + 'static> {
     fn from(exn: Exn<E>) -> Self {
-        Box::new(exn.frame)
+        exn.frame
     }
 }
 
 impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + 'static> {
     fn from(exn: Exn<E>) -> Self {
-        Box::new(exn.frame)
+        exn.frame
     }
 }
 
 impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + Sync + 'static> {
     fn from(exn: Exn<E>) -> Self {
-        Box::new(exn.frame)
+        exn.frame
     }
 }
