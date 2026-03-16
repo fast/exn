@@ -97,7 +97,7 @@ fn ensure_fail() {
 }
 
 #[test]
-fn into_error_roundtrip() {
+fn std_error_roundtrip() {
     let err = Exn::new(Error("An error"));
     let err = Box::<dyn std::error::Error>::from(err);
     assert!(err.downcast_ref::<exn::Frame>().is_some());
