@@ -26,8 +26,8 @@ rust-version = "1.85.0"
 
 [workspace.dependencies]
 # Workspace dependencies
-exn = { path = "exn" }
-exn-anyhow = { path = "exn-anyhow" }
+exn = { version = "0.3.0", path = "exn" }
+exn-anyhow = { version = "0.1.0", path = "exn-anyhow" }
 
 # Crates.io dependencies
 anyhow = { version = "1.0.100" }
