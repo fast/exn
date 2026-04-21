@@ -252,15 +252,11 @@ mod library {
 //
 // Action: Retried too many times, aborting
 // Error: RateLimited: rate limited by upstream, at examples/src/library-boundary.rs:149:13
-// |
-// |-> failed to fetch profile for user 429, at examples/src/library-boundary.rs:170:55
-// |
-// |-> HTTP 429: too many requests, at examples/src/library-boundary.rs:218:24
+// |-- failed to fetch profile for user 429, at examples/src/library-boundary.rs:170:55
+// `-- HTTP 429: too many requests, at examples/src/library-boundary.rs:218:24
 //
 // Start demo for user: 404
 // Action: Return 404
 // Error: NotFound: user 404 not found, at examples/src/library-boundary.rs:149:13
-// |
-// |-> failed to fetch profile for user 404, at examples/src/library-boundary.rs:169:47
-// |
-// |-> no row for user_id 404, at examples/src/library-boundary.rs:189:24
+// |-- failed to fetch profile for user 404, at examples/src/library-boundary.rs:169:47
+// `-- no row for user_id 404, at examples/src/library-boundary.rs:189:24

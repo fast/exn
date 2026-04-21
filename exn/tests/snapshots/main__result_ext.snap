@@ -2,6 +2,5 @@
 source: exn/tests/main.rs
 expression: result.unwrap_err()
 ---
-Another error, at exn/tests/main.rs:46:25
-|
-|-> An error, at exn/tests/main.rs:46:25
+Another error, at exn/tests/main.rs:56:25
+`-- An error, at exn/tests/main.rs:56:25

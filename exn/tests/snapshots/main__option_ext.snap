@@ -2,4 +2,4 @@
 source: exn/tests/main.rs
 expression: result.unwrap_err()
 ---
-An error, at exn/tests/main.rs:53:25
+An error, at exn/tests/main.rs:63:25

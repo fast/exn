@@ -68,8 +68,7 @@
 //!
 //! ```text
 //! fatal error: math no longer works, at exn/src/lib.rs:44:16
-//! |
-//! |-> logic error: 0 == 1, at exn/src/lib.rs:40:5
+//! `-- logic error: 0 == 1, at exn/src/lib.rs:40:5
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_cfg))]

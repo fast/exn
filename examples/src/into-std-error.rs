@@ -65,7 +65,5 @@ mod config {
 // Output when running `cargo run -p examples --example into-std-error`:
 //
 // Error: failed to start app, at examples/src/into-std-error.rs:36:40
-// |
-// |-> PORT must be a number; got "not-a-number", at examples/src/into-std-error.rs:55:14
-// |
-// |-> invalid digit found in string, at examples/src/into-std-error.rs:55:14
+// |-- PORT must be a number; got "not-a-number", at examples/src/into-std-error.rs:55:14
+// `-- invalid digit found in string, at examples/src/into-std-error.rs:55:14

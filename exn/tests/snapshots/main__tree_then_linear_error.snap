@@ -1,0 +1,12 @@
+---
+source: exn/tests/main.rs
+expression: e
+---
+topmost, at exn/tests/main.rs:35:13
+|-- T1, at exn/tests/main.rs:33:41
+|   `-- E5, at exn/tests/common.rs:44:8
+|       `-- E4, at exn/tests/common.rs:43:17
+|           `-- E3, at exn/tests/common.rs:42:17
+|               `-- E2, at exn/tests/common.rs:41:17
+|                   `-- E1, at exn/tests/common.rs:40:26
+`-- T2, at exn/tests/main.rs:34:26

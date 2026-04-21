@@ -47,11 +47,16 @@ fn write_exn(f: &mut fmt::Formatter<'_>, frame: &Frame, level: usize, prefix: &s
     let children_len = children.len();
 
     for (i, child) in children.iter().enumerate() {
-        write!(f, "\n{}|", prefix)?;
-        write!(f, "\n{}|-> ", prefix)?;
-
         let child_child_len = child.children().len();
-        if level == 0 && children_len == 1 && child_child_len == 1 {
+        let is_linear = level == 0 && children_len == 1 && child_child_len == 1;
+
+        if i != children_len - 1 || is_linear {
+            write!(f, "\n{}|-- ", prefix)?;
+        } else {
+            write!(f, "\n{}`-- ", prefix)?;
+        }
+
+        if is_linear {
             write_exn(f, child, 0, prefix)?;
         } else if i < children_len - 1 {
             write_exn(f, child, level + 1, &format!("{}|   ", prefix))?;

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use exn::ErrorExt;
 use exn::Exn;
 use exn::OptionExt;
 use exn::ResultExt;
@@ -23,6 +24,15 @@ use common::ErrorWithSource;
 #[test]
 fn linear_error() {
     let e = common::new_linear_error().raise(Error("topmost"));
+    assert_eq!(e.to_string(), "topmost");
+    insta::assert_debug_snapshot!(e);
+}
+
+#[test]
+fn tree_then_linear_error() {
+    let t1 = common::new_linear_error().raise(Error("T1"));
+    let t2 = Error("T2").raise();
+    let e = Exn::raise_all(Error("topmost"), [t1, t2]);
     assert_eq!(e.to_string(), "topmost");
     insta::assert_debug_snapshot!(e);
 }
