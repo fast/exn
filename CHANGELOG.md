@@ -4,10 +4,6 @@ All significant changes to this project will be documented in this file.
 
 ## Unreleased
 
-### New Features
-
-* `Exn<E>` now implements `.into_error()`, allowing to recover the top-level error with move semantics.
-
 ## v0.3.0 (2026-01-31)
 
 ### Breaking Changes

@@ -43,10 +43,6 @@ name = "into-anyhow"
 path = "src/into-anyhow.rs"
 
 [[example]]
-name = "into-error"
-path = "src/into-error.rs"
-
-[[example]]
 name = "into-std-error"
 path = "src/into-std-error.rs"
 
