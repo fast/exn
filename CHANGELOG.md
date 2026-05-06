@@ -4,6 +4,16 @@ All significant changes to this project will be documented in this file.
 
 ## Unreleased
 
+## v0.3.1 (2026-05-06)
+
+### New Features
+
+* Use a more compact ASCII tree format for default `Debug` output.
+
+### Bug Fixes
+
+* Fix conversion from `Exn<E>` into boxed `std::error::Error` trait objects.
+
 ## v0.3.0 (2026-01-31)
 
 ### Breaking Changes
