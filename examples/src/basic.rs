@@ -68,9 +68,3 @@ mod http {
     pub struct HttpError(String);
     impl std::error::Error for HttpError {}
 }
-
-// Output when running `cargo run --example basic`:
-//
-// Error: fatal error occurred in application, at examples/src/basic.rs:34:16
-// |-- failed to run app, at examples/src/basic.rs:49:14
-// `-- failed to send request to server: https://example.com, at examples/src/basic.rs:62:9

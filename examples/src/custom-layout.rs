@@ -109,9 +109,3 @@ mod http {
 
     impl Error for HttpError {}
 }
-
-// Output when running `cargo run --example custom_layout`:
-//
-// Error: fatal error occurred in application:
-// 0: failed to run app, at examples/src/custom-layout.rs:74:30
-// 1: failed to send request to server: https://example.com, at examples/src/custom-layout.rs:94:9

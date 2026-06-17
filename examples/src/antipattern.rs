@@ -84,10 +84,3 @@ mod http {
     }
     impl std::error::Error for HttpError {}
 }
-
-// Output when running `cargo run --example antipattern`.
-// Notice "failed to send request" appears twice with no new information.
-//
-// Error: fatal error occurred in application, at examples/src/antipattern.rs:35:16
-// |-- failed to send request, at examples/src/antipattern.rs:59:34
-// `-- failed to send request to server: 127.0.0.1, at examples/src/antipattern.rs:75:9

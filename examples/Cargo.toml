@@ -57,6 +57,7 @@ release = false
 anyhow = { workspace = true }
 exn = { workspace = true }
 exn-anyhow = { workspace = true }
+insta = { workspace = true }
 parse-display = { workspace = true }
 
 [lints]

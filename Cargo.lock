@@ -166,6 +166,7 @@ dependencies = [
  "anyhow",
  "exn",
  "exn-anyhow",
+ "insta",
  "parse-display",
 ]
 

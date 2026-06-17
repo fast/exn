@@ -62,11 +62,3 @@ mod config {
     pub struct ConfigError(String);
     impl Error for ConfigError {}
 }
-
-// Output when running `cargo run -p examples --example into-anyhow`:
-//
-// Error: failed to start app
-//
-// Caused by:
-//     0: PORT must be a number; got "not-a-number"
-//     1: invalid digit found in string
