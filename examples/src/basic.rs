@@ -25,10 +25,10 @@
 //! 3. **Keep Errors Simple** - Use `struct Error(String)` by default. Only add complexity (enums,
 //!    fields) when needed for programmatic handling.
 
-use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
+use parse_display::Display;
 
 fn main() -> Result<(), MainError> {
     app::run().or_raise(|| MainError)?;

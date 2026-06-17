@@ -26,10 +26,10 @@
 //! **The Fix:** Describe what **this layer** is doing. The app runs tasks,
 //! so say "failed to run app" - the HTTP details come from the child error.
 
-use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
+use parse_display::Display;
 
 fn main() -> Result<(), MainError> {
     app::run().or_raise(|| MainError)?;

@@ -18,10 +18,10 @@
 //! - Legacy code returns `anyhow::Result<T>`.
 //! - At the boundary, convert into `exn::Result<T, exn_anyhow::AnyhowError>`.
 
-use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn_anyhow::from_anyhow;
+use parse_display::Display;
 
 fn main() -> Result<(), MainError> {
     app::run().or_raise(|| MainError)?;

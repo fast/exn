@@ -23,12 +23,12 @@
 
 use std::error::Error;
 
-use derive_more::Display;
 use exn::Exn;
 use exn::Frame;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
+use parse_display::Display;
 
 use crate::http::HttpError;
 

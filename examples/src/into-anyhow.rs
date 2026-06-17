@@ -20,10 +20,10 @@
 
 use std::error::Error;
 
-use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
 use exn_anyhow::into_anyhow;
+use parse_display::Display;
 
 fn main() -> anyhow::Result<()> {
     app::run().map_err(into_anyhow)?;

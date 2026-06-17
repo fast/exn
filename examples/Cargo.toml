@@ -55,9 +55,9 @@ release = false
 
 [dev-dependencies]
 anyhow = { workspace = true }
-derive_more = { workspace = true }
 exn = { workspace = true }
 exn-anyhow = { workspace = true }
+parse-display = { workspace = true }
 
 [lints]
 workspace = true

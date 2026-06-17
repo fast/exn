@@ -22,12 +22,12 @@
 
 use std::error::Error;
 
-use derive_more::Display;
 use exn::Exn;
 use exn::Frame;
 use exn::Result;
 use exn::ResultExt;
 use exn::bail;
+use parse_display::Display;
 
 fn main() {
     demo(429);
@@ -176,7 +176,7 @@ mod library {
         }
 
         #[derive(Debug, Display)]
-        #[display("{_0}")]
+        #[display("{0}")]
         pub struct ServiceError(String);
         impl Error for ServiceError {}
     }

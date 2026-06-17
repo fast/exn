@@ -20,9 +20,9 @@
 
 use std::error::Error;
 
-use derive_more::Display;
 use exn::Result;
 use exn::ResultExt;
+use parse_display::Display;
 
 fn main() -> std::result::Result<(), Box<dyn Error>> {
     app::run()?;
