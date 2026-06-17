@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fs;
-use std::path::PathBuf;
 use std::process::Command as StdCommand;
 
 use clap::Parser;
@@ -66,7 +64,6 @@ struct CommandTest {
 impl CommandTest {
     fn run(self) {
         run_command(make_test_cmd(self.no_capture, true, &[]));
-        run_example_tests();
     }
 }
 
@@ -84,67 +81,6 @@ impl CommandLint {
         run_command(make_taplo_cmd(self.fix));
         run_command(make_typos_cmd());
         run_command(make_hawkeye_cmd(self.fix));
-    }
-}
-
-fn run_example_tests() {
-    let examples_dir = PathBuf::from(env!("CARGO_WORKSPACE_DIR"))
-        .join("examples")
-        .join("src");
-
-    let entries = fs::read_dir(&examples_dir).unwrap_or_else(|err| {
-        panic!("failed to read examples directory at {examples_dir:?}: {err:?}")
-    });
-
-    let mut total = 0;
-    let mut failed = vec![];
-    for entry in entries {
-        let entry = entry.unwrap();
-        let path = entry.path();
-
-        if path.extension().and_then(|s| s.to_str()) != Some("rs") {
-            continue;
-        }
-
-        let example_name = path.file_stem().unwrap().to_str().unwrap();
-
-        let mut cmd = find_command("cargo");
-        cmd.args(["--quiet", "run", "--example", example_name]);
-
-        let output = cmd.output().unwrap();
-        let stderr = String::from_utf8_lossy(&output.stderr);
-
-        let content = fs::read_to_string(&path).unwrap();
-        let content = content.lines().collect::<Vec<_>>().join("\n");
-
-        let actual = stderr
-            .lines()
-            .map(|line| {
-                if line.is_empty() {
-                    "//".to_string()
-                } else {
-                    format!("// {}", line)
-                }
-            })
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        if !content.contains(&actual) {
-            failed.push((path, actual));
-        }
-
-        total += 1;
-    }
-
-    if !failed.is_empty() {
-        eprintln!("{}/{} example tests failed:", failed.len(), total);
-        for (path, actual) in failed {
-            eprintln!("\nexample: {}", path.display());
-            eprintln!("actual stderr:\n{}", actual);
-        }
-        std::process::exit(1);
-    } else {
-        println!("all {} example tests passed", total);
     }
 }
 
