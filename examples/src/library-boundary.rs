@@ -176,7 +176,6 @@ mod library {
         }
 
         #[derive(Debug, Display)]
-        #[display("{0}")]
         pub struct ServiceError(String);
         impl Error for ServiceError {}
     }
