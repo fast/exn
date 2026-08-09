@@ -4,6 +4,10 @@ All significant changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Breaking Changes
+
+* Replace `Exn::raise_all` with `IteratorExt::raise`.
+
 ## v0.3.1 (2026-05-06)
 
 ### New Features

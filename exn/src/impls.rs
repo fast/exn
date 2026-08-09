@@ -95,9 +95,9 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         }
     }
 
-    /// Create a new exception with the given error and its children.
+    // Create a new exception with the given error and its children.
     #[track_caller]
-    pub fn raise_all<T, I>(error: E, children: I) -> Self
+    pub(crate) fn new_with_children<T, I>(error: E, children: I) -> Self
     where
         T: Error + Send + Sync + 'static,
         I: IntoIterator,

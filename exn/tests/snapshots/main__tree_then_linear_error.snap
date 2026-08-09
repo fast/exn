@@ -2,7 +2,7 @@
 source: exn/tests/main.rs
 expression: e
 ---
-topmost, at exn/tests/main.rs:35:13
+topmost, at exn/tests/main.rs:35:34
 |-- T1, at exn/tests/main.rs:33:41
 |   `-- E5, at exn/tests/common.rs:44:8
 |       `-- E4, at exn/tests/common.rs:43:17
