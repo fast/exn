@@ -23,6 +23,8 @@ use core::marker::PhantomData;
 use core::ops::Deref;
 use core::panic::Location;
 
+use crate::iterator::IteratorExt;
+
 /// An exception type that can hold an error tree and additional context.
 pub struct Exn<E: Error + Send + Sync + 'static> {
     // trade one more indirection for less stack size
@@ -95,22 +97,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
         }
     }
 
-    // Create a new exception with the given error and its children.
-    #[track_caller]
-    pub(crate) fn new_with_children<T, I>(error: E, children: I) -> Self
-    where
-        T: Error + Send + Sync + 'static,
-        I: IntoIterator,
-        I::Item: Into<Exn<T>>,
-    {
-        let mut new_exn = Exn::new(error);
-        for exn in children {
-            let exn = exn.into();
-            new_exn.frame.children.push(*exn.frame);
-        }
-        new_exn
-    }
-
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
@@ -122,6 +108,23 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
     /// Return the underlying exception frame.
     pub fn frame(&self) -> &Frame {
         &self.frame
+    }
+}
+
+impl<I: Iterator> IteratorExt for I {
+    #[track_caller]
+    fn raise<P, C>(self, parent: P) -> Exn<P>
+    where
+        P: Error + Send + Sync + 'static,
+        C: Error + Send + Sync + 'static,
+        I::Item: Into<Exn<C>>,
+    {
+        let mut new_exn = Exn::new(parent);
+        for exn in self {
+            let exn = exn.into();
+            new_exn.frame.children.push(*exn.frame);
+        }
+        new_exn
     }
 }
 

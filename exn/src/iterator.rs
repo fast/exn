@@ -64,10 +64,5 @@ pub trait IteratorExt: Iterator {
         Self: Sized,
         P: Error + Send + Sync + 'static,
         C: Error + Send + Sync + 'static,
-        Self::Item: Into<Exn<C>>,
-    {
-        Exn::new_with_children(parent, self)
-    }
+        Self::Item: Into<Exn<C>>;
 }
-
-impl<I: Iterator> IteratorExt for I {}
