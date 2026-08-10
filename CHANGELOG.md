@@ -6,7 +6,7 @@ All significant changes to this project will be documented in this file.
 
 ### Breaking Changes
 
-* Replace `Exn::raise_all` with `IteratorExt::raise`.
+* Replace `Exn::raise_all(parent, children)` with `children.into_iter().raise(parent)` from the new `IteratorExt` trait.
 
 ## v0.3.1 (2026-05-06)
 
