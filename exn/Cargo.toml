@@ -29,6 +29,10 @@ rust-version.workspace = true
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
+[package.metadata.release]
+pre-release-commit-message = "chore: release v{{version}}"
+tag-name = "v{{version}}"
+
 [dev-dependencies]
 insta = { workspace = true }
 

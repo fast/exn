@@ -29,5 +29,9 @@ rust-version.workspace = true
 anyhow = { workspace = true }
 exn = { workspace = true }
 
+[package.metadata.release]
+pre-release-commit-message = "chore: release {{crate_name}} v{{version}}"
+tag-name = "{{crate_name}}-v{{version}}"
+
 [lints]
 workspace = true

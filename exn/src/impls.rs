@@ -45,13 +45,13 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
     /// This will automatically walk the [source chain of the error] and add them as children
     /// frames.
     ///
-    /// See also [`ErrorExt::raise`] for a fluent way to convert an error into an `Exn` instance.
+    /// See also [`ErrorExt::raise`](crate::ErrorExt::raise) for a fluent way to convert an error
+    /// into an `Exn` instance.
     ///
     /// Note that **sources of `error` are degenerated to their string representation** and all type
     /// information is erased.
     ///
     /// [source chain of the error]: Error::source
-    /// [`ErrorExt::raise`](crate::ErrorExt)
     #[track_caller]
     pub fn new(error: E) -> Self {
         struct SourceError(String);
