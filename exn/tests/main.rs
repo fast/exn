@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use exn::ErrorExt;
-use exn::Exn;
+use exn::IteratorExt;
 use exn::OptionExt;
 use exn::ResultExt;
 
@@ -32,7 +32,7 @@ fn linear_error() {
 fn tree_then_linear_error() {
     let t1 = common::new_linear_error().raise(Error("T1"));
     let t2 = Error("T2").raise();
-    let e = Exn::raise_all(Error("topmost"), [t1, t2]);
+    let e = [t1, t2].into_iter().raise(Error("topmost"));
     assert_eq!(e.to_string(), "topmost");
     insta::assert_debug_snapshot!(e);
 }
@@ -46,7 +46,7 @@ fn tree_error() {
 
 #[test]
 fn new_with_source() {
-    let e = Exn::new(ErrorWithSource("top", Error("source")));
+    let e = exn::Exn::new(ErrorWithSource("top", Error("source")));
     insta::assert_debug_snapshot!(e);
 }
 
@@ -108,7 +108,22 @@ fn ensure_fail() {
 
 #[test]
 fn std_error_roundtrip() {
-    let err = Exn::new(Error("An error"));
+    let err = exn::Exn::new(Error("An error"));
     let err = Box::<dyn std::error::Error>::from(err);
     assert!(err.downcast_ref::<exn::Frame>().is_some());
+}
+
+#[test]
+fn iterator_ext() {
+    let err = [Error("first"), Error("second")]
+        .into_iter()
+        .raise(Error("parent"));
+    let children = err.frame().children();
+
+    assert_eq!(children.len(), 2);
+    assert_eq!(children[0].error().to_string(), "first");
+    assert_eq!(children[1].error().to_string(), "second");
+
+    let err = core::iter::empty::<Error>().raise(Error("parent"));
+    assert!(err.frame().children().is_empty());
 }

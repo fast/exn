@@ -3,8 +3,8 @@ source: exn/tests/main.rs
 expression: e
 ---
 topmost, at exn/tests/main.rs:42:38
-`-- E6, at exn/tests/common.rs:36:5
-    |-- E5, at exn/tests/common.rs:28:14
+`-- E6, at exn/tests/common.rs:36:30
+    |-- E5, at exn/tests/common.rs:28:41
     |   |-- E3, at exn/tests/common.rs:20:17
     |   |   `-- E1, at exn/tests/common.rs:19:26
     |   |-- E10, at exn/tests/common.rs:23:18

@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use exn::ErrorExt;
-use exn::Exn;
+use exn::IteratorExt;
 
-pub fn new_tree_error() -> Exn<Error> {
+pub fn new_tree_error() -> exn::Exn<Error> {
     let e1 = Error("E1").raise();
     let e3 = e1.raise(Error("E3"));
 
@@ -25,7 +25,7 @@ pub fn new_tree_error() -> Exn<Error> {
     let e11 = Error("E11").raise();
     let e12 = e11.raise(Error("E12"));
 
-    let e5 = Exn::raise_all(Error("E5"), [e3, e10, e12]);
+    let e5 = [e3, e10, e12].into_iter().raise(Error("E5"));
 
     let e2 = Error("E2").raise();
     let e4 = e2.raise(Error("E4"));
@@ -33,10 +33,10 @@ pub fn new_tree_error() -> Exn<Error> {
     let e7 = Error("E7").raise();
     let e8 = e7.raise(Error("E8"));
 
-    Exn::raise_all(Error("E6"), [e5, e4, e8])
+    [e5, e4, e8].into_iter().raise(Error("E6"))
 }
 
-pub fn new_linear_error() -> Exn<Error> {
+pub fn new_linear_error() -> exn::Exn<Error> {
     let e1 = Error("E1").raise();
     let e2 = e1.raise(Error("E2"));
     let e3 = e2.raise(Error("E3"));
