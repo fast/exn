@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-headerPath = "Apache-2.0.txt"
+[header]
+builtin = "Apache-2.0"
 
+[files]
 includes = ['**/*.proto', '**/*.rs', '**/*.yml', '**/*.yaml', '**/*.toml']
 
-[properties]
-copyrightOwner = "FastLabs Developers"
-inceptionYear = 2025
+[props]
+copyright_owner = "FastLabs Developers"
+inception_year = 2025
