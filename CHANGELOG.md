@@ -7,7 +7,7 @@ All significant changes to this project will be documented in this file.
 ### Breaking Changes
 
 * Replace `Exn::raise_all(parent, children)` with `children.into_iter().raise(parent)` from the new `IteratorExt` trait.
-* Relax the implicit `Sized` bound on `ResultExt::Error` so that it can describe type-erased exceptions.
+* Remove the unused `ResultExt::Error` associated type.
 
 ### New Features
 
