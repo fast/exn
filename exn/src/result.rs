@@ -25,7 +25,7 @@ pub trait ResultExt {
     type Success;
 
     /// The `Err` type that would be wrapped in an [`Exn`].
-    type Error: Error + Send + Sync + 'static;
+    type Error: Error + Send + Sync + 'static + ?Sized;
 
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
@@ -58,7 +58,7 @@ where
 
 impl<T, E> ResultExt for core::result::Result<T, Exn<E>>
 where
-    E: Error + Send + Sync + 'static,
+    E: Error + Send + Sync + 'static + ?Sized,
 {
     type Success = T;
     type Error = E;

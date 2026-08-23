@@ -25,8 +25,43 @@ use core::panic::Location;
 
 use crate::iterator::IteratorExt;
 
+/// An exception whose root error type has been erased.
+///
+/// This is useful at boundaries such as callbacks that need to accept exception trees with
+/// different root error types. Prefer [`Exn<E>`](Exn) when the root error type can be named.
+///
+/// Converting an [`Exn`] with [`Exn::into_erased`] does not allocate or erase the runtime type
+/// information stored in its frames.
+///
+/// ```
+/// use core::fmt;
+///
+/// use exn::ErasedExn;
+/// use exn::ErrorExt;
+/// use exn::Exn;
+/// use exn::ResultExt;
+///
+/// #[derive(Debug)]
+/// struct CallbackFailed;
+///
+/// impl fmt::Display for CallbackFailed {
+///     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+///         f.write_str("callback failed")
+///     }
+/// }
+///
+/// impl core::error::Error for CallbackFailed {}
+///
+/// fn run(callback: impl FnOnce() -> Result<(), ErasedExn>) -> exn::Result<(), CallbackFailed> {
+///     callback().or_raise(|| CallbackFailed)
+/// }
+///
+/// run(|| Err(fmt::Error.raise().into_erased())).unwrap_err();
+/// ```
+pub type ErasedExn = Exn<dyn Error + Send + Sync + 'static>;
+
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error + Send + Sync + 'static> {
+pub struct Exn<E: Error + Send + Sync + 'static + ?Sized> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
@@ -96,6 +131,19 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
             phantom: PhantomData,
         }
     }
+}
+
+impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
+    /// Erase the root error type of this exception.
+    ///
+    /// This conversion does not allocate or change the exception tree. The concrete error values
+    /// stored in its frames remain available through `Error::downcast_ref`.
+    pub fn into_erased(self) -> ErasedExn {
+        Exn {
+            frame: self.frame,
+            phantom: PhantomData,
+        }
+    }
 
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
@@ -116,7 +164,7 @@ impl<I: Iterator> IteratorExt for I {
     fn raise<P, C>(self, parent: P) -> Exn<P>
     where
         P: Error + Send + Sync + 'static,
-        C: Error + Send + Sync + 'static,
+        C: Error + Send + Sync + 'static + ?Sized,
         I::Item: Into<Exn<C>>,
     {
         let mut new_exn = Exn::new(parent);
@@ -139,6 +187,14 @@ where
             .error()
             .downcast_ref()
             .expect("error type must match")
+    }
+}
+
+impl Deref for ErasedExn {
+    type Target = dyn Error + Send + Sync + 'static;
+
+    fn deref(&self) -> &Self::Target {
+        self.frame.error()
     }
 }
 
@@ -177,19 +233,21 @@ impl Error for Frame {
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>> for Box<dyn Error + 'static> {
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>> for Box<dyn Error + Send + 'static> {
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + Sync + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>>
+    for Box<dyn Error + Send + Sync + 'static>
+{
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }

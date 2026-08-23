@@ -7,6 +7,11 @@ All significant changes to this project will be documented in this file.
 ### Breaking Changes
 
 * Replace `Exn::raise_all(parent, children)` with `children.into_iter().raise(parent)` from the new `IteratorExt` trait.
+* Relax the implicit `Sized` bound on `ResultExt::Error` so that it can describe type-erased exceptions.
+
+### New Features
+
+* Add `ErasedExn` and the allocation-free `Exn::into_erased` conversion for boundaries that cannot name one root error type.
 
 ## v0.3.1 (2026-05-06)
 

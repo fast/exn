@@ -88,6 +88,7 @@ mod result;
 
 pub use self::ext::ErrorExt;
 pub use self::ext::Ok;
+pub use self::impls::ErasedExn;
 pub use self::impls::Exn;
 pub use self::impls::Frame;
 pub use self::iterator::IteratorExt;

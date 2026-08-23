@@ -14,14 +14,13 @@
 
 use core::error::Error;
 use core::fmt;
-use core::ops::Deref;
 
 use crate::Exn;
 use crate::Frame;
 
-impl<E: Error + Send + Sync + 'static> fmt::Display for Exn<E> {
+impl<E: Error + Send + Sync + 'static + ?Sized> fmt::Display for Exn<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.deref())
+        write!(f, "{}", self.frame().error())
     }
 }
 

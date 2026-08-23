@@ -63,6 +63,6 @@ pub trait IteratorExt: Iterator {
     where
         Self: Sized,
         P: Error + Send + Sync + 'static,
-        C: Error + Send + Sync + 'static,
+        C: Error + Send + Sync + 'static + ?Sized,
         Self::Item: Into<Exn<C>>;
 }

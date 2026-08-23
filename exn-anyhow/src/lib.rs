@@ -22,7 +22,7 @@ use exn::Exn;
 /// Convert an [`Exn`] into [`anyhow::Error`].
 pub fn into_anyhow<E>(err: Exn<E>) -> anyhow::Error
 where
-    E: Error + Send + Sync + 'static,
+    E: Error + Send + Sync + 'static + ?Sized,
 {
     anyhow::Error::from_boxed(err.into())
 }
