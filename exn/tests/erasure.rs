@@ -15,12 +15,11 @@
 use core::error::Error;
 use core::fmt;
 
+use exn::ErasedExn;
 use exn::ErrorExt;
 use exn::Exn;
 use exn::IteratorExt;
 use exn::ResultExt;
-
-type CallbackExn = Exn<dyn Error + Send + Sync + 'static>;
 
 #[derive(Debug)]
 struct StorageError;
@@ -74,18 +73,18 @@ fn parse_input() -> exn::Result<(), ParseError> {
     Err(ParseError.raise())
 }
 
-fn storage_callback() -> Result<(), CallbackExn> {
+fn storage_callback() -> Result<(), ErasedExn> {
     read_storage().map_err(Exn::erase)?;
     Ok(())
 }
 
-fn parse_callback() -> Result<(), CallbackExn> {
+fn parse_callback() -> Result<(), ErasedExn> {
     parse_input().map_err(Exn::erase)?;
     Ok(())
 }
 
 fn run_callback(
-    callback: impl FnOnce() -> Result<(), CallbackExn>,
+    callback: impl FnOnce() -> Result<(), ErasedExn>,
 ) -> exn::Result<(), CallbackFailed> {
     callback().or_raise(|| CallbackFailed)
 }

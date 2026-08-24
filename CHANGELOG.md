@@ -11,7 +11,7 @@ All significant changes to this project will be documented in this file.
 
 ### New Features
 
-* Add the allocation-free `Exn::erase` conversion for callback boundaries that cannot name one concrete root error type.
+* Add `ErasedExn` and the allocation-free `Exn::erase` conversion for callback boundaries that cannot name one concrete root error type.
 
 ## v0.3.1 (2026-05-06)
 

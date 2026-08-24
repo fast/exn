@@ -25,6 +25,13 @@ use core::panic::Location;
 
 use crate::iterator::IteratorExt;
 
+/// An [`Exn`] whose compile-time root error type has been erased.
+///
+/// Use this at boundaries such as callbacks that need one error type for implementations with
+/// different concrete root errors. Prefer a typed [`Exn<E>`](Exn) away from those boundaries.
+/// Create an `ErasedExn` with [`Exn::erase`].
+pub type ErasedExn = Exn<dyn Error + Send + Sync + 'static>;
+
 /// An exception type that can hold an error tree and additional context.
 ///
 /// `E` identifies the root error type but is not stored inline, so it may be unsized. Operations
@@ -112,22 +119,20 @@ impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
     /// different concrete error types. Prefer a typed [`Exn<E>`](Exn) away from such boundaries.
     ///
     /// ```
-    /// use core::error::Error;
     /// use core::fmt;
     ///
+    /// use exn::ErasedExn;
     /// use exn::ErrorExt;
     /// use exn::Exn;
     /// use exn::ResultExt;
     ///
-    /// type CallbackExn = Exn<dyn Error + Send + Sync + 'static>;
-    ///
-    /// fn callback() -> Result<(), CallbackExn> {
+    /// fn callback() -> Result<(), ErasedExn> {
     ///     let result: exn::Result<(), std::io::Error> =
     ///         Err(std::io::Error::other("callback failed").raise());
     ///     result.map_err(Exn::erase)
     /// }
     ///
-    /// fn run(callback: impl FnOnce() -> Result<(), CallbackExn>) -> exn::Result<(), fmt::Error> {
+    /// fn run(callback: impl FnOnce() -> Result<(), ErasedExn>) -> exn::Result<(), fmt::Error> {
     ///     callback().or_raise(|| fmt::Error)
     /// }
     ///
@@ -139,7 +144,7 @@ impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
     ///         .is_some()
     /// );
     /// ```
-    pub fn erase(self) -> Exn<dyn Error + Send + Sync + 'static> {
+    pub fn erase(self) -> ErasedExn {
         Exn {
             frame: self.frame,
             phantom: PhantomData,
@@ -191,7 +196,7 @@ where
     }
 }
 
-impl Deref for Exn<dyn Error + Send + Sync + 'static> {
+impl Deref for ErasedExn {
     type Target = dyn Error + Send + Sync + 'static;
 
     fn deref(&self) -> &Self::Target {
