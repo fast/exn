@@ -11,7 +11,7 @@ All significant changes to this project will be documented in this file.
 
 ### New Features
 
-* Let a bare `Exn` serve as the type-erased boundary type, accept conversions from errors and typed exceptions, and provide allocation-free explicit erasure for generic unsized root markers.
+* Let a bare `Exn` serve as the type-erased boundary type and accept conversions from errors and typed exceptions.
 
 ## v0.3.1 (2026-05-06)
 

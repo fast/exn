@@ -33,10 +33,9 @@ use crate::iterator::IteratorExt;
 ///
 /// Without an explicit `E`, `Exn` erases the compile-time root error type. This is useful at
 /// boundaries such as callbacks that need one error type for implementations with different
-/// concrete root errors. Concrete errors and typed exceptions with sized root markers convert into
-/// a bare `Exn`, allowing `?` to perform the erasure. Use [`Exn::erase`] when the root marker may
-/// be unsized. Erasing a typed exception preserves its tree and the runtime types stored in its
-/// frames.
+/// concrete root errors. Both errors and typed exceptions convert into a bare `Exn`, allowing `?`
+/// to perform the erasure. Converting a typed exception preserves its tree and the runtime types
+/// stored in its frames.
 ///
 /// ```
 /// use core::fmt;
@@ -80,14 +79,21 @@ impl<E: Error + Send + Sync + 'static> From<E> for Exn<E> {
 impl<E: Error + Send + Sync + 'static> From<E> for Exn {
     #[track_caller]
     fn from(error: E) -> Self {
-        Exn::new(error).erase()
+        let exn = Exn::new(error);
+        Exn {
+            frame: exn.frame,
+            phantom: PhantomData,
+        }
     }
 }
 
 // Keep `E` sized so this stays disjoint from the standard identity conversion for a bare `Exn`.
 impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Exn {
     fn from(exn: Exn<E>) -> Self {
-        exn.erase()
+        Exn {
+            frame: exn.frame,
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -151,33 +157,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
 }
 
 impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
-    /// Erase the compile-time root error type of this exception.
-    ///
-    /// This conversion does not allocate or change the exception tree. The concrete root error
-    /// remains available at runtime through `downcast_ref` on the erased `Exn`.
-    ///
-    /// Concrete root markers also support conversion into a bare `Exn` through [`Into`]. This
-    /// method additionally works in generic code where the root marker may be unsized.
-    ///
-    /// ```
-    /// use core::error::Error;
-    ///
-    /// use exn::Exn;
-    ///
-    /// fn erase<E>(exn: Exn<E>) -> Exn
-    /// where
-    ///     E: Error + Send + Sync + 'static + ?Sized,
-    /// {
-    ///     exn.erase()
-    /// }
-    /// ```
-    pub fn erase(self) -> Exn {
-        Exn {
-            frame: self.frame,
-            phantom: PhantomData,
-        }
-    }
-
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {

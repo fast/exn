@@ -24,9 +24,6 @@ pub trait IteratorExt: Iterator {
     /// and becomes a direct child of the new exception in iteration order. An empty iterator
     /// creates an exception with no children.
     ///
-    /// An [`Exn`] with a sized root marker converts implicitly. In generic code where the marker
-    /// may be unsized, erase each item explicitly with [`Exn::erase`] before calling this method.
-    ///
     /// # Examples
     ///
     /// ```
