@@ -26,7 +26,11 @@ use core::panic::Location;
 use crate::iterator::IteratorExt;
 
 /// An exception type that can hold an error tree and additional context.
-pub struct Exn<E: Error + Send + Sync + 'static> {
+///
+/// `E` identifies the root error type but is not stored inline, so it may be unsized. Operations
+/// that construct a new root error, such as [`Exn::new`] and [`Exn::raise`], still accept their new
+/// error by value and therefore require that type to be sized.
+pub struct Exn<E: Error + Send + Sync + 'static + ?Sized> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
@@ -96,7 +100,9 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
             phantom: PhantomData,
         }
     }
+}
 
+impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
@@ -116,7 +122,7 @@ impl<I: Iterator> IteratorExt for I {
     fn raise<P, C>(self, parent: P) -> Exn<P>
     where
         P: Error + Send + Sync + 'static,
-        C: Error + Send + Sync + 'static,
+        C: Error + Send + Sync + 'static + ?Sized,
         I::Item: Into<Exn<C>>,
     {
         let mut new_exn = Exn::new(parent);
@@ -177,19 +183,21 @@ impl Error for Frame {
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>> for Box<dyn Error + 'static> {
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>> for Box<dyn Error + Send + 'static> {
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }
 }
 
-impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Box<dyn Error + Send + Sync + 'static> {
+impl<E: Error + Send + Sync + 'static + ?Sized> From<Exn<E>>
+    for Box<dyn Error + Send + Sync + 'static>
+{
     fn from(exn: Exn<E>) -> Self {
         exn.frame
     }

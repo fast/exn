@@ -34,7 +34,7 @@ use crate::Result;
 ///    |         consider giving this pattern the explicit type `core::result::Result<i32, E>`, where the type parameter `E` is specified
 /// ```
 #[expect(non_snake_case)]
-pub fn Ok<T, E: Error + Send + Sync + 'static>(value: T) -> Result<T, E> {
+pub fn Ok<T, E: Error + Send + Sync + 'static + ?Sized>(value: T) -> Result<T, E> {
     Result::Ok(value)
 }
 

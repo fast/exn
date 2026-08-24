@@ -24,9 +24,6 @@ pub trait ResultExt {
     /// The `Ok` type.
     type Success;
 
-    /// The `Err` type that would be wrapped in an [`Exn`].
-    type Error: Error + Send + Sync + 'static;
-
     /// Raise a new exception on the [`Exn`] inside the [`Result`].
     ///
     /// Apply [`Exn::raise`] on the `Err` variant, refer to it for more information.
@@ -41,8 +38,6 @@ where
     E: Error + Send + Sync + 'static,
 {
     type Success = T;
-    type Error = E;
-
     #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
@@ -58,11 +53,9 @@ where
 
 impl<T, E> ResultExt for core::result::Result<T, Exn<E>>
 where
-    E: Error + Send + Sync + 'static,
+    E: Error + Send + Sync + 'static + ?Sized,
 {
     type Success = T;
-    type Error = E;
-
     #[track_caller]
     fn or_raise<A, F>(self, err: F) -> Result<Self::Success, A>
     where
