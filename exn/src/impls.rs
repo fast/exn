@@ -36,33 +36,6 @@ use crate::iterator::IteratorExt;
 /// concrete root errors. Both errors and typed exceptions convert into a bare `Exn`, allowing `?`
 /// to perform the erasure. Converting a typed exception preserves its tree and the runtime types
 /// stored in its frames.
-///
-/// ```
-/// use core::fmt;
-///
-/// use exn::ErrorExt;
-/// use exn::Exn;
-/// use exn::ResultExt;
-///
-/// fn callback() -> Result<(), Exn> {
-///     let result: exn::Result<(), std::io::Error> =
-///         Err(std::io::Error::other("callback failed").raise());
-///     result?;
-///     Ok(())
-/// }
-///
-/// fn run(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), fmt::Error> {
-///     callback().or_raise(|| fmt::Error)
-/// }
-///
-/// let error = run(callback).unwrap_err();
-/// assert!(
-///     error.frame().children()[0]
-///         .error()
-///         .downcast_ref::<std::io::Error>()
-///         .is_some()
-/// );
-/// ```
 pub struct Exn<E: Error + Send + Sync + 'static + ?Sized = dyn Error + Send + Sync + 'static> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,

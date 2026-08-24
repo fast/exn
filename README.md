@@ -22,41 +22,9 @@
 
 It organizes errors as a tree, preserving typed context at module boundaries while still supporting type erasure where one concrete error type cannot be named.
 
-## Typed and erased boundaries
-
-Prefer `exn::Result<T, E>` with a concrete `E` inside modules and in domain APIs. This keeps the current root error visible in the type system.
-
-Use a bare `Exn` at boundaries that genuinely need one concrete error type for unrelated implementations, such as callbacks, delegates, or heterogeneous collections. Typed exceptions convert into a bare `Exn` through `?` without reallocating their frame tree, and their concrete frame errors remain available for runtime downcasting. Add a typed parent again when the surrounding component incorporates the failure into its own API.
-
-```rust
-use core::fmt;
-use std::io;
-
-use exn::ErrorExt;
-use exn::Exn;
-use exn::ResultExt;
-
-fn read_config() -> exn::Result<(), io::Error> {
-    Err(io::Error::other("cannot read config").raise())
-}
-
-fn callback() -> Result<(), Exn> {
-    read_config()?;
-    Ok(())
-}
-
-fn run_callback(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), fmt::Error> {
-    callback().or_raise(|| fmt::Error)
-}
-```
-
-## Migrating from 0.3
-
-Import `exn::IteratorExt` and replace `Exn::raise_all(parent, children)` with `children.into_iter().raise(parent)`. Remove references to the unused `ResultExt::Error` associated type; there is no replacement associated type. See the [changelog](https://github.com/fast/exn/blob/main/CHANGELOG.md) for the complete 0.4 release notes.
-
 ## Documentation
 
-Read the online documents at https://docs.rs/exn.
+Read the [API documentation](https://docs.rs/exn) for examples and guidance on choosing typed and erased boundaries. See the [changelog](https://github.com/fast/exn/blob/main/CHANGELOG.md) for version-specific migration notes.
 
 ## `no_std` crates
 
