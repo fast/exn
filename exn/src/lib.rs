@@ -70,6 +70,17 @@
 //! fatal error: math no longer works, at exn/src/lib.rs:44:16
 //! `-- logic error: 0 == 1, at exn/src/lib.rs:40:5
 //! ```
+//!
+//! # Typed and erased boundaries
+//!
+//! Prefer [`Result`] with a concrete root error type inside modules and in domain APIs. Use a bare
+//! [`Exn`] when a boundary, such as a callback or delegate, cannot name one concrete root error
+//! type. Concrete errors and typed exceptions convert into a bare `Exn` through `From` and `?`.
+//! Converting a typed exception preserves its frame tree and runtime error types without another
+//! allocation. Add a typed parent with [`ResultExt::or_raise`] when the surrounding component
+//! incorporates the failure into its own API.
+//!
+//! The [`Exn`] documentation shows the complete typed-to-erased-to-typed callback workflow.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]

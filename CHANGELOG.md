@@ -4,14 +4,22 @@ All significant changes to this project will be documented in this file.
 
 ## Unreleased
 
+## v0.4.0-rc.1 (2026-08-24)
+
 ### Breaking Changes
 
-* Replace `Exn::raise_all(parent, children)` with `children.into_iter().raise(parent)` from the new `IteratorExt` trait.
-* Remove the unused `ResultExt::Error` associated type.
+* Remove `Exn::raise_all(parent, children)`. Import `IteratorExt` and use `children.into_iter().raise(parent)` instead.
+* Remove the unused `ResultExt::Error` associated type. Generic code that named it must carry the error type separately.
 
 ### New Features
 
-* Let a bare `Exn` serve as the type-erased boundary type and accept conversions from errors and typed exceptions.
+* Let a bare `Exn` serve as the standard type-erased boundary. Concrete errors and typed `Exn<E>` values convert into it through `From` and `?`; converting a typed exception preserves its complete frame tree and runtime error types without another allocation.
+* Add `IteratorExt::raise` to aggregate an iterator of errors or typed or type-erased exceptions beneath one typed parent.
+* Allow `Exn<E>` and marker-only adapters to use unsized root markers. Construction still requires a sized error passed by value, and conversion into arbitrary custom trait-object markers is not provided.
+
+### Packaging
+
+* Include the Apache-2.0 license in the published `exn` package.
 
 ## v0.3.1 (2026-05-06)
 
