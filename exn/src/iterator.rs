@@ -20,9 +20,9 @@ use crate::Exn;
 pub trait IteratorExt: Iterator {
     /// Raise a new parent exception over every exception in this iterator.
     ///
-    /// Each item, whether an error or an existing [`Exn`], becomes a direct child of the new
-    /// exception in iteration order. All items must have the same root error type. An empty
-    /// iterator creates an exception with no children.
+    /// Each item, whether an error or an existing [`Exn`], is converted into a type-erased `Exn`
+    /// and becomes a direct child of the new exception in iteration order. An empty iterator
+    /// creates an exception with no children.
     ///
     /// # Examples
     ///
@@ -59,10 +59,9 @@ pub trait IteratorExt: Iterator {
     /// assert_eq!(error.frame().children().len(), 2);
     /// ```
     #[track_caller]
-    fn raise<P, C>(self, parent: P) -> Exn<P>
+    fn raise<P>(self, parent: P) -> Exn<P>
     where
         Self: Sized,
         P: Error + Send + Sync + 'static,
-        C: Error + Send + Sync + 'static + ?Sized,
-        Self::Item: Into<Exn<C>>;
+        Self::Item: Into<Exn>;
 }

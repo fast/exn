@@ -15,7 +15,6 @@
 use core::error::Error;
 use core::fmt;
 
-use exn::ErasedExn;
 use exn::ErrorExt;
 use exn::Exn;
 use exn::IteratorExt;
@@ -73,19 +72,22 @@ fn parse_input() -> exn::Result<(), ParseError> {
     Err(ParseError.raise())
 }
 
-fn storage_callback() -> Result<(), ErasedExn> {
-    read_storage().map_err(Exn::erase)?;
+fn storage_callback() -> Result<(), Exn> {
+    read_storage()?;
     Ok(())
 }
 
-fn parse_callback() -> Result<(), ErasedExn> {
-    parse_input().map_err(Exn::erase)?;
+fn parse_callback() -> Result<(), Exn> {
+    parse_input()?;
     Ok(())
 }
 
-fn run_callback(
-    callback: impl FnOnce() -> Result<(), ErasedExn>,
-) -> exn::Result<(), CallbackFailed> {
+fn plain_error_callback() -> Result<(), Exn> {
+    Err(StorageError)?;
+    Ok(())
+}
+
+fn run_callback(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), CallbackFailed> {
     callback().or_raise(|| CallbackFailed)
 }
 
@@ -93,7 +95,7 @@ fn run_callback(
 fn erasure_preserves_the_frame_and_runtime_root_type() {
     let typed = StorageError.raise();
     let frame = typed.frame() as *const _;
-    let erased = typed.erase();
+    let erased: Exn = typed.into();
 
     assert_eq!(erased.frame() as *const _, frame);
     assert!(erased.downcast_ref::<StorageError>().is_some());
@@ -110,6 +112,13 @@ fn callback_errors_are_erased_at_the_boundary_and_typed_above_it() {
             .downcast_ref::<StorageError>()
             .is_some()
     );
+}
+
+#[test]
+fn plain_errors_convert_into_a_bare_exn() {
+    let error = plain_error_callback().unwrap_err();
+
+    assert!(error.downcast_ref::<StorageError>().is_some());
 }
 
 #[test]

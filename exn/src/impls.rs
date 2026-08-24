@@ -25,19 +25,45 @@ use core::panic::Location;
 
 use crate::iterator::IteratorExt;
 
-/// An [`Exn`] whose compile-time root error type has been erased.
-///
-/// Use this at boundaries such as callbacks that need one error type for implementations with
-/// different concrete root errors. Prefer a typed [`Exn<E>`](Exn) away from those boundaries.
-/// Create an `ErasedExn` with [`Exn::erase`].
-pub type ErasedExn = Exn<dyn Error + Send + Sync + 'static>;
-
 /// An exception type that can hold an error tree and additional context.
 ///
 /// `E` identifies the root error type but is not stored inline, so it may be unsized. Operations
 /// that construct a new root error, such as [`Exn::new`] and [`Exn::raise`], still accept their new
 /// error by value and therefore require that type to be sized.
-pub struct Exn<E: Error + Send + Sync + 'static + ?Sized> {
+///
+/// Without an explicit `E`, `Exn` erases the compile-time root error type. This is useful at
+/// boundaries such as callbacks that need one error type for implementations with different
+/// concrete root errors. Both errors and typed exceptions convert into a bare `Exn`, allowing `?`
+/// to perform the erasure. Converting a typed exception preserves its tree and the runtime types
+/// stored in its frames.
+///
+/// ```
+/// use core::fmt;
+///
+/// use exn::ErrorExt;
+/// use exn::Exn;
+/// use exn::ResultExt;
+///
+/// fn callback() -> Result<(), Exn> {
+///     let result: exn::Result<(), std::io::Error> =
+///         Err(std::io::Error::other("callback failed").raise());
+///     result?;
+///     Ok(())
+/// }
+///
+/// fn run(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), fmt::Error> {
+///     callback().or_raise(|| fmt::Error)
+/// }
+///
+/// let error = run(callback).unwrap_err();
+/// assert!(
+///     error.frame().children()[0]
+///         .error()
+///         .downcast_ref::<std::io::Error>()
+///         .is_some()
+/// );
+/// ```
+pub struct Exn<E: Error + Send + Sync + 'static + ?Sized = dyn Error + Send + Sync + 'static> {
     // trade one more indirection for less stack size
     frame: Box<Frame>,
     phantom: PhantomData<E>,
@@ -47,6 +73,27 @@ impl<E: Error + Send + Sync + 'static> From<E> for Exn<E> {
     #[track_caller]
     fn from(error: E) -> Self {
         Exn::new(error)
+    }
+}
+
+impl<E: Error + Send + Sync + 'static> From<E> for Exn {
+    #[track_caller]
+    fn from(error: E) -> Self {
+        let exn = Exn::new(error);
+        Exn {
+            frame: exn.frame,
+            phantom: PhantomData,
+        }
+    }
+}
+
+// Keep `E` sized so this stays disjoint from the standard identity conversion for a bare `Exn`.
+impl<E: Error + Send + Sync + 'static> From<Exn<E>> for Exn {
+    fn from(exn: Exn<E>) -> Self {
+        Exn {
+            frame: exn.frame,
+            phantom: PhantomData,
+        }
     }
 }
 
@@ -110,47 +157,6 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
 }
 
 impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
-    /// Erase the compile-time root error type of this exception.
-    ///
-    /// This conversion does not allocate or change the exception tree. The concrete root error
-    /// remains available at runtime through `Error::downcast_ref`.
-    ///
-    /// Type erasure is useful at callback boundaries that need one return type for callbacks with
-    /// different concrete error types. Prefer a typed [`Exn<E>`](Exn) away from such boundaries.
-    ///
-    /// ```
-    /// use core::fmt;
-    ///
-    /// use exn::ErasedExn;
-    /// use exn::ErrorExt;
-    /// use exn::Exn;
-    /// use exn::ResultExt;
-    ///
-    /// fn callback() -> Result<(), ErasedExn> {
-    ///     let result: exn::Result<(), std::io::Error> =
-    ///         Err(std::io::Error::other("callback failed").raise());
-    ///     result.map_err(Exn::erase)
-    /// }
-    ///
-    /// fn run(callback: impl FnOnce() -> Result<(), ErasedExn>) -> exn::Result<(), fmt::Error> {
-    ///     callback().or_raise(|| fmt::Error)
-    /// }
-    ///
-    /// let error = run(callback).unwrap_err();
-    /// assert!(
-    ///     error.frame().children()[0]
-    ///         .error()
-    ///         .downcast_ref::<std::io::Error>()
-    ///         .is_some()
-    /// );
-    /// ```
-    pub fn erase(self) -> ErasedExn {
-        Exn {
-            frame: self.frame,
-            phantom: PhantomData,
-        }
-    }
-
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
@@ -167,16 +173,15 @@ impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
 
 impl<I: Iterator> IteratorExt for I {
     #[track_caller]
-    fn raise<P, C>(self, parent: P) -> Exn<P>
+    fn raise<P>(self, parent: P) -> Exn<P>
     where
         P: Error + Send + Sync + 'static,
-        C: Error + Send + Sync + 'static + ?Sized,
-        I::Item: Into<Exn<C>>,
+        I::Item: Into<Exn>,
     {
         let mut new_exn = Exn::new(parent);
-        for exn in self {
-            let exn = exn.into();
-            new_exn.frame.children.push(*exn.frame);
+        for item in self {
+            let child: Exn = item.into();
+            new_exn.frame.children.push(*child.frame);
         }
         new_exn
     }
@@ -196,7 +201,7 @@ where
     }
 }
 
-impl Deref for ErasedExn {
+impl Deref for Exn {
     type Target = dyn Error + Send + Sync + 'static;
 
     fn deref(&self) -> &Self::Target {
