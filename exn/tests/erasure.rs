@@ -91,6 +91,15 @@ fn run_callback(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), C
     callback().or_raise(|| CallbackFailed)
 }
 
+fn raise_with_potentially_unsized_marker<E>(
+    errors: impl Iterator<Item = Exn<E>>,
+) -> Exn<MultipleCallbacksFailed>
+where
+    E: Error + Send + Sync + 'static + ?Sized,
+{
+    errors.map(Exn::erase).raise(MultipleCallbacksFailed)
+}
+
 #[test]
 fn erasure_preserves_the_frame_and_runtime_root_type() {
     let typed = StorageError.raise();
@@ -139,6 +148,20 @@ fn heterogeneous_callback_errors_can_share_one_collection() {
         error.frame().children()[1]
             .error()
             .downcast_ref::<ParseError>()
+            .is_some()
+    );
+}
+
+#[test]
+fn generic_potentially_unsized_markers_can_be_erased_before_iterator_raise() {
+    let errors = [StorageError.raise(), StorageError.raise()];
+    let error = raise_with_potentially_unsized_marker(errors.into_iter());
+
+    assert_eq!(error.frame().children().len(), 2);
+    assert!(
+        error.frame().children()[0]
+            .error()
+            .downcast_ref::<StorageError>()
             .is_some()
     );
 }
