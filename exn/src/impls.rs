@@ -103,6 +103,49 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
 }
 
 impl<E: Error + Send + Sync + 'static + ?Sized> Exn<E> {
+    /// Erase the compile-time root error type of this exception.
+    ///
+    /// This conversion does not allocate or change the exception tree. The concrete root error
+    /// remains available at runtime through `Error::downcast_ref`.
+    ///
+    /// Type erasure is useful at callback boundaries that need one return type for callbacks with
+    /// different concrete error types. Prefer a typed [`Exn<E>`](Exn) away from such boundaries.
+    ///
+    /// ```
+    /// use core::error::Error;
+    /// use core::fmt;
+    ///
+    /// use exn::ErrorExt;
+    /// use exn::Exn;
+    /// use exn::ResultExt;
+    ///
+    /// type CallbackExn = Exn<dyn Error + Send + Sync + 'static>;
+    ///
+    /// fn callback() -> Result<(), CallbackExn> {
+    ///     let result: exn::Result<(), std::io::Error> =
+    ///         Err(std::io::Error::other("callback failed").raise());
+    ///     result.map_err(Exn::erase)
+    /// }
+    ///
+    /// fn run(callback: impl FnOnce() -> Result<(), CallbackExn>) -> exn::Result<(), fmt::Error> {
+    ///     callback().or_raise(|| fmt::Error)
+    /// }
+    ///
+    /// let error = run(callback).unwrap_err();
+    /// assert!(
+    ///     error.frame().children()[0]
+    ///         .error()
+    ///         .downcast_ref::<std::io::Error>()
+    ///         .is_some()
+    /// );
+    /// ```
+    pub fn erase(self) -> Exn<dyn Error + Send + Sync + 'static> {
+        Exn {
+            frame: self.frame,
+            phantom: PhantomData,
+        }
+    }
+
     /// Raise a new exception; this will make the current exception a child of the new one.
     #[track_caller]
     pub fn raise<T: Error + Send + Sync + 'static>(self, err: T) -> Exn<T> {
@@ -145,6 +188,14 @@ where
             .error()
             .downcast_ref()
             .expect("error type must match")
+    }
+}
+
+impl Deref for Exn<dyn Error + Send + Sync + 'static> {
+    type Target = dyn Error + Send + Sync + 'static;
+
+    fn deref(&self) -> &Self::Target {
+        self.frame.error()
     }
 }
 
