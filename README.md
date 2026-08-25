@@ -24,7 +24,7 @@ It organizes errors as a tree, preserving typed context at module boundaries whi
 
 ## Documentation
 
-Read the [API documentation](https://docs.rs/exn) for examples and guidance on choosing typed and erased boundaries. See the [changelog](https://github.com/fast/exn/blob/main/CHANGELOG.md) for version-specific migration notes.
+Read the [API documentation](https://docs.rs/exn) for examples and guidance on choosing typed and erased boundaries. See the [CHANGELOG](CHANGELOG.md) for version-specific migration notes.
 
 ## `no_std` crates
 
