@@ -14,17 +14,17 @@
 [license-badge]: https://img.shields.io/crates/l/exn
 [license-url]: LICENSE
 [actions-badge]: https://github.com/fast/exn/workflows/CI/badge.svg
-[actions-url]:https://github.com/fast/exn/actions?query=workflow%3ACI
+[actions-url]: https://github.com/fast/exn/actions?query=workflow%3ACI
 
 ## Overview
 
 `exn` provides the missing context APIs for `core::error::Error`.
 
-It organizes errors as a tree structure, allowing you to easily access the root cause and all related errors with their context.
+It organizes errors as a tree, preserving typed context at module boundaries while still supporting type erasure where one concrete error type cannot be named.
 
 ## Documentation
 
-Read the online documents at https://docs.rs/exn.
+Read the [API documentation](https://docs.rs/exn) for examples and guidance on choosing typed and erased boundaries. See the [CHANGELOG](CHANGELOG.md) for version-specific migration notes.
 
 ## `no_std` crates
 

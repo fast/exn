@@ -70,6 +70,48 @@
 //! fatal error: math no longer works, at exn/src/lib.rs:44:16
 //! `-- logic error: 0 == 1, at exn/src/lib.rs:40:5
 //! ```
+//!
+//! # Typed and erased boundaries
+//!
+//! Prefer [`Result`] with a concrete root error type inside modules and in domain APIs. Use a bare
+//! [`Exn`] when a boundary, such as a callback or delegate, cannot name one concrete root error
+//! type. Concrete errors and typed exceptions convert into a bare `Exn` through `From` and `?`.
+//! Converting a typed exception preserves its frame tree and runtime error types without another
+//! allocation. Add a typed parent with [`ResultExt::or_raise`] when the surrounding component
+//! incorporates the failure into its own API.
+//!
+//! ```
+//! use core::fmt;
+//! use std::io;
+//!
+//! use exn::ErrorExt;
+//! use exn::Exn;
+//! use exn::ResultExt;
+//!
+//! fn read_config() -> exn::Result<(), io::Error> {
+//!     Err(io::Error::other("cannot read config").raise())
+//! }
+//!
+//! fn callback() -> Result<(), Exn> {
+//!     read_config()?;
+//!     Ok(())
+//! }
+//!
+//! fn run_callback(callback: impl FnOnce() -> Result<(), Exn>) -> exn::Result<(), fmt::Error> {
+//!     callback().or_raise(|| fmt::Error)
+//! }
+//!
+//! let error = run_callback(callback).unwrap_err();
+//! assert!(
+//!     error.frame().children()[0]
+//!         .error()
+//!         .downcast_ref::<io::Error>()
+//!         .is_some()
+//! );
+//! ```
+//!
+//! A bare `Exn` also lets failures with different concrete root types share a collection.
+//! [`IteratorExt::raise`] can then aggregate them beneath one typed parent.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
